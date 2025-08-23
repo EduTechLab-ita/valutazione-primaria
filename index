@@ -1,0 +1,3755 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valutazione Verifiche Scuola Primaria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base styles with modern variables */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1e40af;
+            --secondary-color: #334155;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-dark: #1e293b;
+            --text-medium: #475569;
+            --text-light: #94a3b8;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 0.5rem;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 2.2rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin: 20px 0 12px 0;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        #school-info-subtitle {
+            text-align: center;
+            margin-bottom: 32px;
+            color: var(--text-medium);
+            font-size: 1.1rem;
+            font-weight: normal;
+        }
+
+        /* Tab styling - Improved contrast */
+        .tabs {
+            display: flex;
+            overflow: hidden;
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-button {
+            flex: 1;
+            background-color: transparent;
+            border: none;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--secondary-color); /* Darker text for non-active tabs */
+            border-bottom: 3px solid transparent;
+            text-align: center;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+            color: var(--primary-color);
+        }
+
+        .tab-button.active {
+            background-color: white;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 24px;
+            border-radius: var(--radius);
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button i {
+            margin-right: 6px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        /* Results styling */
+        .result-box {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: var(--radius);
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            margin-left: 10px;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .ottimo {
+            background-color: #15803d; /* Verde scuro migliorato */
+        }
+
+        .distinto {
+            background-color: #16a34a; /* Verde */
+        }
+
+        .buono {
+            background-color: #65a30d; /* Verde-giallo */
+            color: white;
+        }
+
+        .discreto {
+            background-color: #ca8a04; /* Giallo */
+            color: white;
+        }
+
+        .sufficiente {
+            background-color: #ea580c; /* Arancione */
+            color: white;
+        }
+
+        .non-sufficiente {
+            background-color: #dc2626; /* Rosso */
+            color: white;
+        }
+        
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Help symbol */
+        .with-help {
+            color: var(--danger-color);
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .modified-mark {
+            display: inline-block;
+            color: var(--danger-color);
+            font-weight: bold;
+            margin-left: 5px;
+            background-color: rgba(255, 0, 0, 0.1);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+        }
+        
+        .score-cell {
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        
+        .score-cell:hover {
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+        
+        .score-cell:hover::after {
+            content: "Clicca per modificare";
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        /* Print styles */
+        
+        /* Class evaluation form */
+        .students-list {
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 16px;
+            background-color: #f8fafc;
+        }
+
+        .student-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            background-color: white;
+            padding: 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .student-row input, .student-row select {
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .remove-btn {
+            background-color: var(--danger-color);
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .remove-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            margin-bottom: 24px;
+            gap: 12px;
+            background-color: white;
+            padding: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .filters select {
+            flex: 1;
+        }
+        
+        /* Footer signature */
+        .footer-signature {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            font-size: 12px;
+            color: var(--text-medium);
+            opacity: 0.8;
+            z-index: 100;
+            text-align: right;
+            font-style: italic;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        
+        .footer-signature:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* School Info Modal */
+        .modal-overlay {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-md);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+            border-bottom: none;
+            margin-bottom: 8px;
+        }
+
+        .modal-footer {
+            margin-top: 32px;
+            text-align: center;
+        }
+        
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            /* Rimuovere titoli e sottotitoli non necessari */
+            body > h1, 
+            #school-info-subtitle:not(.print-only) {
+                display: none !important;
+            }
+            
+            /* Assicurarsi che solo i titoli di stampa specifici siano visibili */
+            .print-only {
+                display: block !important;
+                visibility: visible !important;
+            }
+        }
+        
+        /* Stili per textarea */
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: white;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Stile per l'icona di aiuto */
+        .help-icon {
+            color: var(--danger-color);
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Stile per il pulsante di ripristino */
+        .restore-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--warning-color);
+            color: white;
+            border-radius: 4px;
+            padding: 2px 4px;
+            margin-left: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .restore-button:hover {
+            background-color: #d97706;
+            transform: translateY(-1px);
+        }
+        
+        .info-subtitle-clickable {
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .info-subtitle-clickable:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .edit-tooltip {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-subtitle-clickable:hover .edit-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Exit button */
+        .exit-button {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--danger-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .exit-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stili per Medie e Scrutinio */
+        .pesi-container {
+            background-color: #e6f0ff;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+        }
+
+        .grid-weights {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .vote-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .vote-tag.BUO {
+            background-color: #65a30d;
+        }
+
+        .vote-tag.OTT {
+            background-color: #15803d;
+        }
+
+        .vote-tag.DIS {
+            background-color: #16a34a;
+        }
+
+        .vote-tag.DISC, .vote-tag.SUF {
+            background-color: #ca8a04;
+        }
+
+        .vote-tag.NON {
+            background-color: #dc2626;
+        }
+
+        .big-badge {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            font-weight: 700;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+        /* Colori per badge di livello ponderato */
+        .big-badge.OTT { background-color: #15803d; color: white; }
+        .big-badge.DIS { background-color: #16a34a; color: white; }
+        .big-badge.BUO { background-color: #65a30d; color: white; }
+        .big-badge.DISC, .big-badge.SUF { background-color: #ca8a04; color: white; }
+        .big-badge.NON { background-color: #dc2626; color: white; }
+
+
+        .modify-btn {
+            background-color: #e2e8f0;
+            color: #475569;
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modify-btn:hover {
+            background-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .discipline-select {
+            max-width: 300px;
+        }
+
+        /* Stili specifici per la visualizzazione delle medie */
+        .level-cell {
+            text-align: center;
+        }
+
+        /* Modal per modifica media */
+        .edit-average-modal .modal-content {
+            max-width: 450px;
+        }
+    
+        .close-modal {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            width: 32px;
+            height: 32px;
+            background-color: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            background-color: #cbd5e1;
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            padding-right: 40px;
+        }
+
+        /* Pulsante flottante principale e menu espandibile */
+        .floating-menu {
+            position: fixed;
+            left: 20px;
+            bottom: 100px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            font-size: 28px;
+        }
+
+        .main-button:hover {
+            transform: scale(1.1);
+            background-color: var(--primary-hover);
+        }
+
+        .main-button.active {
+            transform: rotate(45deg);
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .menu-buttons.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1);
+        }
+
+        .update-button {
+            background-color: var(--primary-color);
+        }
+
+        .print-button {
+            background-color: var(--success-color);
+        }
+
+        .button-tooltip {
+            position: absolute;
+            left: 65px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+            pointer-events: none;
+        }
+
+        .menu-button:hover .button-tooltip,
+        .main-button:hover .button-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Stili per la stampa delle medie */
+        @media print {
+            .print-averages-content {
+                padding: 20px;
+                width: 100%;
+            }
+            
+            .print-averages-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .print-averages-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .print-averages-table th, 
+            .print-averages-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+            
+            .print-averages-table th {
+                background-color: #f2f2f2;
+            }
+            
+            .print-averages-level {
+                text-align: center;
+                font-weight: bold;
+                padding: 4px 8px;
+                border-radius: 4px;
+                display: inline-block;
+                min-width: 100px;
+            }
+            
+            .print-averages-level.ottimo {
+                background-color: #15803d;
+                color: white;
+            }
+            
+            .print-averages-level.distinto {
+                background-color: #16a34a;
+                color: white;
+            }
+            
+            .print-averages-level.buono {
+                background-color: #65a30d;
+                color: white;
+            }
+            
+            .print-averages-level.discreto {
+                background-color: #ca8a04;
+                color: white;
+            }
+            
+            .print-averages-level.sufficiente {
+                background-color: #ea580c;
+                color: white;
+            }
+            
+            .print-averages-level.non-sufficiente {
+                background-color: #dc2626;
+                color: white;
+            }
+        }
+    </style>
+
+<!-- html2pdf.js library for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+<style>
+/* Modal styles */
+#printPreviewModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+#printPreviewModal .modal-content {
+  background: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 8px;
+  position: relative;
+}
+#printPreviewModal .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+#printPreviewModal button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+</style>
+
+<style>
+    @media print {
+        .print-header {
+            text-align: center;
+        }
+    }
+</style><style>
+    @media print {
+        .print-discipline {
+            display: block;
+            text-align: center;
+            margin-top: 0.5em;
+        }
+    }
+</style></head>
+<body>
+    <h1>Valutazione Verifiche Scuola Primaria</h1>
+    <div id="school-info-subtitle" class="info-subtitle-clickable" onclick="editSchoolInfo()">
+        <!-- Contenuto dinamico -->
+        <div class="edit-tooltip">Clicca per modificare</div>
+    </div>
+    
+    <!-- School Info Modal -->
+    <div id="school-info-modal" class="modal-overlay">
+        <div class="modal-content">
+        <div class="close-modal" onclick="closeSchoolInfoModal()">
+            <i class="fas fa-times"></i>
+        </div>
+            <div class="modal-header">
+                <h2>Informazioni Scolastiche</h2>
+                <p>Inserisci le informazioni dell'istituto e della classe. Queste verranno mostrate come intestazione e salvate per le future sessioni.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="istituto">Istituto:</label>
+                <input type="text" id="istituto" class="school-info-input" placeholder="Nome dell'Istituto">
+            </div>
+            
+            <div class="form-group">
+                <label for="classe">Classe:</label>
+                <input type="text" id="classe" class="school-info-input" placeholder="Es. Prima, Seconda, ecc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="sezione">Sezione:</label>
+                <input type="text" id="sezione" class="school-info-input" placeholder="Es. A, B, C, ecc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="anno-scolastico">Anno Scolastico:</label>
+                <input type="text" id="anno-scolastico" class="school-info-input" placeholder="Es. 2024/2025">
+            </div>
+            
+            <div class="form-group">
+                <label for="quadrimestre">Quadrimestre:</label>
+                <select id="quadrimestre" class="school-info-input">
+                    <option value="1">Primo Quadrimestre</option>
+                    <option value="2">Secondo Quadrimestre</option>
+                </select>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" onclick="saveSchoolInfo()">
+                    <i class="fas fa-save"></i> Salva e Continua
+                </button>
+                <p style="margin: 15px 0;">oppure</p>
+                <button type="button" onclick="importSchoolInfoDialog()" style="background-color: var(--success-color); width: 100%;">
+                    <i class="fas fa-file-import"></i> Importa Dati Salvati
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal per modificare voto -->
+    <div id="edit-score-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+        <div class="close-modal" onclick="closeEditScoreModal()">
+            <i class="fas fa-times"></i>
+        </div>
+            <div class="modal-header">
+                <h2>Modifica Voto</h2>
+                <p id="edit-score-info">Stai modificando il voto per <span id="edit-student-name"></span>.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-score-input">Nuovo voto (da 1 a 10):</label>
+                <input type="number" id="edit-score-input" min="1" max="10" step="0.1" required style="font-size: 1.2rem;">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-note">Nota sulla modifica (opzionale):</label>
+                <textarea id="edit-note" rows="3" placeholder="Motivo della modifica..."></textarea>
+            </div>
+            
+            <div class="modal-footer" style="display: flex; gap: 10px;">
+                <button type="button" onclick="saveEditedScore()" style="flex: 1; background-color: var(--success-color);">
+                    <i class="fas fa-save"></i> Salva
+                </button>
+                <button type="button" onclick="closeEditScoreModal()" style="flex: 1; background-color: var(--secondary-color);">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per modificare media -->
+    <div id="edit-average-modal" class="modal-overlay edit-average-modal" style="display: none;">
+        <div class="modal-content">
+        <div class="close-modal" onclick="closeEditAverageModal()">
+            <i class="fas fa-times"></i>
+        </div>
+            <div class="modal-header">
+                <h2>Modifica Media</h2>
+                <p id="edit-average-info">Stai modificando la media per <span id="edit-average-student-name"></span>.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-average-input">Nuovo valore della media (da 1 a 10):</label>
+                <input type="number" id="edit-average-input" min="1" max="10" step="0.1" required style="font-size: 1.2rem;">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-average-note">Nota sulla modifica (opzionale):</label>
+                <textarea id="edit-average-note" rows="3" placeholder="Motivo della modifica..."></textarea>
+            </div>
+            
+            <div class="modal-footer" style="display: flex; gap: 10px;">
+                <button type="button" onclick="saveEditedAverage()" style="flex: 1; background-color: var(--success-color);">
+                    <i class="fas fa-save"></i> Salva
+                </button>
+                <button type="button" onclick="closeEditAverageModal()" style="flex: 1; background-color: var(--secondary-color);">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main tabs navigation -->
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab('tab1')">
+            <i class="fas fa-user"></i> Valutazione Singola
+        </button>
+        <button class="tab-button" onclick="openTab('tab2')">
+            <i class="fas fa-users"></i> Valutazione di Classe
+        </button>
+        <button class="tab-button" onclick="openTab('tab3')">
+            <i class="fas fa-history"></i> Storico Verifiche
+        </button>
+        <button class="tab-button" onclick="openTab('tab5')">
+            <i class="fas fa-chart-line"></i> Medie e Scrutinio
+        </button>
+        <button class="tab-button" onclick="openTab('tab4')">
+            <i class="fas fa-cog"></i> Importa/Esporta/Modifica
+        </button>
+    </div>
+
+    <!-- Tab 1: Valutazione Singola -->
+    <div id="tab1" class="tab-content active">
+        <h2>Valutazione Singola</h2>
+        <form id="single-evaluation-form">
+            <div class="form-group">
+                <label for="evaluation-type">Tipologia di Valutazione:</label>
+                <select id="evaluation-type" required>
+                    <option value="compito">Compito in classe</option>
+                    <option value="interrogazione">Interrogazione</option>
+                    <option value="progetto">Progetto</option>
+                    <option value="altro">Altro</option>
+                </select>
+            </div>
+        
+            <div class="form-group">
+                <label for="student-name">Nome Studente:</label>
+                <input type="text" id="student-name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="discipline">Disciplina:</label>
+                <select id="discipline" required>
+                    <option value="">Seleziona disciplina</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="Inglese">Inglese</option>
+                    <option value="Storia">Storia</option>
+                    <option value="Geografia">Geografia</option>
+                    <option value="Matematica">Matematica</option>
+                    <option value="Scienze">Scienze</option>
+                    <option value="Tecnologia">Tecnologia</option>
+                    <option value="Musica">Musica</option>
+                    <option value="Arte e Immagine">Arte e Immagine</option>
+                    <option value="Educazione Fisica">Educazione Fisica</option>
+                    <option value="Educazione Civica">Educazione Civica</option>
+                    <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                    <option value="IRC">IRC</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Descrizione Verifica:</label>
+                <input type="text" id="description" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Data:</label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="total-questions">Numero Quesiti:</label>
+                <input type="number" id="total-questions" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="correct-answers">Risposte Corrette:</label>
+                <input type="number" id="correct-answers" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" id="with-help" style="margin-right: 8px;"> Con Aiuto <i class="fas fa-exclamation-circle help-icon"></i>
+                </label>
+            </div>
+            
+            <button type="button" onclick="calculateSingleEvaluation()">
+                <i class="fas fa-calculator"></i> Calcola Valutazione
+            </button>
+        </form>
+        
+        <div id="evaluation-result" class="result-box" style="display: none;">
+            <h3>Risultato:</h3>
+            <p><strong>Frazione:</strong> <span id="result-fraction"></span></p>
+            <p><strong>Percentuale:</strong> <span id="result-percentage"></span>%</p>
+            <p>
+                <strong>Voto:</strong> <span id="result-score"></span> 
+                <span id="help-indicator" class="with-help" style="display: none;">(a)</span>
+            </p>
+            <p>
+                <strong>Livello:</strong> 
+                <span id="result-level-text"></span>
+                <span id="result-level-badge" class="level-badge"></span>
+            </p>
+            <button type="button" onclick="saveEvaluation()" style="margin-top: 16px; background-color: var(--success-color);">
+                <i class="fas fa-save"></i> Salva Valutazione
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab 2: Valutazione di Classe -->
+    <div id="tab2" class="tab-content">
+        <h2>Valutazione di Classe</h2>
+        <form id="class-evaluation-form">
+            <div class="form-group">
+                <label for="class-evaluation-type">Tipologia di Valutazione:</label>
+                <select id="class-evaluation-type" required>
+                    <option value="compito">Compito in classe</option>
+                    <option value="interrogazione">Interrogazione</option>
+                    <option value="progetto">Progetto</option>
+                    <option value="altro">Altro</option>
+                </select>
+            </div>
+        
+            <div class="form-group">
+                <label for="class-description">Descrizione Verifica:</label>
+                <input type="text" id="class-description" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="class-date">Data:</label>
+                <input type="date" id="class-date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="class-discipline">Disciplina:</label>
+                <select id="class-discipline" required>
+                    <option value="">Seleziona disciplina</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="Inglese">Inglese</option>
+                    <option value="Storia">Storia</option>
+                    <option value="Geografia">Geografia</option>
+                    <option value="Matematica">Matematica</option>
+                    <option value="Scienze">Scienze</option>
+                    <option value="Tecnologia">Tecnologia</option>
+                    <option value="Musica">Musica</option>
+                    <option value="Arte e Immagine">Arte e Immagine</option>
+                    <option value="Educazione Fisica">Educazione Fisica</option>
+                    <option value="Educazione Civica">Educazione Civica</option>
+                    <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                    <option value="IRC">IRC</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="class-total-questions">Numero Quesiti:</label>
+                <input type="number" id="class-total-questions" min="1" required>
+            </div>
+            
+            <h3>Studenti</h3>
+            <div style="margin-bottom: 20px;">
+                <button type="button" onclick="toggleStudentImportOptions()" style="width: 100%; margin-bottom: 15px;">
+                    <i class="fas fa-users"></i> Gestione elenco studenti
+                </button>
+                
+                <div id="student-import-options" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius); background-color: #f8fafc;">
+                    <h4 style="margin-top: 0; margin-bottom: 15px;">Importa elenco studenti</h4>
+                    
+                    <!-- Opzione 1: Inserimento manuale -->
+                    <div class="form-group">
+                        <label for="students-list-textarea">Inserisci nomi (uno per riga):</label>
+                        <textarea id="students-list-textarea" rows="8" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius);"></textarea>
+                        <button type="button" onclick="importStudentsFromTextarea()" style="margin-top: 10px; background-color: var(--success-color);">
+                            <i class="fas fa-check"></i> Importa nomi
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 20px 0; text-align: center;">oppure</div>
+                    
+                    <!-- Opzione 2: Importazione da file -->
+                    <div class="form-group">
+                        <button type="button" onclick="importStudentsFromFile()" style="width: 100%; background-color: var(--success-color);">
+                            <i class="fas fa-file-import"></i> Importa da file (CSV, Excel)
+                        </button>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-medium);">
+                            <i class="fas fa-info-circle"></i> Per documenti Word, copia e incolla la lista degli studenti nella casella di testo sopra.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="students-list" class="students-list">
+                <!-- Student rows will be added here -->
+            </div>
+            
+            <div>
+                <button type="button" onclick="addStudentRow()">
+                    <i class="fas fa-plus"></i> Aggiungi Studente
+                </button>
+                <button type="button" onclick="calculateClassEvaluation()">
+                    <i class="fas fa-calculator"></i> Calcola Valutazioni
+                </button>
+            </div>
+        </form>
+        
+        <div id="class-results" style="display: none;">
+            <h3>Risultati della Classe:</h3>
+            <table id="class-results-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Frazione</th>
+                        <th>Percentuale</th>
+                        <th>Voto</th>
+                        <th>Livello</th>
+                    </tr>
+                </thead>
+                <tbody id="class-results-body">
+                    <!-- Results will be inserted here -->
+                </tbody>
+            </table>
+            <button type="button" onclick="saveClassEvaluations()" style="margin-top: 16px; background-color: var(--success-color);">
+                <i class="fas fa-save"></i> Salva Tutte le Valutazioni
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab 3: Storico Verifiche -->
+    <div id="tab3" class="tab-content">
+        <h2>Storico Verifiche</h2>
+        
+        <div class="filters">
+            <select id="filter-student" onchange="filterHistory()">
+                <option value="">Tutti gli Studenti</option>
+                <!-- Students will be populated dynamically -->
+            </select>
+            
+            <select id="filter-discipline" onchange="filterHistory()">
+                <option value="">Tutte le Discipline</option>
+                <option value="Italiano">Italiano</option>
+                <option value="Inglese">Inglese</option>
+                <option value="Storia">Storia</option>
+                <option value="Geografia">Geografia</option>
+                <option value="Matematica">Matematica</option>
+                <option value="Scienze">Scienze</option>
+                <option value="Tecnologia">Tecnologia</option>
+                <option value="Musica">Musica</option>
+                <option value="Arte e Immagine">Arte e Immagine</option>
+                <option value="Educazione Fisica">Educazione Fisica</option>
+                <option value="Educazione Civica">Educazione Civica</option>
+                <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                <option value="IRC">IRC</option>
+            </select>
+            
+            <select id="filter-date" onchange="filterHistory()">
+                <option value="">Tutte le Date</option>
+                <!-- Dates will be populated dynamically -->
+            </select>
+            
+            <select id="filter-description" onchange="filterHistory()">
+                <option value="">Tutte le Verifiche</option>
+                <!-- Descriptions will be populated dynamically -->
+            </select>
+            
+            <button type="button" onclick="resetFilters()">
+                <i class="fas fa-undo"></i> Reset Filtri
+            </button>
+        </div>
+        
+        <div id="print-area">
+            <!-- Contenuto migliorato per la stampa -->
+            <div class="print-only" style="display: none; text-align: center; margin-bottom: 30px;">
+                <h1 style="margin-bottom: 10px;">Valutazione Verifiche Scuola Primaria</h1>
+                <div id="print-subtitle">
+                    <h3></h3>
+                </div>
+            </div>
+            
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Studente</th>
+                        <th>Disciplina</th>
+                        <th>Descrizione</th>
+                        <th>Frazione</th>
+                        <th>Voto</th>
+                        <th>Livello</th>
+                        <th class="no-print">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                    <!-- History will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 5: Medie e Scrutinio (NUOVA TAB) -->
+    <div id="tab5" class="tab-content">
+<div id="print-area">
+        <h2>Calcolo Livello Finale per Scrutinio</h2>
+        
+        <div class="pesi-container no-print">
+            <h3>Impostazione Pesi delle Tipologie di Valutazione</h3>
+            <p style="margin-bottom: 12px;">
+                Qui puoi impostare l'importanza relativa di ciascuna tipologia di valutazione. Ad esempio, impostando il peso dei progetti a 2 e
+                quello delle interrogazioni a 1, ogni progetto conterà il doppio rispetto a un'interrogazione nel calcolo del livello finale.
+            </p>
+            
+            <div class="grid-weights">
+                <div class="form-group">
+                    <label for="peso-compito">Compiti in classe:</label>
+                    <input type="number" id="peso-compito" min="0.1" step="0.1" value="2.5" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-interrogazione">Interrogazioni:</label>
+                    <input type="number" id="peso-interrogazione" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-progetto">Progetti:</label>
+                    <input type="number" id="peso-progetto" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-altro">Altro:</label>
+                    <input type="number" id="peso-altro" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group" style="max-width: 300px; margin-bottom: 20px;">
+            <label for="average-discipline">Filtra per disciplina:</label>
+            <select id="average-discipline" class="discipline-select" onchange="calculateAveragesForScrutinio()">
+                <option value="">Tutte le discipline</option>
+                <option value="Italiano">Italiano</option>
+                <option value="Inglese">Inglese</option>
+                <option value="Storia">Storia</option>
+                <option value="Geografia">Geografia</option>
+                <option value="Matematica">Matematica</option>
+                <option value="Scienze">Scienze</option>
+                <option value="Tecnologia">Tecnologia</option>
+                <option value="Musica">Musica</option>
+                <option value="Arte e Immagine">Arte e Immagine</option>
+                <option value="Educazione Fisica">Educazione Fisica</option>
+                <option value="Educazione Civica">Educazione Civica</option>
+                <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                <option value="IRC">IRC</option>
+            </select>
+        </div>
+        
+        <table id="averages-table">
+            <thead>
+                <tr>
+                    <th>Disciplina</th>
+                    <th>Studente</th>
+                    <th>N° valutazioni</th>
+                    <th>Livello Medio</th>
+                    <th>Livello Ponderato</th>
+                    <th>Dettaglio Valutazioni</th>
+                </tr>
+            </thead>
+            <tbody id="averages-table-body">
+                <!-- Content will be added dynamically -->
+            </tbody>
+        </table>
+        
+        </div>
+<div style="margin-top: 24px; display: flex; justify-content: space-between;">
+            <button type="button" onclick="calculateAveragesForScrutinio()" style="background-color: var(--primary-color); display: none;">
+                <i class="fas fa-sync-alt"></i> Aggiorna Calcolo
+            </button>
+            
+            <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color); margin-left: auto;">
+                <i class="fas fa-print"></i> Stampa Medie
+            </button>
+        </div>
+    </div>
+        
+        <!-- Tab 4: Importa / Esporta / Salva / Stampa -->
+    <div id="tab4" class="tab-content">
+        <h2>Importa/Esporta/Modifica</h2>
+        
+        <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 32px;">
+            <button type="button" onclick="exportToJSON()" style="flex: 1;">
+                <i class="fas fa-file-export"></i> Esporta JSON
+            </button>
+            <button type="button" onclick="exportToCSV()" style="flex: 1;">
+                <i class="fas fa-file-csv"></i> Esporta CSV
+            </button>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 32px;">
+            <button type="button" onclick="importFromJSONDialog()" style="background-color: var(--success-color); width: 100%;">
+                <i class="fas fa-file-import"></i> Importa JSON
+            </button>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 32px;">
+            <button type="button" onclick="printHistory()">
+                <i class="fas fa-print"></i> Stampa PDF (Storico)
+            </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 32px;">
+            <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color);">
+                <i class="fas fa-print"></i> Stampa Medie e Livelli
+            </button>
+        </div>
+        
+        <!-- NUOVO: PULISCI STORICO -->
+        <div class="form-group" style="margin-top: 16px; margin-bottom: 32px;">
+          <button 
+            type="button" 
+            id="open-clear-modal" 
+            style="background-color: var(--danger-color); color: #fff; width: 100%;"
+          >
+            <i class="fas fa-trash-alt"></i> Ripulisci storico verifiche
+          </button>
+        </div>
+
+        <!-- Modal di conferma cancellazione storico -->
+        <div id="clear-modal" style="
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); 
+            justify-content: center; 
+            align-items: center;
+        ">
+          <div style="
+              background: #fff; 
+              padding: 24px; 
+              border-radius: 8px; 
+              max-width: 400px; 
+              width: 90%;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              text-align: center;
+          ">
+            <h3 style="margin-top: 0; color: #c00;">
+              ⚠️ ATTENZIONE!
+            </h3>
+            <p>
+              Stai per cancellare <strong>TUTTO</strong> lo storico delle verifiche.  
+              Questa operazione è <em>irreversibile</em>!
+            </p>
+            <div style="margin-top: 24px; display: flex; justify-content: space-between;">
+              <button 
+                id="cancel-clear" 
+                style="padding: 8px 16px; border:none; background:#ccc; border-radius:4px;"
+              >
+                Annulla
+              </button>
+              <button 
+                id="confirm-clear" 
+                style="padding: 8px 16px; border:none; background: var(--danger-color); color:#fff; border-radius:4px;"
+              >
+                Conferma cancellazione
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+            <h3>Informazioni Scolastiche</h3>
+            <p>Modifica le informazioni dell'istituto e della classe.</p>
+            <button type="button" onclick="editSchoolInfo()" style="margin-top: 10px;">
+                <i class="fas fa-edit"></i> Modifica Informazioni Scolastiche
+            </button>
+        </div>
+    </div>
+
+    <!-- Firma aggiunta -->
+    <div class="footer-signature no-print">
+        Powered by Vibe Coding © 2025 - Fabio Rizzotto edition
+    </div>
+    
+    <!-- Pulsante di chiusura dell'app -->
+    <div class="exit-button no-print" onclick="confirmExit()">
+        <i class="fas fa-power-off"></i>
+    </div>
+
+    <!-- Modal per la stampa delle medie -->
+    <div id="print-averages-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="close-modal" onclick="closePrintAveragesModal()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-header">
+                <h2>Anteprima Stampa Medie</h2>
+                <p>Ecco l'anteprima del rapporto delle medie. Premi 'Stampa' per stampare o salvare come PDF.</p>
+            </div>
+            
+            <div id="print-averages-preview">
+                <!-- Il contenuto dell'anteprima verrà generato dinamicamente -->
+            </div>
+            
+            <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" onclick="printAverages()" style="flex: 1; background-color: var(--success-color);">
+                    <i class="fas fa-print"></i> Stampa
+                </button>
+                <button type="button" onclick="closePrintAveragesModal()" style="flex: 1; background-color: var(--secondary-color);">
+                    <i class="fas fa-times"></i> Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu flottante -->
+    <div class="floating-menu no-print" style="display:none;">
+        <div class="menu-buttons" id="floating-menu-buttons">
+            <div class="menu-button update-button" onclick="calculateAveragesForScrutinio()">
+                <i class="fas fa-sync-alt"></i>
+                <span class="button-tooltip">Aggiorna Calcolo</span>
+            </div>
+            <div class="menu-button print-button" onclick="preparePrintAverages()">
+                <i class="fas fa-print"></i>
+                <span class="button-tooltip">Stampa Medie</span>
+            </div>
+        </div>
+        <div class="main-button" id="floating-menu-toggle">
+            <i class="fas fa-plus"></i>
+            <span class="button-tooltip">Menu Rapido</span>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let evaluations = [];
+        let schoolInfo = {
+            istituto: '',
+            classe: '',
+            sezione: '',
+            annoScolastico: '',
+            quadrimestre: '1'
+        };
+        
+        // Oggetto per salvare le medie degli studenti
+        let studentAverages = {};
+        
+        // Oggetto per memorizzare i pesi delle valutazioni per le medie
+        let averageWeights = {
+            compito: 2.5,
+            interrogazione: 1.0,
+            progetto: 1.0,
+            altro: 1.0
+        };
+        
+        // Funzione per aggiornare la struttura di schoolInfo
+        function updateSchoolInfoStructure() {
+            // Assicurati che schoolInfo abbia la proprietà quadrimestre
+            if (!schoolInfo.hasOwnProperty('quadrimestre')) {
+                schoolInfo.quadrimestre = "1"; // Default al primo quadrimestre
+            }
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data from localStorage
+            try {
+                const savedEvaluations = localStorage.getItem('evaluations');
+                if (savedEvaluations) {
+                    evaluations = JSON.parse(savedEvaluations);
+                }
+                
+                const savedSchoolInfo = localStorage.getItem('schoolInfo');
+                if (savedSchoolInfo) {
+                    schoolInfo = JSON.parse(savedSchoolInfo);
+                    // Assicurati che la struttura sia aggiornata
+                    updateSchoolInfoStructure();
+                }
+                
+                // Carica i pesi salvati per le medie
+                const savedWeights = localStorage.getItem('averageWeights');
+                if (savedWeights) {
+                    averageWeights = JSON.parse(savedWeights);
+                    
+                    // Aggiorna i campi di input con i valori salvati
+                    document.getElementById('peso-compito').value = averageWeights.compito;
+                    document.getElementById('peso-interrogazione').value = averageWeights.interrogazione;
+                    document.getElementById('peso-progetto').value = averageWeights.progetto;
+                    document.getElementById('peso-altro').value = averageWeights.altro;
+                }
+                
+                // Carica le medie salvate
+                const savedAverages = localStorage.getItem('studentAverages');
+                if (savedAverages) {
+                    studentAverages = JSON.parse(savedAverages);
+                }
+            } catch (e) {
+                console.error("Error loading data from localStorage:", e);
+                // Reset to defaults if there's an error
+                evaluations = [];
+                schoolInfo = {
+                    istituto: '',
+                    classe: '',
+                    sezione: '',
+                    annoScolastico: '',
+                    quadrimestre: '1'
+                };
+                averageWeights = {
+                    compito: 2.5,
+                    interrogazione: 1.0,
+                    progetto: 1.0,
+                    altro: 1.0
+                };
+                studentAverages = {};
+            }
+            
+            // Load history and update filters
+            updateHistoryTable();
+            updateStudentsFilter();
+            
+            // Add initial student row to class evaluation
+            addStudentRow();
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            document.getElementById('class-date').value = today;
+            
+            // Popolamento del campo quadrimestre nel modal
+            if (document.getElementById('quadrimestre')) {
+                document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
+            }
+            
+            // Check if school info is already set
+            if (schoolInfo.istituto && schoolInfo.classe) {
+                // Hide modal and show subtitle
+                document.getElementById('school-info-modal').style.display = 'none';
+                updateSchoolInfoSubtitle();
+            } else {
+                // Show modal to collect school info
+                document.getElementById('school-info-modal').style.display = 'flex';
+            }
+            
+            // Calcola e visualizza le medie per lo scrutinio
+            calculateAveragesForScrutinio();
+
+            // Aggiungi gestori eventi per chiudere i modal cliccando fuori
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(event) {
+                    // Se si fa clic direttamente sul modal-overlay (sfondo)
+                    if (event.target === this) {
+                        // Scegli l'azione appropriata in base all'ID del modal
+                        if (this.id === 'school-info-modal') {
+                            closeSchoolInfoModal();
+                        } else if (this.id === 'edit-score-modal') {
+                            closeEditScoreModal();
+                        } else if (this.id === 'edit-average-modal') {
+                            closeEditAverageModal();
+                        } else if (this.id === 'print-averages-modal') {
+                            closePrintAveragesModal();
+                        }
+                    }
+                });
+            });
+
+            // Toggle del menu flottante
+            const menuToggle = document.getElementById('floating-menu-toggle');
+            const menuButtons = document.getElementById('floating-menu-buttons');
+            
+            if (menuToggle && menuButtons) {
+                menuToggle.addEventListener('click', function() {
+                    menuToggle.classList.toggle('active');
+                    menuButtons.classList.toggle('active');
+                });
+            }
+        
+        });
+        
+        // Funzione per aggiornare i pesi delle valutazioni per le medie
+        function updateAverageWeights() {
+            averageWeights = {
+                compito: parseFloat(document.getElementById('peso-compito').value) || 1.0,
+                interrogazione: parseFloat(document.getElementById('peso-interrogazione').value) || 1.0,
+                progetto: parseFloat(document.getElementById('peso-progetto').value) || 1.0,
+                altro: parseFloat(document.getElementById('peso-altro').value) || 1.0
+            };
+            
+            // Salva i pesi nel localStorage
+            localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+            
+            // Ricalcola le medie con i nuovi pesi
+            calculateAveragesForScrutinio();
+        }
+        
+        // Funzione per calcolare le medie per lo scrutinio
+        
+function calculateAveragesForScrutinio() {
+    const averagesTableBody = document.getElementById('averages-table-body');
+    const disciplineFilter = document.getElementById('average-discipline').value;
+    averagesTableBody.innerHTML = '';
+
+    // Ottieni tutte le discipline presenti (o solo il filtro)
+    const allDisciplines = [...new Set(evaluations.map(e => e.discipline))].sort();
+    const disciplinesToProcess = disciplineFilter ? [disciplineFilter] : allDisciplines;
+
+    // Ottieni studenti unici
+    const students = [...new Set(evaluations.map(e => e.studentName))].sort();
+
+    disciplinesToProcess.forEach(disc => {
+        students.forEach(studentName => {
+            const studentEvaluations = evaluations.filter(e =>
+                e.studentName === studentName &&
+                e.discipline === disc &&
+                e.quadrimestre === schoolInfo.quadrimestre
+            );
+            if (studentEvaluations.length === 0) return;
+
+            // Calcola media aritmetica
+            const totalScore = studentEvaluations.reduce((sum, ev) => sum + parseFloat(ev.score), 0);
+            const averageScore = totalScore / studentEvaluations.length;
+
+            // Calcola media ponderata
+            let weightedSum = 0, totalWeight = 0;
+            studentEvaluations.forEach(ev => {
+                const weight = averageWeights[ev.tipo] || 1.0;
+                weightedSum += parseFloat(ev.score) * weight;
+                totalWeight += weight;
+            });
+            const weightedAverage = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
+            // Formatta valori
+            const avg = averageScore.toFixed(1);
+            const wAvg = weightedAverage.toFixed(1);
+            const avgLevel = getDescriptiveLevel(averageScore);
+            const wAvgLevel = getDescriptiveLevel(weightedAverage);
+
+            // Salva ed usa valore modificato
+            const key = `${studentName}|${disc}`;
+            studentAverages[key] = {
+                average: avg,
+                weightedAverage: wAvg,
+                averageLevel: avgLevel,
+                weightedAverageLevel: wAvgLevel,
+                modified: studentAverages[key]?.modified || false,
+                modifiedValue: studentAverages[key]?.modifiedValue || null,
+                modificationNote: studentAverages[key]?.modificationNote || '',
+                evaluationsCount: studentEvaluations.length
+            };
+            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+
+            const finalValue = studentAverages[key].modified ? studentAverages[key].modifiedValue : wAvg;
+            const finalLevel = studentAverages[key].modified ?
+                getDescriptiveLevel(parseFloat(studentAverages[key].modifiedValue)) : wAvgLevel;
+            const badgeClass = getBadgeClass(finalLevel.levelName);
+
+            // Badge voti
+            let voteBadges = '';
+            studentEvaluations.forEach(ev => {
+                const lvl = getDescriptiveLevel(parseFloat(ev.score));
+                const abbr = getAbbreviationFromLevel(lvl.levelName);
+                voteBadges += `<span class="vote-tag ${abbr}" title="${ev.description} - ${ev.score}">${abbr}</span> `;
+            });
+
+            // Pulsanti
+            let actions = `<button class="modify-btn" onclick="openEditAverageModal('${studentName}','${disc}')">Modifica</button>`;
+            if (studentAverages[key].modified) {
+                actions += `<button class="modify-btn" onclick="restoreOriginalAverage('${studentName}','${disc}')"
+                    style="background-color: var(--warning-color); color:white; margin-left:5px;">
+                    <i class="fas fa-undo-alt"></i> Ripristina</button>`;
+            }
+
+            // Aggiungi riga
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${disc}</td>
+                <td>${studentName}</td>
+                <td style="text-align:center;">${studentEvaluations.length}</td>
+                <td class="level-cell">${avgLevel.levelName.toLowerCase()} (${avg})</td>
+                <td class="level-cell"><span class="big-badge ${badgeClass}">${finalLevel.levelName.toUpperCase()} (${finalValue})</span>${studentAverages[key].modified?'<span class="modified-mark">M</span>':''}</td>
+                <td>${voteBadges}${actions}</td>
+            `;
+            averagesTableBody.appendChild(row);
+        });
+    });
+}
+
+
+        // Funzione per ripristinare la media originale
+        function restoreOriginalAverage(studentName, discipline) {
+            // Preparare la chiave
+            const averageKey = discipline ? `${studentName}|${discipline}` : `${studentName}|all`;
+            
+            // Verificare che esista una media modificata
+            if (!studentAverages[averageKey] || !studentAverages[averageKey].modified) {
+                alert('Non ci sono modifiche da ripristinare per questa media.');
+                return;
+            }
+            
+            // Chiedere conferma
+            if (!confirm('Sei sicuro di voler ripristinare la media calcolata originale?')) {
+                return;
+            }
+            
+            // Ripristinare la media originale
+            studentAverages[averageKey].modified = false;
+            studentAverages[averageKey].modifiedValue = null;
+            studentAverages[averageKey].modificationNote = '';
+            
+            // Salvare nel localStorage
+            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+            
+            // Aggiornare la visualizzazione
+            calculateAveragesForScrutinio();
+            
+            // Feedback
+            alert('Media ripristinata con successo.');
+        }
+        
+        // Funzione per aprire il modal di modifica della media
+        function openEditAverageModal(studentName, discipline) {
+            // Prepara la chiave per recuperare la media
+            const averageKey = discipline ? `${studentName}|${discipline}` : `${studentName}|all`;
+            
+            // Recupera i dati della media
+            const averageData = studentAverages[averageKey];
+            if (!averageData) {
+                alert('Dati non trovati per questo studente');
+                return;
+            }
+            
+            // Popola il modal
+            document.getElementById('edit-average-student-name').textContent = studentName;
+            if (discipline) {
+                document.getElementById('edit-average-student-name').textContent += ` (${discipline})`;
+            }
+            
+            // Usa il valore modificato se presente, altrimenti usa la media ponderata
+            const currentValue = averageData.modified ? 
+                averageData.modifiedValue : 
+                averageData.weightedAverage;
+            
+            document.getElementById('edit-average-input').value = currentValue;
+            document.getElementById('edit-average-note').value = averageData.modificationNote || '';
+            
+            // Memorizza lo studente e la disciplina per il salvataggio
+            document.getElementById('edit-average-modal').dataset.studentName = studentName;
+            document.getElementById('edit-average-modal').dataset.discipline = discipline || '';
+            
+            // Mostra il modal
+            document.getElementById('edit-average-modal').style.display = 'flex';
+        }
+        
+        // Funzione per chiudere il modal di modifica della media
+        function closeEditAverageModal() {
+            document.getElementById('edit-average-modal').style.display = 'none';
+        }
+        
+        // Funzione per salvare la media modificata
+        function saveEditedAverage() {
+            const modal = document.getElementById('edit-average-modal');
+            const studentName = modal.dataset.studentName;
+            const discipline = modal.dataset.discipline;
+            
+            // Validazione input
+            const newValue = parseFloat(document.getElementById('edit-average-input').value);
+            if (isNaN(newValue) || newValue < 1 || newValue > 10) {
+                alert('Inserisci un valore valido tra 1 e 10');
+                return;
+            }
+            
+            // Prepara la chiave
+            const averageKey = discipline ? `${studentName}|${discipline}` : `${studentName}|all`;
+            
+            // Aggiorna i dati
+            if (!studentAverages[averageKey]) {
+                studentAverages[averageKey] = {};
+            }
+            
+            studentAverages[averageKey].modified = true;
+            studentAverages[averageKey].modifiedValue = newValue.toFixed(1);
+            studentAverages[averageKey].modificationNote = document.getElementById('edit-average-note').value;
+            
+            // Salva nel localStorage
+            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+            
+            // Chiudi il modal
+            closeEditAverageModal();
+            
+            // Aggiorna la visualizzazione
+            calculateAveragesForScrutinio();
+        }
+        
+        // Funzione per esportare le medie per il registro elettronico
+        function exportAveragesForScrutinio() {
+            const disciplineFilter = document.getElementById('average-discipline').value;
+            
+            // Prepara i dati per l'esportazione
+            let exportData = [];
+            
+            // Per ogni studente con media calcolata
+            Object.keys(studentAverages).forEach(key => {
+                // Estrai il nome dello studente e la disciplina dalla chiave
+                const [studentName, studentDiscipline] = key.split('|');
+                
+                // Se c'è un filtro disciplina, considera solo quelli corrispondenti
+                if (disciplineFilter && studentDiscipline !== disciplineFilter && studentDiscipline !== 'all') {
+                    return;
+                }
+                
+                // Se non c'è filtro disciplina ma la chiave è specifica per disciplina, salta
+                if (!disciplineFilter && studentDiscipline !== 'all') {
+                    return;
+                }
+                
+                // Ottieni i dati della media
+                const averageData = studentAverages[key];
+                
+                // Determina il valore finale da usare (modificato o calcolato)
+                const finalValue = averageData.modified 
+                    ? averageData.modifiedValue 
+                    : averageData.weightedAverage;
+                
+                // Determina il livello descrittivo
+                const finalLevel = averageData.modified 
+                    ? getDescriptiveLevel(parseFloat(averageData.modifiedValue)).levelName 
+                    : averageData.weightedAverageLevel.levelName;
+                
+                // Aggiungi all'export
+                exportData.push({
+                    nome: studentName,
+                    disciplina: studentDiscipline === 'all' ? (disciplineFilter || 'Tutte') : studentDiscipline,
+                    valore: finalValue,
+                    livello: finalLevel,
+                    modificato: averageData.modified ? 'Sì' : 'No',
+                    numeroValutazioni: averageData.evaluationsCount
+                });
+            });
+            
+            // Se non ci sono dati da esportare
+            if (exportData.length === 0) {
+                alert('Non ci sono medie da esportare con i filtri correnti');
+                return;
+            }
+            
+            // Crea un file CSV
+            let csvContent = "Nome,Disciplina,Voto Numerico,Livello,Modificato Manualmente,Numero Valutazioni\n";
+            
+            exportData.forEach(data => {
+                csvContent += `"${data.nome}","${data.disciplina}",${data.valore},"${data.livello}","${data.modificato}",${data.numeroValutazioni}\n`;
+            });
+            
+            // Crea un blob e scaricalo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            
+            // Nome del file con data
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
+            const disciplinaStr = disciplineFilter ? `_${disciplineFilter.replace(/\s+/g, '_')}` : '';
+            const quadrimestreStr = schoolInfo.quadrimestre === '1' ? '_1Q' : '_2Q';
+            
+            link.setAttribute("download", `medie_scrutinio${disciplinaStr}${quadrimestreStr}_${dateStr}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert(`Esportate ${exportData.length} medie con successo!`);
+        }
+        
+        // Funzione per ottenere l'abbreviazione dal livello
+        function getAbbreviationFromLevel(level) {
+            level = level.toLowerCase();
+            switch(level) {
+                case 'ottimo': return 'ottimo';
+                case 'distinto': return 'distinto';
+                case 'buono': return 'buono';
+                case 'discreto': return 'discreto';
+                case 'sufficiente': return 'sufficiente';
+                case 'non sufficiente': return 'non-sufficiente';
+                default: return '';
+            }
+        }
+        // Funzione per ottenere la classe del badge dal livello
+        function getBadgeClass(level) {
+            level = level.toLowerCase();
+            switch(level) {
+                case 'ottimo': return 'OTT';
+                case 'distinto': return 'DIS';
+                case 'buono': return 'BUO';
+                case 'discreto': return 'DISC';
+                case 'sufficiente': return 'SUF';
+                case 'non sufficiente': return 'NON';
+                default: return '';
+            }
+        }
+
+
+        
+        // Funzione per ottenere il livello descrittivo da un voto numerico
+        function getDescriptiveLevel(score) {
+            if (score >= 10) {
+                return { levelName: 'ottimo', cssClass: 'ottimo' };
+            } else if (score >= 9.0) {
+                return { levelName: 'distinto', cssClass: 'distinto' };
+            } else if (score >= 8.0) {
+                return { levelName: 'buono', cssClass: 'buono' };
+            } else if (score >= 7.0) {
+                return { levelName: 'discreto', cssClass: 'discreto' };
+            } else if (score >= 6.0) {
+                return { levelName: 'sufficiente', cssClass: 'sufficiente' };
+            } else {
+                return { levelName: 'non sufficiente', cssClass: 'non-sufficiente' };
+            }
+        }
+        
+        // Funzione per aprire il selettore di file direttamente
+        function importSchoolInfoDialog() {
+            // Crea un elemento input di tipo file temporaneo
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            // Quando un file viene selezionato
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Check if the JSON has evaluations and/or schoolInfo
+                        if (importedData.schoolInfo) {
+                            // Import school info
+                            schoolInfo = importedData.schoolInfo;
+                            
+                            // Assicurati che ci sia il quadrimestre
+                            updateSchoolInfoStructure();
+                            
+                            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                            
+                            // Update school info fields in the modal
+                            document.getElementById('istituto').value = schoolInfo.istituto || '';
+                            document.getElementById('classe').value = schoolInfo.classe || '';
+                            document.getElementById('sezione').value = schoolInfo.sezione || '';
+                            document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
+                            document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
+                            
+                            alert('Informazioni scolastiche importate con successo!');
+                        } 
+                        else if (Array.isArray(importedData)) {
+                            // Try to handle the case where it's just an array of evaluations
+                            alert('Il file contiene solo valutazioni, ma non informazioni scolastiche.');
+                            return;
+                        }
+                        else {
+                            // Try to use the imported data directly as school info
+                            if (importedData.istituto || importedData.classe) {
+                                schoolInfo = {
+                                    istituto: importedData.istituto || '',
+                                    classe: importedData.classe || '',
+                                    sezione: importedData.sezione || '',
+                                    annoScolastico: importedData.annoScolastico || '',
+                                    quadrimestre: importedData.quadrimestre || '1'
+                                };
+                                localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                                
+                                // Update school info fields in the modal
+                                document.getElementById('istituto').value = schoolInfo.istituto || '';
+                                document.getElementById('classe').value = schoolInfo.classe || '';
+                                document.getElementById('sezione').value = schoolInfo.sezione || '';
+                                document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
+                                document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
+                                
+                                alert('Informazioni scolastiche importate con successo!');
+                            } else {
+                                throw new Error('Il file non contiene informazioni scolastiche valide');
+                            }
+                        }
+                        
+                        // Ask if the user wants to also import evaluations if present
+                        if (importedData.evaluations && Array.isArray(importedData.evaluations) && importedData.evaluations.length > 0) {
+                            if (confirm(`Il file contiene anche ${importedData.evaluations.length} valutazioni. Vuoi importarle?`)) {
+                                evaluations = importedData.evaluations;
+                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                alert('Valutazioni importate con successo!');
+                            }
+                        }
+                        
+                        // Close modal if import was successful
+                        if (schoolInfo.istituto && schoolInfo.classe) {
+                            document.getElementById('school-info-modal').style.display = 'none';
+                            updateSchoolInfoSubtitle();
+                            updateHistoryTable();
+                            updateStudentsFilter();
+                            calculateAveragesForScrutinio();
+                        }
+                        
+                    } catch (error) {
+                        alert('Errore durante l\'importazione: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            });
+            
+            // Attiva il click per aprire il selettore di file
+            fileInput.click();
+        }
+        
+        // Save school info
+        function saveSchoolInfo() {
+            // Get values
+            schoolInfo.istituto = document.getElementById('istituto').value.trim();
+            schoolInfo.classe = document.getElementById('classe').value.trim();
+            schoolInfo.sezione = document.getElementById('sezione').value.trim();
+            schoolInfo.annoScolastico = document.getElementById('anno-scolastico').value.trim();
+            schoolInfo.quadrimestre = document.getElementById('quadrimestre').value;
+            
+            // Validate
+            if (!schoolInfo.istituto || !schoolInfo.classe) {
+                alert('Inserisci almeno l\'Istituto e la Classe');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+            
+            // Hide modal
+            document.getElementById('school-info-modal').style.display = 'none';
+            
+            // Update subtitle
+            updateSchoolInfoSubtitle();
+            
+            // Ricalcola le medie per il nuovo quadrimestre
+            calculateAveragesForScrutinio();
+        }
+        
+        // Update subtitle with school info
+        function updateSchoolInfoSubtitle() {
+            const subtitleElement = document.getElementById('school-info-subtitle');
+            
+            if (!subtitleElement) return;
+            
+            let subtitleText = schoolInfo.istituto || '';
+            
+            if (schoolInfo.classe) {
+                subtitleText += ' - Classe ' + schoolInfo.classe;
+                
+                if (schoolInfo.sezione) {
+                    subtitleText += ' ' + schoolInfo.sezione;
+                }
+            }
+            
+            if (schoolInfo.annoScolastico) {
+                subtitleText += ' - A.S. ' + schoolInfo.annoScolastico;
+            }
+            
+            // Aggiungi il quadrimestre al sottotitolo
+            if (schoolInfo.quadrimestre) {
+                subtitleText += ' - ' + (schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo') + ' Quadrimestre';
+            }
+            
+            subtitleElement.textContent = subtitleText;
+            subtitleElement.style.display = 'block';
+        }
+        
+        // Function to edit school info
+        function editSchoolInfo() {
+            // Populate form with current values
+            document.getElementById('istituto').value = schoolInfo.istituto || '';
+            document.getElementById('classe').value = schoolInfo.classe || '';
+            document.getElementById('sezione').value = schoolInfo.sezione || '';
+            document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
+            document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
+            
+            // Show modal
+            document.getElementById('school-info-modal').style.display = 'flex';
+        }
+        
+        // Tab navigation
+        function openTab(tabId) {
+            // Hide all tab content
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            // Show the selected tab and add active class to the button
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Find the button that triggered this and add active class
+            for (let i = 0; i < tabButtons.length; i++) {
+                if (tabButtons[i].getAttribute('onclick') === `openTab('${tabId}')`) {
+                    tabButtons[i].classList.add('active');
+                    break;
+                }
+            }
+            
+            // Update history when that tab is opened
+            if (tabId === 'tab3') {
+                updateHistoryTable();
+                updateStudentsFilter();
+            }
+            
+            // Aggiorna le medie quando si apre la scheda Medie e Scrutinio
+            if (tabId === 'tab5') {
+                calculateAveragesForScrutinio();
+            }
+            // Mostra/Nascondi FAB blu "+" solo su "Medie e Scrutinio"
+            const floatingMenu = document.querySelector('.floating-menu');
+            if (floatingMenu) {
+                floatingMenu.style.display = (tabId === 'tab5') ? 'flex' : 'none';
+            }
+
+        }
+        
+        // Calculate single evaluation
+        function calculateSingleEvaluation() {
+            // Get form values
+            const correctAnswers = parseInt(document.getElementById('correct-answers').value);
+            const totalQuestions = parseInt(document.getElementById('total-questions').value);
+            const withHelp = document.getElementById('with-help').checked;
+            
+            // Validate inputs
+            if (isNaN(correctAnswers) || isNaN(totalQuestions) || totalQuestions <= 0) {
+                alert('Inserisci valori validi per i quesiti');
+                return;
+            }
+            
+            if (correctAnswers > totalQuestions) {
+                alert('Le risposte corrette non possono essere maggiori del numero totale di quesiti');
+                return;
+            }
+            
+            // Calculate results
+            const fraction = `${correctAnswers}/${totalQuestions}`;
+            const percentage = (correctAnswers / totalQuestions * 100).toFixed(1);
+            
+            // Calculate score (voto in decimi)
+            let score;
+            const ratio = correctAnswers / totalQuestions;
+            
+            if (ratio < 0.6) {
+                // For less than 6/10 score (insufficient), use a proportional scale from 0 to 5.9
+                score = ratio * 10;
+            } else {
+                // For scores above or equal to 6, use 6 + 4 * (ratio beyond 0.6)
+                // This maps 0.6 to 6.0 and 1.0 to 10.0
+                score = 6 + (ratio - 0.6) * 10;
+            }
+            
+            // Round to 1 decimal place
+            score = Math.round(score * 10) / 10;
+            
+            // Determine level
+            let level, levelClass;
+            if (score >= 10) {
+                level = 'OTTIMO';
+                levelClass = 'ottimo';
+            } else if (score >= 9.0) {
+                level = 'DISTINTO';
+                levelClass = 'distinto';
+            } else if (score >= 8.0) {
+                level = 'BUONO';
+                levelClass = 'buono';
+            } else if (score >= 7.0) {
+                level = 'DISCRETO';
+                levelClass = 'discreto';
+            } else if (score >= 6.0) {
+                level = 'SUFFICIENTE';
+                levelClass = 'sufficiente';
+            } else {
+                level = 'NON SUFFICIENTE';
+                levelClass = 'non-sufficiente';
+            }
+            
+            // Display results
+            document.getElementById('result-fraction').textContent = fraction;
+            document.getElementById('result-percentage').textContent = percentage;
+            document.getElementById('result-score').textContent = score.toFixed(1);
+            document.getElementById('result-level-text').textContent = level;
+            document.getElementById('result-level-badge').textContent = level;
+            document.getElementById('result-level-badge').className = 'level-badge ' + levelClass;
+            
+            // Show or hide help indicator
+            document.getElementById('help-indicator').style.display = withHelp ? 'inline' : 'none';
+            
+            // Show results box
+            document.getElementById('evaluation-result').style.display = 'block';
+            
+            return {
+                fraction: fraction,
+                percentage: percentage,
+                score: score.toFixed(1),
+                level: level,
+                levelClass: levelClass
+            };
+        }
+        
+        // Save a single evaluation
+        function saveEvaluation() {
+            const evaluationType = document.getElementById('evaluation-type').value;
+            // Get form values
+            const studentName = document.getElementById('student-name').value.trim();
+            const discipline = document.getElementById('discipline').value;
+            const description = document.getElementById('description').value.trim();
+            const date = document.getElementById('date').value;
+            const totalQuestions = parseInt(document.getElementById('total-questions').value);
+            const correctAnswers = parseInt(document.getElementById('correct-answers').value);
+            const withHelp = document.getElementById('with-help').checked;
+            
+            // Validate inputs
+            if (!studentName || !discipline || !description || !date || isNaN(totalQuestions) || isNaN(correctAnswers)) {
+                alert('Compila tutti i campi richiesti');
+                return;
+            }
+            
+            // Get evaluation results
+            const results = calculateSingleEvaluation();
+            
+            // Create evaluation object
+            const evaluation = {
+                id: Date.now().toString(),
+                studentName: studentName,
+                discipline: discipline,
+                description: description,
+                date: date,
+                totalQuestions: totalQuestions,
+                correctAnswers: correctAnswers,
+                withHelp: withHelp,
+                fraction: results.fraction,
+                percentage: results.percentage,
+                score: results.score,
+                level: results.level,
+                levelClass: results.levelClass,
+                quadrimestre: schoolInfo.quadrimestre || '1', // Salviamo anche il quadrimestre
+                tipo: evaluationType // Usa il nuovo campo anziché il valore predefinito
+            };
+            
+            // Add to evaluations array
+            evaluations.push(evaluation);
+            
+            // Save to localStorage
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            
+            // Show feedback
+            alert('Valutazione salvata con successo!');
+            
+            // Update history table
+            updateHistoryTable();
+            updateStudentsFilter();
+            
+            // Update averages for scrutinio
+            calculateAveragesForScrutinio();
+            
+            // Reset the form
+            document.getElementById('single-evaluation-form').reset();
+            document.getElementById('evaluation-result').style.display = 'none';
+            
+            // Set today's date
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // Funzione per mostrare/nascondere le opzioni di importazione studenti
+        function toggleStudentImportOptions() {
+            const options = document.getElementById('student-import-options');
+            options.style.display = options.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Funzione per importare studenti da textarea
+        function importStudentsFromTextarea() {
+            const textarea = document.getElementById('students-list-textarea');
+            const text = textarea.value.trim();
+            
+            if (!text) {
+                alert('Inserisci almeno un nome studente');
+                return;
+            }
+            
+            // Dividi il testo in righe
+            const studentNames = text.split('\n')
+                .map(name => name.trim())
+                .filter(name => name); // Rimuovi righe vuote
+            
+            if (studentNames.length === 0) {
+                alert('Nessun nome valido trovato');
+                return;
+            }
+            
+            // Chiedi conferma
+            if (!confirm(`Importare ${studentNames.length} studenti nell'elenco?`)) {
+                return;
+            }
+            
+            // Pulisci la lista attuale
+            const studentsList = document.getElementById('students-list');
+            studentsList.innerHTML = '';
+            
+            // Aggiungi ogni studente alla lista
+            studentNames.forEach(name => {
+                addStudentRow(name);
+            });
+            
+            // Nascondi il pannello di importazione
+            toggleStudentImportOptions();
+            
+            // Feedback
+            alert(`Importati ${studentNames.length} studenti con successo`);
+            textarea.value = '';
+        }
+        
+        // Funzione per importare studenti da file
+        function importStudentsFromFile() {
+            // Crea un input file temporaneo
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv,.xls,.xlsx,.txt';
+            
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const fileContent = e.target.result;
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+                        
+                        let studentNames = [];
+                        
+                        // Gestione diversa in base al tipo di file
+                        if (fileExtension === 'csv' || fileExtension === 'txt') {
+                            // Per CSV e TXT, dividi per righe
+                            studentNames = fileContent.split(/\r?\n/)
+                                .map(name => name.replace(/[,"']/g, '').trim()) // Rimuovi virgolette e virgole
+                                .filter(name => name);
+                        } else if (fileExtension === 'xls' || fileExtension === 'xlsx') {
+                            // Per Excel, usa una soluzione semplificata
+                            // Nota: una gestione completa di Excel richiederebbe librerie esterne
+                            // Qui facciamo una gestione semplificata che potrebbe non funzionare con tutti i file Excel
+                            const lines = fileContent.split(/\r?\n/);
+                            studentNames = lines
+                                .map(line => {
+                                    // Prova a estrarre il primo valore da ogni riga
+                                    const match = line.match(/([^,;\t]+)/);
+                                    return match ? match[1].replace(/[,"']/g, '').trim() : '';
+                                })
+                                .filter(name => name);
+                        } else {
+                            throw new Error('Formato file non supportato');
+                        }
+                        
+                        if (studentNames.length === 0) {
+                            alert('Nessun nome trovato nel file');
+                            return;
+                        }
+                        
+                        // Rimuovi duplicati
+                        studentNames = [...new Set(studentNames)];
+                        
+                        // Chiedi conferma
+                        if (!confirm(`Importare ${studentNames.length} studenti dall'elenco?`)) {
+                            return;
+                        }
+                        
+                        // Pulisci la lista attuale
+                        const studentsList = document.getElementById('students-list');
+                        studentsList.innerHTML = '';
+                        
+                        // Aggiungi ogni studente alla lista
+                        studentNames.forEach(name => {
+                            addStudentRow(name);
+                        });
+                        
+                        // Nascondi il pannello di importazione
+                        toggleStudentImportOptions();
+                        
+                        // Feedback
+                        alert(`Importati ${studentNames.length} studenti con successo`);
+                        
+                    } catch (error) {
+                        alert('Errore durante l\'importazione del file: ' + error.message);
+                    }
+                };
+                
+                // Leggi il file come testo
+                reader.readAsText(file);
+            });
+            
+            // Attiva il selettore di file
+            fileInput.click();
+        }
+        
+        // Add a student row to class evaluation form
+        function addStudentRow(studentName = '') {
+            const studentsList = document.getElementById('students-list');
+            const index = document.querySelectorAll('.student-row').length;
+            
+            const row = document.createElement('div');
+            row.className = 'student-row';
+            row.innerHTML = `
+                <input type="text" class="student-name" placeholder="Nome studente" value="${studentName}" required>
+                <input type="number" class="correct-answers" min="0" placeholder="Risposte corrette" required>
+                <label style="display: flex; align-items: center; white-space: nowrap; min-width: 100px;">
+                    <input type="checkbox" class="with-help" style="margin-right: 8px;"> 
+                    Con Aiuto <i class="fas fa-exclamation-circle help-icon"></i>
+                </label>
+                <button type="button" class="remove-btn" onclick="removeStudentRow(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            studentsList.appendChild(row);
+        }
+        
+        // Remove a student row
+        function removeStudentRow(button) {
+            const row = button.parentElement;
+            if (document.querySelectorAll('.student-row').length > 1) {
+                row.remove();
+            } else {
+                alert('Deve esserci almeno uno studente');
+            }
+        }
+        
+        // Calculate class evaluation
+        function calculateClassEvaluation() {
+            // Get common form values
+            const description = document.getElementById('class-description').value.trim();
+            const date = document.getElementById('class-date').value;
+            const discipline = document.getElementById('class-discipline').value;
+            const totalQuestions = parseInt(document.getElementById('class-total-questions').value);
+            
+            // Validate inputs
+            if (!description || !date || !discipline || isNaN(totalQuestions) || totalQuestions <= 0) {
+                alert('Compila tutti i campi richiesti');
+                return;
+            }
+            
+            // Get all student rows
+            const studentRows = document.querySelectorAll('.student-row');
+            const results = [];
+            
+            // Process each student
+            for (let i = 0; i < studentRows.length; i++) {
+                const row = studentRows[i];
+                const studentName = row.querySelector('.student-name').value.trim();
+                const correctAnswers = parseInt(row.querySelector('.correct-answers').value);
+                const withHelp = row.querySelector('.with-help').checked;
+                
+                // Validate student inputs
+                if (!studentName || isNaN(correctAnswers)) {
+                    alert(`Compila tutti i dati per lo studente ${i + 1}`);
+                    return;
+                }
+                
+                if (correctAnswers > totalQuestions) {
+                    alert(`Le risposte corrette per ${studentName} non possono essere maggiori del numero totale di quesiti`);
+                    return;
+                }
+                
+                // Calculate results for this student
+                const fraction = `${correctAnswers}/${totalQuestions}`;
+                const percentage = (correctAnswers / totalQuestions * 100).toFixed(1);
+                
+                // Calculate score (same logic as single evaluation)
+                let score;
+                const ratio = correctAnswers / totalQuestions;
+                
+                if (ratio < 0.6) {
+                    score = ratio * 10;
+                } else {
+                    score = 6 + (ratio - 0.6) * 10;
+                }
+                
+                score = Math.round(score * 10) / 10;
+                
+                // Determine level
+                let level, levelClass;
+                if (score >= 10) {
+                    level = 'OTTIMO';
+                    levelClass = 'ottimo';
+                } else if (score >= 9.0) {
+                    level = 'DISTINTO';
+                    levelClass = 'distinto';
+                } else if (score >= 8.0) {
+                    level = 'BUONO';
+                    levelClass = 'buono';
+                } else if (score >= 7.0) {
+                    level = 'DISCRETO';
+                    levelClass = 'discreto';
+                } else if (score >= 6.0) {
+                    level = 'SUFFICIENTE';
+                    levelClass = 'sufficiente';
+                } else {
+                    level = 'NON SUFFICIENTE';
+                    levelClass = 'non-sufficiente';
+                }
+                
+                // Add to results
+                results.push({
+                    studentName: studentName,
+                    correctAnswers: correctAnswers,
+                    withHelp: withHelp,
+                    fraction: fraction,
+                    percentage: percentage,
+                    score: score.toFixed(1),
+                    level: level,
+                    levelClass: levelClass
+                });
+            }
+            
+            // Display results in table
+            const resultsBody = document.getElementById('class-results-body');
+            resultsBody.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.studentName} ${result.withHelp ? '<span class="with-help">(a)</span>' : ''}</td>
+                    <td>${result.fraction}</td>
+                    <td>${result.percentage}%</td>
+                    <td>${result.score}</td>
+                    <td><span class="level-badge ${result.levelClass}">${result.level}</span></td>
+                `;
+                resultsBody.appendChild(row);
+            });
+            
+            // Show results table
+            document.getElementById('class-results').style.display = 'block';
+            
+            // Store results for saving later
+            window.classResults = {
+                description: description,
+                date: date,
+                discipline: discipline,
+                totalQuestions: totalQuestions,
+                results: results
+            };
+        }
+        
+        // Save class evaluations
+        function saveClassEvaluations() {
+            const evaluationType = document.getElementById('class-evaluation-type').value;
+            if (!window.classResults) {
+                alert('Calcola prima le valutazioni');
+                return;
+            }
+            
+            // Get data from classResults
+            const { description, date, discipline, totalQuestions, results } = window.classResults;
+            
+            // Create evaluation objects for each student
+            results.forEach(result => {
+                const evaluation = {
+                    id: Date.now().toString() + Math.random().toString(36).substring(2, 8),
+                    studentName: result.studentName,
+                    discipline: discipline,
+                    description: description,
+                    date: date,
+                    totalQuestions: totalQuestions,
+                    correctAnswers: result.correctAnswers,
+                    withHelp: result.withHelp,
+                    fraction: result.fraction,
+                    percentage: result.percentage,
+                    score: result.score,
+                    level: result.level,
+                    levelClass: result.levelClass,
+                    quadrimestre: schoolInfo.quadrimestre || '1', // Salviamo anche il quadrimestre
+                    tipo: evaluationType // Usa il nuovo campo anziché il valore predefinito
+                };
+                
+                // Add to evaluations array
+                evaluations.push(evaluation);
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            
+            // Show feedback
+            alert(`Salvate ${results.length} valutazioni con successo!`);
+            
+            // Update history table
+            updateHistoryTable();
+            updateStudentsFilter();
+            
+            // Update averages for scrutinio
+            calculateAveragesForScrutinio();
+            
+            // Reset the form
+            document.getElementById('class-evaluation-form').reset();
+            document.getElementById('class-results').style.display = 'none';
+            document.getElementById('students-list').innerHTML = '';
+            addStudentRow();
+            
+            // Set today's date
+            document.getElementById('class-date').value = new Date().toISOString().split('T')[0];
+            
+            // Clear results
+            window.classResults = null;
+        }
+        
+        // Update history table with evaluations
+        function updateHistoryTable() {
+            const tbody = document.getElementById('history-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            // Get filters
+            const studentFilter = document.getElementById('filter-student').value;
+            const disciplineFilter = document.getElementById('filter-discipline').value;
+            const dateFilter = document.getElementById('filter-date').value;
+            const descriptionFilter = document.getElementById('filter-description').value;
+            
+            // Sort evaluations by date (newest first)
+            const sortedEvaluations = [...evaluations].sort((a, b) => {
+                // Handle case where date might be missing
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            // Update print subtitle
+            const printSubtitle = document.getElementById('print-subtitle');
+            if (printSubtitle) {
+                const subtitleElement = printSubtitle.querySelector('h3');
+                if (subtitleElement) {
+                    let subtitleText = schoolInfo.istituto || '';
+                    
+                    if (schoolInfo.classe) {
+                        subtitleText += ' - Classe ' + schoolInfo.classe;
+                        
+                        if (schoolInfo.sezione) {
+                            subtitleText += ' ' + schoolInfo.sezione;
+                        }
+                    }
+                    
+                    if (schoolInfo.annoScolastico) {
+                        subtitleText += ' - A.S. ' + schoolInfo.annoScolastico;
+                    }
+                    
+                    // Aggiungi il quadrimestre anche nella stampa
+                    if (schoolInfo.quadrimestre) {
+                        subtitleText += ' - ' + (schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo') + ' Quadrimestre';
+                    }
+                    
+                    subtitleElement.textContent = subtitleText;
+                }
+            }
+            
+            // Filter and display evaluations
+            sortedEvaluations.forEach(evaluation => {
+                // Skip if not in current quadrimestre
+                if (evaluation.quadrimestre !== schoolInfo.quadrimestre) return;
+                
+                // Apply filters
+                if (
+                    (studentFilter && evaluation.studentName !== studentFilter) ||
+                    (disciplineFilter && evaluation.discipline !== disciplineFilter) ||
+                    (dateFilter && evaluation.date !== dateFilter) ||
+                    (descriptionFilter && evaluation.description !== descriptionFilter)
+                ) {
+                    return;
+                }
+                
+                // Format date for display (from YYYY-MM-DD to DD/MM/YYYY)
+                const dateDisplay = evaluation.date ? evaluation.date.split('-').reverse().join('/') : '';
+                
+                // Prepare restore button HTML - only for modified scores
+                const restoreButtonHtml = evaluation.modified ? `
+                    <button class="restore-button" onclick="restoreOriginalScore('${evaluation.id}', event)" title="Ripristina voto originale">
+                        <i class="fas fa-undo-alt"></i>
+                    </button>` : '';
+                
+                // Prepare modified mark HTML - only for modified scores
+                const modifiedMarkHtml = evaluation.modified ? `<span class="modified-mark" title="Voto modificato manualmente">M</span>` : '';
+                
+                const row = document.createElement('tr');
+                row.dataset.evaluationId = evaluation.id; // Memorizza l'ID come attributo data
+                const tipoValutazione = getTipoValutazioneDisplay(evaluation.tipo);
+                
+                row.innerHTML = `
+                    <td>${dateDisplay}</td>
+                    <td>${evaluation.studentName || ''}</td>
+                    <td>${evaluation.discipline || ''}</td>
+                    <td>${evaluation.description || ''} <span style="font-size: 0.8rem; color: var(--text-medium);">(${tipoValutazione})</span></td>
+                    <td>${evaluation.fraction || ''}</td>
+                    <td class="score-cell">
+                        <span onclick="editScore('${evaluation.id}')" style="cursor: pointer; display: inline-block; width: 100%; height: 100%;">
+                            ${evaluation.score || ''} 
+                            ${evaluation.withHelp ? '<span class="with-help">(a)</span>' : ''}
+                            ${modifiedMarkHtml}
+                            ${restoreButtonHtml}
+                        </span>
+                    </td>
+                    <td><span class="level-badge ${evaluation.levelClass || ''}">${evaluation.level || ''}</span></td>
+                    <td class="no-print">
+                        <button type="button" onclick="deleteEvaluation('${evaluation.id}')" style="background-color: var(--danger-color); padding: 6px 12px; margin: 0;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Aggiorna i filtri per data e descrizione
+            updateDateFilter();
+            updateDescriptionFilter();
+        }
+        
+        // Funzione per ripristinare il voto originale
+        function restoreOriginalScore(evaluationId, event) {
+            // Ferma la propagazione dell'evento per evitare che si apra il modal di modifica
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // Trova la valutazione da ripristinare
+            const evaluationIndex = evaluations.findIndex(e => e.id === evaluationId);
+            if (evaluationIndex === -1) {
+                alert('Valutazione non trovata');
+                return;
+            }
+            
+            // Controlla se esiste un voto originale
+            if (!evaluations[evaluationIndex].originalScore) {
+                alert('Non è disponibile un voto originale da ripristinare');
+                return;
+            }
+            
+            // Chiedi conferma
+            if (!confirm(`Sei sicuro di voler ripristinare il voto originale (${evaluations[evaluationIndex].originalScore})?`)) {
+                return;
+            }
+            
+            // Ripristina il voto originale
+            const originalScore = parseFloat(evaluations[evaluationIndex].originalScore);
+            evaluations[evaluationIndex].score = originalScore.toFixed(1);
+            
+            // Rimuovi i flag di modifica
+            evaluations[evaluationIndex].modified = false;
+            evaluations[evaluationIndex].modificationNote = '';
+            delete evaluations[evaluationIndex].originalScore;
+            
+            // Determina il livello basato sul voto originale
+            let level, levelClass;
+            if (originalScore >= 10) {
+                level = 'OTTIMO';
+                levelClass = 'ottimo';
+            } else if (originalScore >= 9.0) {
+                level = 'DISTINTO';
+                levelClass = 'distinto';
+            } else if (originalScore >= 8.0) {
+                level = 'BUONO';
+                levelClass = 'buono';
+            } else if (originalScore >= 7.0) {
+                level = 'DISCRETO';
+                levelClass = 'discreto';
+            } else if (originalScore >= 6.0) {
+                level = 'SUFFICIENTE';
+                levelClass = 'sufficiente';
+            } else {
+                level = 'NON SUFFICIENTE';
+                levelClass = 'non-sufficiente';
+            }
+            
+            // Aggiorna le informazioni di livello
+            evaluations[evaluationIndex].level = level;
+            evaluations[evaluationIndex].levelClass = levelClass;
+            
+            // Salva su localStorage
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            
+            // Feedback
+            alert('Voto originale ripristinato con successo');
+            
+            // Aggiorna la tabella
+            updateHistoryTable();
+            
+            // Aggiorna le medie
+            calculateAveragesForScrutinio();
+            // Passa automaticamente al tab Medie
+            document.getElementById('tab-averages-btn').click();
+        }
+        
+        // Update students filter dropdown
+        function updateStudentsFilter() {
+            const filterSelect = document.getElementById('filter-student');
+            if (!filterSelect) return;
+            
+            const currentValue = filterSelect.value;
+            
+            // Get unique student names from current quadrimestre
+            const studentNames = [...new Set(evaluations
+                .filter(e => e.studentName && e.quadrimestre === schoolInfo.quadrimestre) // Filtra per quadrimestre
+                .map(e => e.studentName))]
+                .sort();
+            
+            // Clear and rebuild options
+            filterSelect.innerHTML = '<option value="">Tutti gli Studenti</option>';
+            
+            studentNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                filterSelect.appendChild(option);
+            });
+            
+            // Restore previous selection if possible
+            if (currentValue && studentNames.includes(currentValue)) {
+                filterSelect.value = currentValue;
+            }
+        }
+        
+        // Update date filter dropdown
+        function updateDateFilter() {
+            const filterSelect = document.getElementById('filter-date');
+            if (!filterSelect) return;
+            
+            const currentValue = filterSelect.value;
+            
+            // Get unique dates from current quadrimestre
+            const dates = [...new Set(evaluations
+                .filter(e => e.date && e.quadrimestre === schoolInfo.quadrimestre) // Filtra per quadrimestre
+                .map(e => e.date))]
+                .sort().reverse(); // Sort newest first
+            
+            // Clear and rebuild options
+            filterSelect.innerHTML = '<option value="">Tutte le Date</option>';
+            
+            dates.forEach(date => {
+                const formattedDate = date.split('-').reverse().join('/'); // YYYY-MM-DD to DD/MM/YYYY
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = formattedDate;
+                filterSelect.appendChild(option);
+            });
+            
+            // Restore previous selection if possible
+            if (currentValue && dates.includes(currentValue)) {
+                filterSelect.value = currentValue;
+            }
+        }
+        
+        // Update description filter dropdown
+        function updateDescriptionFilter() {
+            const filterSelect = document.getElementById('filter-description');
+            if (!filterSelect) return;
+            
+            const currentValue = filterSelect.value;
+            
+            // Ottieni descrizioni uniche, ma considera data e disciplina
+            // per differenziare verifiche con lo stesso nome ma in giorni diversi o materie diverse
+            const verifications = evaluations
+                .filter(e => e.description && e.quadrimestre === schoolInfo.quadrimestre) // Filtra per quadrimestre
+                .map(e => ({
+                    id: `${e.date}_${e.discipline}_${e.description}`,
+                    date: e.date,
+                    discipline: e.discipline,
+                    description: e.description
+                }));
+                
+            // Rimuovi duplicati
+            const uniqueVerifications = [];
+            const uniqueIds = new Set();
+            
+            verifications.forEach(v => {
+                if (!uniqueIds.has(v.id)) {
+                    uniqueIds.add(v.id);
+                    uniqueVerifications.push(v);
+                }
+            });
+            
+            // Ordina per data decrescente
+            uniqueVerifications.sort((a, b) => {
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            // Clear and rebuild options
+            filterSelect.innerHTML = '<option value="">Tutte le Verifiche</option>';
+            
+            uniqueVerifications.forEach(v => {
+                const formattedDate = v.date ? v.date.split('-').reverse().join('/') : '';
+                const option = document.createElement('option');
+                option.value = v.description;
+                option.textContent = `${v.description} (${v.discipline}, ${formattedDate})`;
+                filterSelect.appendChild(option);
+            });
+            
+            // Restore previous selection if possible
+            if (currentValue) {
+                const matchingOption = Array.from(filterSelect.options).find(option => option.value === currentValue);
+                if (matchingOption) {
+                    filterSelect.value = currentValue;
+                }
+            }
+        }
+        
+        // Filter history table
+        function filterHistory() {
+            updateHistoryTable();
+        }
+        
+        // Reset history filters
+        function resetFilters() {
+            const studentFilter = document.getElementById('filter-student');
+            const disciplineFilter = document.getElementById('filter-discipline');
+            const dateFilter = document.getElementById('filter-date');
+            const descriptionFilter = document.getElementById('filter-description');
+            
+            if (studentFilter) studentFilter.value = '';
+            if (disciplineFilter) disciplineFilter.value = '';
+            if (dateFilter) dateFilter.value = '';
+            if (descriptionFilter) descriptionFilter.value = '';
+            
+            updateHistoryTable();
+        }
+        
+        // Delete evaluation
+        function deleteEvaluation(id) {
+            if (confirm('Sei sicuro di voler eliminare questa valutazione?')) {
+                evaluations = evaluations.filter(e => e.id !== id);
+                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                updateHistoryTable();
+                updateStudentsFilter();
+                
+                // Aggiorna le medie
+                calculateAveragesForScrutinio();
+            }
+        }
+        
+        // Funzione per aprire il modal di modifica voto
+        function editScore(evaluationId) {
+            // Trova la valutazione da modificare
+            const evaluation = evaluations.find(e => e.id === evaluationId);
+            if (!evaluation) {
+                alert('Valutazione non trovata');
+                return;
+            }
+            
+            // Populate modal
+            document.getElementById('edit-student-name').textContent = evaluation.studentName;
+            document.getElementById('edit-score-input').value = parseFloat(evaluation.score) || '';
+            document.getElementById('edit-note').value = evaluation.modificationNote || '';
+            
+            // Store the ID for later use
+            document.getElementById('edit-score-modal').dataset.evaluationId = evaluationId;
+            
+            // Show modal
+            document.getElementById('edit-score-modal').style.display = 'flex';
+            
+            // Focus input
+            setTimeout(() => {
+                document.getElementById('edit-score-input').focus();
+                document.getElementById('edit-score-input').select();
+            }, 100);
+        }
+        
+        // Funzione per chiudere il modal di modifica voto
+        function closeEditScoreModal() {
+            document.getElementById('edit-score-modal').style.display = 'none';
+        }
+        
+        // Funzione per salvare il voto modificato
+        function saveEditedScore() {
+            const modal = document.getElementById('edit-score-modal');
+            const evaluationId = modal.dataset.evaluationId;
+            const newScore = parseFloat(document.getElementById('edit-score-input').value);
+            const note = document.getElementById('edit-note').value.trim();
+            
+            // Validate input
+            if (isNaN(newScore) || newScore < 1 || newScore > 10) {
+                alert('Inserisci un voto valido tra 1 e 10');
+                return;
+            }
+            
+            // Find the evaluation
+            const evaluationIndex = evaluations.findIndex(e => e.id === evaluationId);
+            if (evaluationIndex === -1) {
+                alert('Valutazione non trovata');
+                closeEditScoreModal();
+                return;
+            }
+            
+            // Store the original score for reference if it's the first modification
+            if (!evaluations[evaluationIndex].modified) {
+                const originalScore = parseFloat(evaluations[evaluationIndex].score);
+                evaluations[evaluationIndex].originalScore = originalScore.toFixed(1);
+            }
+            
+            // Update the evaluation
+            evaluations[evaluationIndex].score = newScore.toFixed(1);
+            evaluations[evaluationIndex].modified = true;
+            evaluations[evaluationIndex].modificationNote = note;
+            
+            // Determine new level based on new score
+            let level, levelClass;
+            if (newScore >= 10) {
+                level = 'OTTIMO';
+                levelClass = 'ottimo';
+            } else if (newScore >= 9.0) {
+                level = 'DISTINTO';
+                levelClass = 'distinto';
+            } else if (newScore >= 8.0) {
+                level = 'BUONO';
+                levelClass = 'buono';
+            } else if (newScore >= 7.0) {
+                level = 'DISCRETO';
+                levelClass = 'discreto';
+            } else if (newScore >= 6.0) {
+                level = 'SUFFICIENTE';
+                levelClass = 'sufficiente';
+            } else {
+                level = 'NON SUFFICIENTE';
+                levelClass = 'non-sufficiente';
+            }
+            
+            // Update level information
+            evaluations[evaluationIndex].level = level;
+            evaluations[evaluationIndex].levelClass = levelClass;
+            
+            // Save to localStorage
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            
+            // Close modal
+            closeEditScoreModal();
+            
+            // Update table
+            updateHistoryTable();
+            
+            // Aggiorna le medie
+            calculateAveragesForScrutinio();
+        }
+        
+        // Export evaluations to JSON file
+        function exportToJSON() {
+            if (evaluations.length === 0 && (!schoolInfo.istituto || !schoolInfo.classe)) {
+                alert('Non ci sono dati da esportare');
+                return;
+            }
+            
+            // Create an object that includes both evaluations and school info
+            const exportData = {
+                evaluations: evaluations,
+                schoolInfo: schoolInfo,
+                averageWeights: averageWeights,
+                studentAverages: studentAverages
+            };
+            
+            // Create a JSON blob
+            const json = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `valutazioni_${formatDate(new Date())}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Export evaluations to CSV file
+        function exportToCSV() {
+            if (evaluations.length === 0) {
+                alert('Non ci sono valutazioni da esportare');
+                return;
+            }
+            
+            // CSV header
+            let csv = 'Data,Studente,Disciplina,Descrizione,Totale Quesiti,Risposte Corrette,Con Aiuto,Frazione,Percentuale,Voto,Livello,Quadrimestre,Tipo\n';
+            
+            // Add rows
+            evaluations.forEach(e => {
+                if (!e) return; // Skip undefined entries
+                
+                csv += `${e.date || ''},`; // Data
+                csv += `"${e.studentName || ''}",`; // Nome studente (quoted to handle commas)
+                csv += `"${e.discipline || ''}",`; // Disciplina
+                csv += `"${e.description || ''}",`; // Descrizione
+                csv += `${e.totalQuestions || 0},`; // Totale quesiti
+                csv += `${e.correctAnswers || 0},`; // Risposte corrette
+                csv += `${e.withHelp ? 'Sì' : 'No'},`; // Con aiuto
+                csv += `${e.fraction || ''},`; // Frazione
+                csv += `${e.percentage || ''}%,`; // Percentuale
+                csv += `${e.score || ''},`; // Voto
+                csv += `${e.level || ''},`; // Livello
+                csv += `${e.quadrimestre === '2' ? 'Secondo' : 'Primo'},`; // Quadrimestre
+                csv += `${e.tipo || 'compito'}\n`; // Tipo (default a "compito" per retrocompatibilità)
+            });
+            
+            // Create a CSV blob
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `valutazioni_${formatDate(new Date())}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Import evaluations from JSON file using dialog
+        function importFromJSONDialog() {
+            // Crea un elemento input di tipo file temporaneo
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            // Quando un file viene selezionato
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Check if the JSON has evaluations property
+                        if (importedData.evaluations && Array.isArray(importedData.evaluations)) {
+                            // Handle combined format with both evaluations and schoolInfo
+                            const importedEvaluations = importedData.evaluations;
+                            
+                            // Validate data
+                            if (!Array.isArray(importedEvaluations)) {
+                                throw new Error('Il file non contiene un array di valutazioni');
+                            }
+                            
+                            // Confirm import
+                            if (confirm(`Importare ${importedEvaluations.length} valutazioni? Questa operazione sostituirà tutte le valutazioni esistenti.`)) {
+                                // Assicurati che tutte le valutazioni abbiano un quadrimestre e un tipo
+                                importedEvaluations.forEach(ev => {
+                                    if (!ev.hasOwnProperty('quadrimestre')) {
+                                        ev.quadrimestre = schoolInfo.quadrimestre || '1';
+                                    }
+                                    if (!ev.hasOwnProperty('tipo')) {
+                                        ev.tipo = 'compito'; // Default a "compito" per retrocompatibilità
+                                    }
+                                });
+                                
+                                evaluations = importedEvaluations;
+                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                
+                                // Also import school info if present
+                                if (importedData.schoolInfo) {
+                                    if (confirm('Il file contiene anche informazioni scolastiche. Vuoi importarle?')) {
+                                        schoolInfo = importedData.schoolInfo;
+                                        // Assicurati che ci sia il quadrimestre
+                                        updateSchoolInfoStructure();
+                                        localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                                        updateSchoolInfoSubtitle();
+                                    }
+                                }
+                                
+                                // Import weights if present
+                                if (importedData.averageWeights) {
+                                    if (confirm('Il file contiene anche pesi per le medie. Vuoi importarli?')) {
+                                        averageWeights = importedData.averageWeights;
+                                        localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+                                        
+                                        // Update weight input fields
+                                        document.getElementById('peso-compito').value = averageWeights.compito;
+                                        document.getElementById('peso-interrogazione').value = averageWeights.interrogazione;
+                                        document.getElementById('peso-progetto').value = averageWeights.progetto;
+                                        document.getElementById('peso-altro').value = averageWeights.altro;
+                                    }
+                                }
+                                
+                                // Import studentAverages if present
+                                if (importedData.studentAverages) {
+                                    if (confirm('Il file contiene anche medie salvate. Vuoi importarle?')) {
+                                        studentAverages = importedData.studentAverages;
+                                        localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+                                    }
+                                }
+                                
+                                updateHistoryTable();
+                                updateStudentsFilter();
+                                calculateAveragesForScrutinio();
+                                alert('Importazione completata con successo!');
+                            }
+                        } else if (Array.isArray(importedData)) {
+                            // Handle old format (just an array of evaluations)
+                            const importedEvaluations = importedData;
+                            
+                            // Confirm import
+                            if (confirm(`Importare ${importedEvaluations.length} valutazioni? Questa operazione sostituirà tutte le valutazioni esistenti.`)) {
+                                // Assicurati che tutte le valutazioni abbiano un quadrimestre e un tipo
+                                importedEvaluations.forEach(ev => {
+                                    if (!ev.hasOwnProperty('quadrimestre')) {
+                                        ev.quadrimestre = schoolInfo.quadrimestre || '1';
+                                    }
+                                    if (!ev.hasOwnProperty('tipo')) {
+                                        ev.tipo = 'compito'; // Default a "compito" per retrocompatibilità
+                                    }
+                                });
+                                
+                                evaluations = importedEvaluations;
+                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                updateHistoryTable();
+                                updateStudentsFilter();
+                                calculateAveragesForScrutinio();
+                                alert('Importazione completata con successo!');
+                            }
+                        } else {
+                            throw new Error('Il formato del file non è valido');
+                        }
+                    } catch (error) {
+                        alert('Errore durante l\'importazione: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            });
+            
+            // Attiva il click per aprire il selettore di file
+            fileInput.click();
+        }
+        
+        // Print history table
+        function printHistory() {
+            // Open the history tab first
+            openTab('tab3');
+            
+            // Make sure print subtitle is updated with current school info
+            const printSubtitle = document.getElementById('print-subtitle');
+            if (printSubtitle) {
+                const subtitleElement = printSubtitle.querySelector('h3');
+                if (subtitleElement) {
+                    let subtitleText = schoolInfo.istituto || '';
+                    
+                    if (schoolInfo.classe) {
+                        subtitleText += ' - Classe ' + schoolInfo.classe;
+                        
+                        if (schoolInfo.sezione) {
+                            subtitleText += ' ' + schoolInfo.sezione;
+                        }
+                    }
+                    
+                    if (schoolInfo.annoScolastico) {
+                        subtitleText += ' - A.S. ' + schoolInfo.annoScolastico;
+                    }
+                    
+                    // Aggiungi il quadrimestre anche nella stampa
+                    if (schoolInfo.quadrimestre) {
+                        subtitleText += ' - ' + (schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo') + ' Quadrimestre';
+                    }
+                    
+                    subtitleElement.textContent = subtitleText;
+                }
+            }
+            
+            // Then print
+            window.print();
+        }
+        
+        // Helper function to format date as YYYYMMDD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+        
+        // Funzione per confermare l'uscita dall'app
+        function confirmExit() {
+            const hasData = evaluations.length > 0 || (schoolInfo.istituto && schoolInfo.classe);
+            
+            if (hasData) {
+                const confirmMessage = "ATTENZIONE!\n\n" +
+                    "Hai dati salvati nell'applicazione. Ricorda che questi dati sono salvati solo nel browser locale.\n\n" +
+                    "Ti consigliamo di esportare i dati in formato JSON prima di uscire per poterli recuperare in futuro.\n\n" +
+                    "Vuoi esportare i dati prima di uscire?";
+                
+                if (confirm(confirmMessage)) {
+                    // Esporta dati prima di uscire
+                    exportToJSON();
+                    
+                    // Chiedi nuovamente per confermare l'uscita
+                    setTimeout(() => {
+                        if (confirm("Sei sicuro di voler uscire dall'applicazione?")) {
+                            closeApp();
+                        }
+                    }, 1000); // Breve ritardo per permettere il download del file
+                } else {
+                    // Conferma finale
+                    if (confirm("Sei sicuro di voler uscire senza salvare i dati? I dati non esportati potrebbero andare persi.")) {
+                        closeApp();
+                    }
+                }
+            } else {
+                // Nessun dato da salvare
+                if (confirm("Sei sicuro di voler uscire dall'applicazione?")) {
+                    closeApp();
+                }
+            }
+        }
+        
+        // Funzione per chiudere l'app
+        function closeApp() {
+            // Mostra un messaggio finale
+            alert("Grazie per aver utilizzato l'applicazione di Valutazione Verifiche.");
+            
+            // Chiudi la finestra del browser (potrebbe non funzionare su tutti i browser per motivi di sicurezza)
+            window.close();
+            
+            // Alternativa se il close non funziona
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 50px; font-family: sans-serif;">
+                    <h1>Applicazione chiusa</h1>
+                    <p>Puoi chiudere questa scheda in sicurezza.</p>
+                    <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 20px;">Riavvia l'applicazione</button>
+                </div>
+            `;
+        }
+    
+        // Funzione per chiudere il modal delle informazioni scolastiche
+        function closeSchoolInfoModal() {
+            // Verifica se le informazioni essenziali sono già state inserite
+            if (schoolInfo.istituto && schoolInfo.classe) {
+                document.getElementById('school-info-modal').style.display = 'none';
+            } else {
+                // Se le informazioni essenziali non sono state inserite, chiedi conferma
+                if (confirm('Le informazioni scolastiche non sono complete. Sei sicuro di voler chiudere?')) {
+                    document.getElementById('school-info-modal').style.display = 'none';
+                }
+            }
+        }
+
+        // Funzione helper per ottenere la visualizzazione del tipo di valutazione
+        function getTipoValutazioneDisplay(tipo) {
+            switch(tipo) {
+                case 'compito': return 'Compito in classe';
+                case 'interrogazione': return 'Interrogazione';
+                case 'progetto': return 'Progetto';
+                case 'altro': return 'Altro';
+                default: return 'Compito in classe';
+            }
+        }
+
+        // Funzione per preparare la stampa delle medie
+        function preparePrintAverages() {
+            const disciplineFilter = document.getElementById('average-discipline').value;
+            const disciplineName = disciplineFilter ? 
+                document.getElementById('average-discipline').options[document.getElementById('average-discipline').selectedIndex].text : 
+                'Tutte le discipline';
+            
+            // Prepara l'anteprima per la stampa
+            const previewContainer = document.getElementById('print-averages-preview');
+            previewContainer.innerHTML = '';
+            
+            // Crea il contenuto per la stampa
+            const printContent = document.createElement('div');
+            printContent.className = 'print-averages-content';
+            
+            // Intestazione
+            const header = document.createElement('div');
+            header.className = 'print-averages-header';
+            header.innerHTML = `
+                <h2>Medie per le Proposte di Voto dello Scrutinio</h2>
+                <h3>${disciplineName}</h3>
+                <h3>${schoolInfo.istituto || ''}</h3>
+                <h4>Classe ${schoolInfo.classe || ''} ${schoolInfo.sezione || ''} - A.S. ${schoolInfo.annoScolastico || ''}</h4>
+                <h4>${schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo'} Quadrimestre</h4>
+            `;
+            printContent.appendChild(header);
+            
+            // Tabella
+            const table = document.createElement('table');
+            table.className = 'print-averages-table';
+            
+            // Intestazione tabella
+            let thead = document.createElement('thead');
+            thead.innerHTML = `
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Studente</th>
+                        <th>Numero Valutazioni</th>
+                        <th>Media Ponderata</th>
+                        <th>Livello Finale</th>
+                    </tr>
+                `;
+            table.appendChild(thead);
+            
+            // Corpo tabella
+            const tbody = document.createElement('tbody');
+            
+            // Ottieni gli studenti unici
+            let students = [...new Set(evaluations.map(e => e.studentName))].sort();
+            
+            // Per ogni studente, calcola e visualizza la media
+            students.forEach(studentName => {
+                // Filtrare le valutazioni per studente e disciplina (se specificata)
+                let studentEvaluations = evaluations.filter(e => 
+                    e.studentName === studentName && 
+                    (disciplineFilter === '' || e.discipline === disciplineFilter) &&
+                    e.quadrimestre === schoolInfo.quadrimestre // Filtra per quadrimestre corrente
+                );
+                
+                // Se non ci sono valutazioni per questo studente e disciplina, salta
+                if (studentEvaluations.length === 0) return;
+                
+                // Prepara la chiave per recuperare le medie
+                const averageKey = disciplineFilter ? 
+                    `${studentName}|${disciplineFilter}` : 
+                    `${studentName}|all`;
+                
+                // Recupera i dati della media
+                const averageData = studentAverages[averageKey];
+                if (!averageData) return;
+                
+                // Determina se usare il valore modificato o quello calcolato
+                const finalWeightedAverage = averageData.modified ? 
+                    averageData.modifiedValue : 
+                    averageData.weightedAverage;
+                
+                const finalLevel = averageData.modified ? 
+                    getDescriptiveLevel(parseFloat(averageData.modifiedValue)) : 
+                    averageData.weightedAverageLevel;
+                
+                // Crea la riga
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ disciplineFilter || 'Tutte' }</td>
+                    <td>${studentName}</td>
+                    <td style="text-align: center;">${studentEvaluations.length}</td>
+                    <td style="text-align: center;">${finalWeightedAverage}</td>
+                    <td style="text-align: center;">
+                        <span class="print-averages-level ${finalLevel.levelName.toLowerCase()}">${finalLevel.levelName.toUpperCase()}</span>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            table.appendChild(tbody);
+            printContent.appendChild(table);
+            
+            // Info di stampa
+            const footer = document.createElement('div');
+            footer.style.marginTop = '20px';
+            footer.style.fontSize = '12px';
+            footer.style.textAlign = 'right';
+            footer.style.fontStyle = 'italic';
+            footer.innerHTML = `<p>Generato il ${new Date().toLocaleDateString()} alle ${new Date().toLocaleTimeString()}</p>`;
+            printContent.appendChild(footer);
+            
+            // Aggiungi tutto al container di anteprima
+            previewContainer.appendChild(printContent);
+            
+            // Mostra il modal
+            document.getElementById('print-averages-modal').style.display = 'flex';
+        }
+
+        // Funzione per chiudere il modal di anteprima stampa
+        function closePrintAveragesModal() {
+            document.getElementById('print-averages-modal').style.display = 'none';
+        }
+
+        // Funzione per stampare le medie
+        function printAverages() {
+            const printContent = document.getElementById('print-averages-preview').innerHTML;
+            
+            // Crea un iframe per la stampa
+            const printFrame = document.createElement('iframe');
+            printFrame.name = 'printIframe';
+            printFrame.style.display = 'none';
+            document.body.appendChild(printFrame);
+            
+            // Scrivi il contenuto nell'iframe
+            const frameDoc = printFrame.contentDocument || printFrame.contentWindow.document;
+            frameDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Stampa Medie</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        
+                        .print-averages-content {
+                            padding: 20px;
+                            width: 100%;
+                        }
+                        
+                        .print-averages-header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .print-averages-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        
+                        .print-averages-table th, 
+                        .print-averages-table td {
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        
+                        .print-averages-table th {
+                            background-color: #f2f2f2;
+                        }
+                        
+                        .print-averages-level {
+                            text-align: center;
+                            font-weight: bold;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            display: inline-block;
+                            min-width: 100px;
+                        }
+                        
+                        .print-averages-level.ottimo {
+                            background-color: #15803d;
+                            color: white;
+                        }
+                        
+                        .print-averages-level.distinto {
+                            background-color: #16a34a;
+                            color: white;
+                        }
+                        
+                        .print-averages-level.buono {
+                            background-color: #65a30d;
+                            color: white;
+                        }
+                        
+                        .print-averages-level.discreto {
+                            background-color: #ca8a04;
+                            color: white;
+                        }
+                        
+                        .print-averages-level.sufficiente {
+                            background-color: #ea580c;
+                            color: white;
+                        }
+                        
+                        .print-averages-level.non-sufficiente {
+                            background-color: #dc2626;
+                            color: white;
+                        }
+                    </style>
+                <style>
+    @media print {
+        .print-header {
+            text-align: center;
+        }
+    }
+</style><style>
+    @media print {
+        .print-discipline {
+            display: block;
+            text-align: center;
+            margin-top: 0.5em;
+        }
+    }
+</style></head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            frameDoc.close();
+            
+            // Esegui la stampa e rimuovi l'iframe
+            setTimeout(function() {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                document.body.removeChild(printFrame);
+            }, 500);
+        }
+
+    // Apertura e chiusura del modal di cancellazione storico
+    document.getElementById('open-clear-modal').addEventListener('click', function() {
+        document.getElementById('clear-modal').style.display = 'flex';
+    });
+    document.getElementById('cancel-clear').addEventListener('click', function() {
+        document.getElementById('clear-modal').style.display = 'none';
+    });
+    // Conferma definitiva cancellazione storico verifiche
+    document.getElementById('confirm-clear').addEventListener('click', function() {
+        localStorage.removeItem('evaluations');
+        localStorage.removeItem('studentAverages');
+        // Aggiungi altre chiavi di storico se necessario
+        location.reload();
+    });
+    </script>
+</body>
+</html>
