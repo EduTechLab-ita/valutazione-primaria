@@ -923,7 +923,31 @@
             margin-top: 0.5em;
         }
     }
-</style></head>
+    
+    /* PWA Styles */
+    @media (display-mode: standalone) {
+        body {
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+    }
+</style>
+
+<!-- PWA Manifest and Meta Tags -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Valutazione Primaria">
+<link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+<meta name="msapplication-TileImage" content="./icons/icon-192x192.png">
+<meta name="msapplication-TileColor" content="#2563eb">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-192x192.png">
+
+</head>
 <body>
     <h1>Valutazione Verifiche Scuola Primaria</h1>
     <div id="school-info-subtitle" class="info-subtitle-clickable" onclick="editSchoolInfo()">

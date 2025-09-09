@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#2563eb" stroke="#1e40af" stroke-width="8"/>
+  
+  <!-- Inner background -->
+  <circle cx="256" cy="256" r="200" fill="#ffffff" opacity="0.1"/>
+  
+  <!-- Document/worksheet background -->
+  <rect x="140" y="120" width="232" height="280" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="3"/>
+  
+  <!-- Header line -->
+  <rect x="160" y="150" width="192" height="4" rx="2" fill="#2563eb"/>
+  
+  <!-- Lines for text -->
+  <rect x="160" y="180" width="150" height="3" rx="1.5" fill="#94a3b8"/>
+  <rect x="160" y="200" width="120" height="3" rx="1.5" fill="#94a3b8"/>
+  <rect x="160" y="220" width="140" height="3" rx="1.5" fill="#94a3b8"/>
+  
+  <!-- Grade section -->
+  <rect x="160" y="260" width="192" height="60" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <!-- Grade text representation -->
+  <text x="256" y="285" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#2563eb">VOTO</text>
+  <text x="256" y="305" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#10b981">8/10</text>
+  
+  <!-- Checkmarks -->
+  <g fill="#10b981">
+    <path d="M180 340 L190 350 L210 330" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M230 340 L240 350 L260 330" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M280 340 L290 350 L310 330" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Calculator icon in corner -->
+  <g transform="translate(300, 350)">
+    <rect width="40" height="50" rx="4" fill="#475569"/>
+    <rect x="4" y="8" width="32" height="16" rx="2" fill="#1e293b"/>
+    <circle cx="12" cy="32" r="3" fill="#e2e8f0"/>
+    <circle cx="20" cy="32" r="3" fill="#e2e8f0"/>
+    <circle cx="28" cy="32" r="3" fill="#e2e8f0"/>
+    <circle cx="12" cy="42" r="3" fill="#e2e8f0"/>
+    <circle cx="20" cy="42" r="3" fill="#10b981"/>
+    <circle cx="28" cy="42" r="3" fill="#e2e8f0"/>
+  </g>
+  
+  <!-- Pencil icon -->
+  <g transform="translate(120, 350) rotate(-45)">
+    <rect width="6" height="40" fill="#fbbf24"/>
+    <rect y="0" width="6" height="8" fill="#f59e0b"/>
+    <polygon points="0,40 6,40 3,46" fill="#374151"/>
+    <rect y="8" width="6" height="2" fill="#ef4444"/>
+  </g>
+  
+</svg>
