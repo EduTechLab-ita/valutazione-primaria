@@ -550,32 +550,115 @@
             body * {
                 visibility: hidden;
             }
-            
+
             #print-area, #print-area * {
                 visibility: visible;
             }
-            
+
             #print-area {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
             }
-            
+
             .no-print {
                 display: none !important;
             }
-            
+
             /* Rimuovere titoli e sottotitoli non necessari */
-            body > h1, 
+            body > h1,
             #school-info-subtitle:not(.print-only) {
                 display: none !important;
             }
-            
+
             /* Assicurarsi che solo i titoli di stampa specifici siano visibili */
             .print-only {
                 display: block !important;
                 visibility: visible !important;
+            }
+
+            /* Mantieni i colori dei livelli nella stampa */
+            .level-badge {
+                display: inline-block !important;
+                padding: 4px 12px !important;
+                border-radius: 50px !important;
+                color: white !important;
+                font-weight: 600 !important;
+                font-size: 0.85rem !important;
+                text-shadow: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .ottimo {
+                background-color: #15803d !important;
+                color: white !important;
+            }
+
+            .distinto {
+                background-color: #16a34a !important;
+                color: white !important;
+            }
+
+            .buono {
+                background-color: #65a30d !important;
+                color: white !important;
+            }
+
+            .discreto {
+                background-color: #ca8a04 !important;
+                color: white !important;
+            }
+
+            .sufficiente {
+                background-color: #ea580c !important;
+                color: white !important;
+            }
+
+            .non-sufficiente {
+                background-color: #dc2626 !important;
+                color: white !important;
+            }
+
+            /* Ottimizzazione layout stampa storico - compatto come registro elettronico */
+            @page {
+                margin: 1cm;
+            }
+
+            body {
+                font-size: 9pt !important;
+            }
+
+            #print-area h1 {
+                font-size: 14pt !important;
+                margin: 5px 0 !important;
+            }
+
+            #print-area h3 {
+                font-size: 11pt !important;
+                margin: 3px 0 !important;
+            }
+
+            #history-table {
+                font-size: 8pt !important;
+            }
+
+            #history-table th,
+            #history-table td {
+                padding: 3px 5px !important;
+                font-size: 8pt !important;
+            }
+
+            #history-table th {
+                background-color: #e5e7eb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .level-badge {
+                padding: 2px 8px !important;
+                font-size: 7pt !important;
             }
         }
         
@@ -898,6 +981,18 @@
         .main-button:hover .button-tooltip {
             opacity: 1;
             visibility: visible;
+        }
+
+        /* Stili per menu flottante Storico Verifiche */
+        .floating-menu-storico {
+            position: fixed;
+            left: 20px;
+            bottom: 100px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
 
         /* Stili per la stampa delle medie */
@@ -1408,7 +1503,7 @@
                 <!-- Students will be populated dynamically -->
             </select>
             
-            <select id="filter-discipline" onchange="filterHistory()">
+            <select id="filter-discipline" onchange="updateDescriptionFilterByDiscipline(); filterHistory();">
                 <option value="">Tutte le Discipline</option>
                 <option value="Italiano">Italiano</option>
                 <option value="Inglese">Inglese</option>
@@ -1575,6 +1670,12 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 32px;">
+            <button type="button" onclick="preparePrintVerifiche()" style="background-color: #7c3aed;">
+                <i class="fas fa-file-alt"></i> Stampa Voti per Registro Elettronico
+            </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 32px;">
             <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color);">
                 <i class="fas fa-print"></i> Stampa Medie e Livelli
             </button>
@@ -1678,6 +1779,89 @@
         </div>
     </div>
 
+    <!-- Modal Stampa Verifiche per Registro Elettronico -->
+    <div id="print-verifiche-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="close-modal" onclick="closePrintVerificheModal()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-header">
+                <h2>Stampa Voti per Registro Elettronico</h2>
+                <p>Seleziona i filtri per personalizzare la stampa dei voti</p>
+            </div>
+
+            <!-- Filtri -->
+            <div style="background-color: var(--light-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Filtri</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="print-verifiche-discipline">Disciplina:</label>
+                        <select id="print-verifiche-discipline" onchange="updatePrintVerificheDescriptionFilter()">
+                            <option value="">Tutte le Discipline</option>
+                            <option value="Italiano">Italiano</option>
+                            <option value="Inglese">Inglese</option>
+                            <option value="Storia">Storia</option>
+                            <option value="Geografia">Geografia</option>
+                            <option value="Matematica">Matematica</option>
+                            <option value="Scienze">Scienze</option>
+                            <option value="Tecnologia">Tecnologia</option>
+                            <option value="Musica">Musica</option>
+                            <option value="Arte e Immagine">Arte e Immagine</option>
+                            <option value="Educazione Fisica">Educazione Fisica</option>
+                            <option value="Educazione Civica">Educazione Civica</option>
+                            <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                            <option value="IRC">IRC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="print-verifiche-date">Data Verifica:</label>
+                        <select id="print-verifiche-date">
+                            <option value="">Tutte le Date</option>
+                            <!-- Dates will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="print-verifiche-tipo">Tipo Valutazione:</label>
+                        <select id="print-verifiche-tipo">
+                            <option value="">Tutti i Tipi</option>
+                            <option value="compito">Compito in classe</option>
+                            <option value="interrogazione">Interrogazione</option>
+                            <option value="progetto">Progetto</option>
+                            <option value="altro">Altro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="print-verifiche-description">Descrizione:</label>
+                        <select id="print-verifiche-description">
+                            <option value="">Tutte le Verifiche</option>
+                            <!-- Descriptions will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" onclick="updatePrintVerifichePreview()" style="margin-top: 15px; width: 100%; background-color: var(--primary-color);">
+                    <i class="fas fa-sync-alt"></i> Aggiorna Anteprima
+                </button>
+            </div>
+
+            <div id="print-verifiche-preview">
+                <!-- Il contenuto dell'anteprima verrà generato dinamicamente -->
+            </div>
+
+            <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" onclick="printVerifiche()" style="flex: 1; background-color: var(--success-color);">
+                    <i class="fas fa-print"></i> Stampa
+                </button>
+                <button type="button" onclick="closePrintVerificheModal()" style="flex: 1; background-color: var(--secondary-color);">
+                    <i class="fas fa-times"></i> Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Menu flottante -->
     <div class="floating-menu no-print" style="display:none;">
         <div class="menu-buttons" id="floating-menu-buttons">
@@ -1695,7 +1879,25 @@
             <span class="button-tooltip">Menu Rapido</span>
         </div>
     </div>
-    
+
+    <!-- Menu flottante per Storico Verifiche -->
+    <div class="floating-menu-storico no-print" style="display:none;">
+        <div class="menu-buttons" id="floating-menu-storico-buttons">
+            <div class="menu-button print-button" onclick="printHistory()">
+                <i class="fas fa-print"></i>
+                <span class="button-tooltip">Stampa PDF Storico</span>
+            </div>
+            <div class="menu-button" onclick="preparePrintVerifiche()" style="background-color: #7c3aed;">
+                <i class="fas fa-file-alt"></i>
+                <span class="button-tooltip">Stampa Registro</span>
+            </div>
+        </div>
+        <div class="main-button" id="floating-menu-storico-toggle">
+            <i class="fas fa-plus"></i>
+            <span class="button-tooltip">Menu Rapido</span>
+        </div>
+    </div>
+
     <!-- Modal Guida Utente -->
     <div id="help-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
@@ -1984,7 +2186,18 @@
                     menuButtons.classList.toggle('active');
                 });
             }
-        
+
+            // Menu flottante Storico Verifiche
+            const menuToggleStorico = document.getElementById('floating-menu-storico-toggle');
+            const menuButtonsStorico = document.getElementById('floating-menu-storico-buttons');
+
+            if (menuToggleStorico && menuButtonsStorico) {
+                menuToggleStorico.addEventListener('click', function() {
+                    menuToggleStorico.classList.toggle('active');
+                    menuButtonsStorico.classList.toggle('active');
+                });
+            }
+
         });
         
         // Funzione per aggiornare i pesi delle valutazioni per le medie
@@ -2530,10 +2743,17 @@ function calculateAveragesForScrutinio() {
             if (tabId === 'tab5') {
                 calculateAveragesForScrutinio();
             }
-            // Mostra/Nascondi FAB blu "+" solo su "Medie e Scrutinio"
+
+            // Mostra/Nascondi menu flottanti in base alla tab
             const floatingMenu = document.querySelector('.floating-menu');
+            const floatingMenuStorico = document.querySelector('.floating-menu-storico');
+
             if (floatingMenu) {
                 floatingMenu.style.display = (tabId === 'tab5') ? 'flex' : 'none';
+            }
+
+            if (floatingMenuStorico) {
+                floatingMenuStorico.style.display = (tabId === 'tab3') ? 'flex' : 'none';
             }
 
         }
@@ -3322,7 +3542,59 @@ function calculateAveragesForScrutinio() {
                 }
             }
         }
-        
+
+        // Aggiorna il filtro descrizioni in base alla disciplina selezionata (Storico Verifiche)
+        function updateDescriptionFilterByDiscipline() {
+            const disciplineFilter = document.getElementById('filter-discipline').value;
+            const descriptionSelect = document.getElementById('filter-description');
+
+            if (!descriptionSelect) return;
+
+            // Filtra le valutazioni per disciplina se selezionata
+            const filteredEvals = disciplineFilter ?
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
+
+            // Ottieni descrizioni uniche
+            const verifications = filteredEvals
+                .filter(e => e.description)
+                .map(e => ({
+                    id: `${e.date}_${e.discipline}_${e.description}`,
+                    date: e.date,
+                    discipline: e.discipline,
+                    description: e.description
+                }));
+
+            // Rimuovi duplicati
+            const uniqueVerifications = [];
+            const uniqueIds = new Set();
+
+            verifications.forEach(v => {
+                if (!uniqueIds.has(v.id)) {
+                    uniqueIds.add(v.id);
+                    uniqueVerifications.push(v);
+                }
+            });
+
+            // Ordina per data decrescente
+            uniqueVerifications.sort((a, b) => {
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            // Ricostruisci le opzioni
+            descriptionSelect.innerHTML = '<option value="">Tutte le Verifiche</option>';
+
+            uniqueVerifications.forEach(v => {
+                const formattedDate = v.date ? v.date.split('-').reverse().join('/') : '';
+                const option = document.createElement('option');
+                option.value = v.description;
+                option.textContent = `${v.description} (${v.discipline}, ${formattedDate})`;
+                descriptionSelect.appendChild(option);
+            });
+        }
+
         // Filter history table
         function filterHistory() {
             updateHistoryTable();
@@ -3783,18 +4055,18 @@ function calculateAveragesForScrutinio() {
         // Funzione per preparare la stampa delle medie
         function preparePrintAverages() {
             const disciplineFilter = document.getElementById('average-discipline').value;
-            const disciplineName = disciplineFilter ? 
-                document.getElementById('average-discipline').options[document.getElementById('average-discipline').selectedIndex].text : 
+            const disciplineName = disciplineFilter ?
+                document.getElementById('average-discipline').options[document.getElementById('average-discipline').selectedIndex].text :
                 'Tutte le discipline';
-            
+
             // Prepara l'anteprima per la stampa
             const previewContainer = document.getElementById('print-averages-preview');
             previewContainer.innerHTML = '';
-            
+
             // Crea il contenuto per la stampa
             const printContent = document.createElement('div');
             printContent.className = 'print-averages-content';
-            
+
             // Intestazione
             const header = document.createElement('div');
             header.className = 'print-averages-header';
@@ -3806,11 +4078,11 @@ function calculateAveragesForScrutinio() {
                 <h4>${schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo'} Quadrimestre</h4>
             `;
             printContent.appendChild(header);
-            
+
             // Tabella
             const table = document.createElement('table');
             table.className = 'print-averages-table';
-            
+
             // Intestazione tabella
             let thead = document.createElement('thead');
             thead.innerHTML = `
@@ -3823,61 +4095,71 @@ function calculateAveragesForScrutinio() {
                     </tr>
                 `;
             table.appendChild(thead);
-            
+
             // Corpo tabella
             const tbody = document.createElement('tbody');
-            
-            // Ottieni gli studenti unici
-            let students = [...new Set(evaluations.map(e => e.studentName))].sort();
-            
-            // Per ogni studente, calcola e visualizza la media
-            students.forEach(studentName => {
-                // Filtrare le valutazioni per studente e disciplina (se specificata)
-                let studentEvaluations = evaluations.filter(e => 
-                    e.studentName === studentName && 
-                    (disciplineFilter === '' || e.discipline === disciplineFilter) &&
-                    e.quadrimestre === schoolInfo.quadrimestre // Filtra per quadrimestre corrente
-                );
-                
-                // Se non ci sono valutazioni per questo studente e disciplina, salta
-                if (studentEvaluations.length === 0) return;
-                
-                // Prepara la chiave per recuperare le medie
-                const averageKey = disciplineFilter ? 
-                    `${studentName}|${disciplineFilter}` : 
-                    `${studentName}|all`;
-                
-                // Recupera i dati della media
-                const averageData = studentAverages[averageKey];
-                if (!averageData) return;
-                
-                // Determina se usare il valore modificato o quello calcolato
-                const finalWeightedAverage = averageData.modified ? 
-                    averageData.modifiedValue : 
-                    averageData.weightedAverage;
-                
-                const finalLevel = averageData.modified ? 
-                    getDescriptiveLevel(parseFloat(averageData.modifiedValue)) : 
-                    averageData.weightedAverageLevel;
-                
-                // Crea la riga
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${ disciplineFilter || 'Tutte' }</td>
-                    <td>${studentName}</td>
-                    <td style="text-align: center;">${studentEvaluations.length}</td>
-                    <td style="text-align: center;">${finalWeightedAverage}</td>
-                    <td style="text-align: center;">
-                        <span class="print-averages-level ${finalLevel.levelName.toLowerCase()}">${finalLevel.levelName.toUpperCase()}</span>
-                    </td>
-                `;
-                
-                tbody.appendChild(row);
+
+            // Ottieni discipline e studenti unici
+            const allDisciplines = [...new Set(evaluations.map(e => e.discipline))].sort();
+            const disciplinesToProcess = disciplineFilter ? [disciplineFilter] : allDisciplines;
+            const students = [...new Set(evaluations.map(e => e.studentName))].sort();
+
+            // Per ogni disciplina e studente, calcola e visualizza la media
+            disciplinesToProcess.forEach(disc => {
+                students.forEach(studentName => {
+                    // Filtrare le valutazioni per studente e disciplina
+                    const studentEvaluations = evaluations.filter(e =>
+                        e.studentName === studentName &&
+                        e.discipline === disc &&
+                        e.quadrimestre === schoolInfo.quadrimestre
+                    );
+
+                    // Se non ci sono valutazioni per questo studente e disciplina, salta
+                    if (studentEvaluations.length === 0) return;
+
+                    // Calcola media ponderata
+                    let weightedSum = 0, totalWeight = 0;
+                    studentEvaluations.forEach(ev => {
+                        const weight = averageWeights[ev.tipo] || 1.0;
+                        weightedSum += parseFloat(ev.score) * weight;
+                        totalWeight += weight;
+                    });
+                    const weightedAverage = totalWeight > 0 ? weightedSum / totalWeight : 0;
+                    const wAvg = weightedAverage.toFixed(1);
+                    const wAvgLevel = getDescriptiveLevel(weightedAverage);
+
+                    // Prepara la chiave per recuperare modifiche salvate
+                    const averageKey = `${studentName}|${disc}`;
+                    const averageData = studentAverages[averageKey];
+
+                    // Determina se usare il valore modificato o quello calcolato
+                    const finalWeightedAverage = (averageData && averageData.modified) ?
+                        averageData.modifiedValue :
+                        wAvg;
+
+                    const finalLevel = (averageData && averageData.modified) ?
+                        getDescriptiveLevel(parseFloat(averageData.modifiedValue)) :
+                        wAvgLevel;
+
+                    // Crea la riga
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${disc}</td>
+                        <td>${studentName}</td>
+                        <td style="text-align: center;">${studentEvaluations.length}</td>
+                        <td style="text-align: center;">${finalWeightedAverage}</td>
+                        <td style="text-align: center;">
+                            <span class="print-averages-level ${finalLevel.levelName.toLowerCase()}">${finalLevel.levelName.toUpperCase()}</span>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
             });
-            
+
             table.appendChild(tbody);
             printContent.appendChild(table);
-            
+
             // Info di stampa
             const footer = document.createElement('div');
             footer.style.marginTop = '20px';
@@ -3886,10 +4168,10 @@ function calculateAveragesForScrutinio() {
             footer.style.fontStyle = 'italic';
             footer.innerHTML = `<p>Generato il ${new Date().toLocaleDateString()} alle ${new Date().toLocaleTimeString()}</p>`;
             printContent.appendChild(footer);
-            
+
             // Aggiungi tutto al container di anteprima
             previewContainer.appendChild(printContent);
-            
+
             // Mostra il modal
             document.getElementById('print-averages-modal').style.display = 'flex';
         }
@@ -3917,45 +4199,74 @@ function calculateAveragesForScrutinio() {
                 <head>
                     <title>Stampa Medie</title>
                     <style>
+                        @page {
+                            margin: 1cm;
+                        }
+
                         body {
                             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
                             margin: 0;
-                            padding: 20px;
+                            padding: 10px;
+                            font-size: 11pt;
                         }
-                        
+
                         .print-averages-content {
-                            padding: 20px;
+                            padding: 10px;
                             width: 100%;
                         }
-                        
+
                         .print-averages-header {
                             text-align: center;
-                            margin-bottom: 20px;
+                            margin-bottom: 12px;
                         }
-                        
+
+                        .print-averages-header h2 {
+                            margin: 5px 0;
+                            font-size: 16pt;
+                        }
+
+                        .print-averages-header h3 {
+                            margin: 3px 0;
+                            font-size: 12pt;
+                        }
+
+                        .print-averages-header h4 {
+                            margin: 2px 0;
+                            font-size: 10pt;
+                            font-weight: normal;
+                        }
+
                         .print-averages-table {
                             width: 100%;
                             border-collapse: collapse;
+                            font-size: 9pt;
                         }
-                        
-                        .print-averages-table th, 
+
+                        .print-averages-table th,
                         .print-averages-table td {
                             border: 1px solid #000;
-                            padding: 8px;
+                            padding: 4px 6px;
                             text-align: left;
                         }
-                        
+
                         .print-averages-table th {
-                            background-color: #f2f2f2;
+                            background-color: #e5e7eb;
+                            font-weight: 600;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
-                        
+
                         .print-averages-level {
                             text-align: center;
-                            font-weight: bold;
-                            padding: 4px 8px;
-                            border-radius: 4px;
+                            font-weight: 600;
+                            padding: 2px 8px;
+                            border-radius: 12px;
                             display: inline-block;
-                            min-width: 100px;
+                            min-width: 80px;
+                            font-size: 8pt;
+                            color: white;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
                         
                         .print-averages-level.ottimo {
@@ -4017,6 +4328,318 @@ function calculateAveragesForScrutinio() {
                 document.body.removeChild(printFrame);
             }, 500);
         }
+
+        // ========== FUNZIONI STAMPA VERIFICHE PER REGISTRO ELETTRONICO ==========
+
+        function preparePrintVerifiche() {
+            // Popola i filtri con dati dinamici
+            populatePrintVerificheFilters();
+
+            // Genera l'anteprima iniziale
+            updatePrintVerifichePreview();
+
+            // Mostra il modal
+            document.getElementById('print-verifiche-modal').style.display = 'flex';
+        }
+
+        function populatePrintVerificheFilters() {
+            // Popola date
+            const dateSelect = document.getElementById('print-verifiche-date');
+            const uniqueDates = [...new Set(evaluations
+                .filter(e => e.quadrimestre === schoolInfo.quadrimestre)
+                .map(e => e.date))]
+                .sort().reverse();
+
+            dateSelect.innerHTML = '<option value="">Tutte le Date</option>';
+            uniqueDates.forEach(date => {
+                if (date) {
+                    const dateDisplay = date.split('-').reverse().join('/');
+                    const option = document.createElement('option');
+                    option.value = date;
+                    option.textContent = dateDisplay;
+                    dateSelect.appendChild(option);
+                }
+            });
+
+            // Popola descrizioni (filtrate per disciplina se selezionata)
+            updatePrintVerificheDescriptionFilter();
+        }
+
+        function updatePrintVerificheDescriptionFilter() {
+            const disciplineFilter = document.getElementById('print-verifiche-discipline').value;
+            const descSelect = document.getElementById('print-verifiche-description');
+
+            // Filtra le valutazioni per disciplina se selezionata
+            const filteredEvals = disciplineFilter ?
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
+
+            const uniqueDescriptions = [...new Set(filteredEvals.map(e => e.description))].sort();
+
+            descSelect.innerHTML = '<option value="">Tutte le Verifiche</option>';
+            uniqueDescriptions.forEach(desc => {
+                if (desc) {
+                    const option = document.createElement('option');
+                    option.value = desc;
+                    option.textContent = desc;
+                    descSelect.appendChild(option);
+                }
+            });
+        }
+
+        function updatePrintVerifichePreview() {
+            const previewContainer = document.getElementById('print-verifiche-preview');
+            previewContainer.innerHTML = '';
+
+            // Ottieni filtri
+            const disciplineFilter = document.getElementById('print-verifiche-discipline').value;
+            const dateFilter = document.getElementById('print-verifiche-date').value;
+            const tipoFilter = document.getElementById('print-verifiche-tipo').value;
+            const descriptionFilter = document.getElementById('print-verifiche-description').value;
+
+            // Filtra valutazioni
+            const filteredEvaluations = evaluations.filter(e => {
+                return e.quadrimestre === schoolInfo.quadrimestre &&
+                    (!disciplineFilter || e.discipline === disciplineFilter) &&
+                    (!dateFilter || e.date === dateFilter) &&
+                    (!tipoFilter || e.tipo === tipoFilter) &&
+                    (!descriptionFilter || e.description === descriptionFilter);
+            });
+
+            if (filteredEvaluations.length === 0) {
+                previewContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-medium);">Nessuna valutazione trovata con i filtri selezionati</p>';
+                return;
+            }
+
+            // Crea contenuto stampa
+            const printContent = document.createElement('div');
+            printContent.className = 'print-verifiche-content';
+
+            // Intestazione
+            const header = document.createElement('div');
+            header.className = 'print-verifiche-header';
+
+            // Info verifica (se c'è una sola verifica filtrata, mostra data e descrizione)
+            let verificaDetailsHtml = '';
+            if (descriptionFilter || dateFilter) {
+                const verificaDate = dateFilter ? dateFilter.split('-').reverse().join('/') : '';
+                verificaDetailsHtml = `
+                    <div style="background-color: #f3f4f6; padding: 12px; border-radius: 8px; margin: 15px 0; border-left: 4px solid var(--primary-color);">
+                        ${dateFilter ? `<p style="margin: 5px 0;"><strong>Data Verifica:</strong> ${verificaDate}</p>` : ''}
+                        ${descriptionFilter ? `<p style="margin: 5px 0;"><strong>Argomento:</strong> ${descriptionFilter}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            header.innerHTML = `
+                <h2>Voti per Registro Elettronico</h2>
+                <h3>${disciplineFilter || 'Tutte le discipline'}</h3>
+                <h3>${schoolInfo.istituto || ''}</h3>
+                <h4>Classe ${schoolInfo.classe || ''} ${schoolInfo.sezione || ''} - A.S. ${schoolInfo.annoScolastico || ''}</h4>
+                <h4>${schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo'} Quadrimestre</h4>
+                ${verificaDetailsHtml}
+            `;
+            printContent.appendChild(header);
+
+            // Tabella compatta
+            const table = document.createElement('table');
+            table.className = 'print-verifiche-table';
+            table.style.fontSize = '0.85rem';
+            table.style.width = '100%';
+
+            // Intestazione tabella
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+                <tr>
+                    <th style="width: 35%;">Studente</th>
+                    <th style="width: 20%; text-align: center;">Data</th>
+                    <th style="width: 15%; text-align: center;">Voto</th>
+                    <th style="width: 30%; text-align: center;">Livello</th>
+                </tr>
+            `;
+            table.appendChild(thead);
+
+            // Corpo tabella - raggruppato per studente
+            const tbody = document.createElement('tbody');
+            const students = [...new Set(filteredEvaluations.map(e => e.studentName))].sort();
+
+            students.forEach(studentName => {
+                const studentEvals = filteredEvaluations.filter(e => e.studentName === studentName);
+
+                studentEvals.forEach((evaluation, index) => {
+                    const row = document.createElement('tr');
+                    const dateDisplay = evaluation.date ? evaluation.date.split('-').reverse().join('/') : '';
+
+                    row.innerHTML = `
+                        <td>${index === 0 ? studentName : ''}</td>
+                        <td style="text-align: center;">${dateDisplay}</td>
+                        <td style="text-align: center; font-weight: 600;">${evaluation.score || ''}</td>
+                        <td style="text-align: center;">
+                            <span class="print-verifiche-level ${evaluation.levelClass || ''}">${evaluation.level || ''}</span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+
+            table.appendChild(tbody);
+            printContent.appendChild(table);
+
+            // Footer
+            const footer = document.createElement('div');
+            footer.style.marginTop = '20px';
+            footer.style.fontSize = '12px';
+            footer.style.textAlign = 'right';
+            footer.style.fontStyle = 'italic';
+            footer.innerHTML = `<p>Generato il ${new Date().toLocaleDateString()} alle ${new Date().toLocaleTimeString()}</p>`;
+            printContent.appendChild(footer);
+
+            previewContainer.appendChild(printContent);
+        }
+
+        function closePrintVerificheModal() {
+            document.getElementById('print-verifiche-modal').style.display = 'none';
+        }
+
+        function printVerifiche() {
+            const printContent = document.getElementById('print-verifiche-preview').innerHTML;
+
+            // Crea iframe per stampa
+            const printFrame = document.createElement('iframe');
+            printFrame.name = 'printVerificheIframe';
+            printFrame.style.display = 'none';
+            document.body.appendChild(printFrame);
+
+            // Scrivi contenuto nell'iframe
+            const frameDoc = printFrame.contentDocument || printFrame.contentWindow.document;
+            frameDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Stampa Voti Registro</title>
+                    <style>
+                        @page {
+                            margin: 1cm;
+                        }
+
+                        body {
+                            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                            margin: 0;
+                            padding: 10px;
+                            font-size: 11pt;
+                        }
+
+                        .print-verifiche-content {
+                            width: 100%;
+                        }
+
+                        .print-verifiche-header {
+                            text-align: center;
+                            margin-bottom: 15px;
+                        }
+
+                        .print-verifiche-header h2 {
+                            margin: 5px 0;
+                            font-size: 16pt;
+                        }
+
+                        .print-verifiche-header h3 {
+                            margin: 3px 0;
+                            font-size: 12pt;
+                        }
+
+                        .print-verifiche-header h4 {
+                            margin: 2px 0;
+                            font-size: 10pt;
+                            font-weight: normal;
+                        }
+
+                        .print-verifiche-header div {
+                            text-align: left;
+                            background-color: #f3f4f6 !important;
+                            padding: 10px;
+                            border-radius: 6px;
+                            margin: 10px auto;
+                            max-width: 90%;
+                            border-left: 3px solid #2563eb !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+
+                        .print-verifiche-header div p {
+                            margin: 4px 0;
+                            font-size: 10pt;
+                        }
+
+                        .print-verifiche-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 9pt;
+                        }
+
+                        .print-verifiche-table th,
+                        .print-verifiche-table td {
+                            border: 1px solid #000;
+                            padding: 4px 6px;
+                        }
+
+                        .print-verifiche-table th {
+                            background-color: #e5e7eb;
+                            font-weight: 600;
+                        }
+
+                        .print-verifiche-level {
+                            display: inline-block;
+                            padding: 2px 8px;
+                            border-radius: 12px;
+                            font-weight: 600;
+                            font-size: 8pt;
+                            color: white;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+
+                        .print-verifiche-level.ottimo {
+                            background-color: #15803d;
+                        }
+
+                        .print-verifiche-level.distinto {
+                            background-color: #16a34a;
+                        }
+
+                        .print-verifiche-level.buono {
+                            background-color: #65a30d;
+                        }
+
+                        .print-verifiche-level.discreto {
+                            background-color: #ca8a04;
+                        }
+
+                        .print-verifiche-level.sufficiente {
+                            background-color: #ea580c;
+                        }
+
+                        .print-verifiche-level.non-sufficiente {
+                            background-color: #dc2626;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            frameDoc.close();
+
+            // Stampa e rimuovi iframe
+            setTimeout(function() {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                document.body.removeChild(printFrame);
+            }, 500);
+        }
+
+        // ========== FINE FUNZIONI STAMPA VERIFICHE ==========
 
     // Apertura e chiusura del modal di cancellazione storico
     document.getElementById('open-clear-modal').addEventListener('click', function() {
