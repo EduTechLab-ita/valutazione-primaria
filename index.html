@@ -5306,12 +5306,32 @@ function calculateAveragesForScrutinio() {
             saveDriveState();
 
             if (driveState.fileId) {
-                // File esiste: carica dati da Drive
-                await syncFromDrive(true);
+                // File Drive esiste: controlla se ci sono dati locali più recenti
+                if (evaluations.length > 0) {
+                    // Conflitto: ho dati locali E dati sul Drive — chiedo all'utente
+                    const scelta = confirm(
+                        '⚠️ Hai ' + evaluations.length + ' valutazioni locali (es. appena importate da JSON) ' +
+                        'e un file esistente sul Drive.\n\n' +
+                        'Clicca OK per SOVRASCRIVERE il Drive con i dati locali.\n' +
+                        'Clicca Annulla per CARICARE i dati dal Drive (i dati locali verranno persi).'
+                    );
+                    if (scelta) {
+                        // Utente sceglie locale → carica sul Drive
+                        await syncToDrive();
+                        document.getElementById('drive-status-text').textContent =
+                            '✅ Connesso — ' + evaluations.length + ' valutazioni salvate su Drive';
+                    } else {
+                        // Utente sceglie Drive → scarica dal Drive
+                        await syncFromDrive(true);
+                    }
+                } else {
+                    // Nessun dato locale: carica normalmente dal Drive
+                    await syncFromDrive(true);
+                }
                 document.getElementById('drive-user-email').textContent = driveState.userEmail;
                 showDrivePanel('connected');
             } else {
-                // Prima volta: carica i dati locali su Drive
+                // Prima volta: nessun file sul Drive → carica i dati locali su Drive
                 await syncToDrive();
                 document.getElementById('drive-user-email').textContent = driveState.userEmail;
                 showDrivePanel('connected');
