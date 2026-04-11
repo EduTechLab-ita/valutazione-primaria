@@ -1975,11 +1975,47 @@
           </button>
           <button
             type="button"
+            onclick="openRenameStudentModal()"
+            style="flex:1; background-color: #7c3aed; color: #fff; min-width:200px;"
+            title="Rinomina uno studente in tutte le sue valutazioni"
+          >
+            <i class="fas fa-user-edit"></i> Rinomina studente
+          </button>
+          <button
+            type="button"
             id="open-clear-modal"
             style="flex:1; background-color: var(--danger-color); color: #fff; min-width:200px;"
           >
             <i class="fas fa-trash-alt"></i> Ripulisci storico verifiche
           </button>
+        </div>
+
+        <!-- Modal Rinomina Studente -->
+        <div id="rename-student-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-content" style="max-width:460px;">
+                <div class="close-modal" onclick="document.getElementById('rename-student-modal').style.display='none'">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h3 style="margin-bottom:16px;"><i class="fas fa-user-edit" style="color:#7c3aed;margin-right:8px;"></i>Rinomina studente</h3>
+                <div class="form-group">
+                    <label for="rename-from">Studente da rinominare:</label>
+                    <select id="rename-from" style="width:100%"></select>
+                </div>
+                <div class="form-group">
+                    <label for="rename-to">Nuovo nome (es. Mazzotti Solis Giampiero):</label>
+                    <input type="text" id="rename-to" placeholder="Nome Cognome corretto" style="width:100%">
+                </div>
+                <div id="rename-preview" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px; margin-bottom:12px; font-size:0.85rem; color:#166534;">
+                </div>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button type="button" onclick="previewRename()" style="flex:1; background:#6b7280;">
+                        <i class="fas fa-eye"></i> Anteprima
+                    </button>
+                    <button type="button" onclick="applyRename()" style="flex:2; background:#7c3aed;">
+                        <i class="fas fa-check"></i> Applica rinomina
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Modal di conferma cancellazione storico -->
@@ -4127,6 +4163,53 @@ function calculateAveragesForScrutinio() {
             calculateAveragesForScrutinio();
 
             alert('✅ Fatto! ' + count + ' valutazioni aggiornate. I dati sono stati salvati.');
+        }
+
+        // Rinomina studente in tutte le sue valutazioni
+        function openRenameStudentModal() {
+            const select = document.getElementById('rename-from');
+            const names = [...new Set(evaluations.map(e => e.studentName).filter(Boolean))].sort();
+            if (names.length === 0) {
+                alert('Nessuna valutazione presente. Importa i dati prima di rinominare.');
+                return;
+            }
+            select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+            document.getElementById('rename-to').value = '';
+            document.getElementById('rename-preview').style.display = 'none';
+            document.getElementById('rename-student-modal').style.display = 'flex';
+        }
+
+        function previewRename() {
+            const from = document.getElementById('rename-from').value;
+            const to = document.getElementById('rename-to').value.trim();
+            const count = evaluations.filter(e => e.studentName === from).length;
+            const preview = document.getElementById('rename-preview');
+            preview.style.display = 'block';
+            if (to) {
+                preview.innerHTML = `<i class="fas fa-info-circle"></i> Verranno aggiornate <strong>${count}</strong> valutazioni da <em>"${from}"</em> → <strong>"${to}"</strong>`;
+            } else {
+                preview.innerHTML = `<i class="fas fa-info-circle"></i> <strong>${count}</strong> valutazioni trovate per <em>"${from}"</em>. Inserisci il nuovo nome.`;
+            }
+        }
+
+        function applyRename() {
+            const from = document.getElementById('rename-from').value;
+            const to = document.getElementById('rename-to').value.trim();
+            if (!to) { alert('Inserisci il nuovo nome corretto.'); return; }
+            if (to === from) { alert('Il nuovo nome è uguale a quello attuale.'); return; }
+            const count = evaluations.filter(e => e.studentName === from).length;
+            if (count === 0) { alert('Nessuna valutazione trovata per questo studente.'); return; }
+            if (!confirm(`Rinominare ${count} valutazioni da:\n"${from}"\na:\n"${to}"?\n\nL'operazione non è reversibile.`)) return;
+            const newName = normalizeToTitleCase(to);
+            evaluations.forEach(e => { if (e.studentName === from) e.studentName = newName; });
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            syncToDrive();
+            updateHistoryTable();
+            updateStudentsFilter();
+            updateStudentDatalist();
+            calculateAveragesForScrutinio();
+            document.getElementById('rename-student-modal').style.display = 'none';
+            alert(`✅ Fatto! ${count} valutazioni rinominate in "${newName}". Dati salvati.`);
         }
 
         // Reset history filters
