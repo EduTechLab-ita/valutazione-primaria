@@ -8,10 +8,10 @@
     <style>
         /* Base styles with modern variables */
         :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1e40af;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
             --secondary-color: #334155;
-            --light-bg: #f8fafc;
+            --light-bg: #eef2ff;
             --border-color: #e2e8f0;
             --success-color: #10b981;
             --warning-color: #f59e0b;
@@ -19,10 +19,12 @@
             --text-dark: #1e293b;
             --text-medium: #475569;
             --text-light: #94a3b8;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+            --shadow-md: 0 4px 16px rgba(79,70,229,.13);
+            --shadow-card: 0 2px 12px rgba(0,0,0,.07);
             --radius: 0.5rem;
             --transition: all 0.2s ease;
+            --header-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
         }
 
         * {
@@ -35,25 +37,43 @@
         body {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px 20px;
             background-color: var(--light-bg);
             color: var(--text-dark);
             line-height: 1.6;
         }
 
+        /* ── App Header (B-style gradient) ─────────────────────────── */
+        .app-header {
+            background: var(--header-gradient);
+            margin: 0 -20px 28px;
+            padding: 22px 28px 16px;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 24px rgba(79,70,229,.35);
+        }
+        .app-header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
         h1 {
             text-align: center;
-            color: var(--secondary-color);
+            color: white;
             margin-bottom: 8px;
-            font-weight: 700;
-            font-size: 2.2rem;
+            font-weight: 800;
+            font-size: 2rem;
+            letter-spacing: -.01em;
+            text-shadow: 0 2px 8px rgba(0,0,0,.2);
         }
 
         .help-button {
             position: absolute;
             right: 0;
-            background: var(--primary-color);
-            border: none;
+            background: rgba(255,255,255,.2);
+            border: 1px solid rgba(255,255,255,.35);
             border-radius: 50%;
             width: 36px;
             height: 36px;
@@ -64,13 +84,12 @@
             align-items: center;
             justify-content: center;
             font-size: 16px;
-            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(8px);
         }
 
         .help-button:hover {
-            background: var(--primary-hover);
+            background: rgba(255,255,255,.35);
             transform: scale(1.05);
-            box-shadow: var(--shadow-md);
         }
 
         .help-button:active {
@@ -166,56 +185,56 @@
         
         #school-info-subtitle {
             text-align: center;
-            margin-bottom: 32px;
-            color: var(--text-medium);
-            font-size: 1.1rem;
-            font-weight: normal;
+            margin-bottom: 4px;
+            color: rgba(255,255,255,.85);
+            font-size: 1rem;
+            font-weight: 500;
         }
 
-        /* Tab styling - Improved contrast */
+        /* Tab styling - B Vibrant style */
         .tabs {
             display: flex;
             overflow: hidden;
             background-color: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 20px;
+            border: 1px solid #c7d2fe;
         }
 
         .tab-button {
             flex: 1;
             background-color: transparent;
             border: none;
-            padding: 14px 16px;
+            padding: 13px 12px;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
+            font-size: 0.88rem;
             font-weight: 500;
-            color: var(--secondary-color); /* Darker text for non-active tabs */
+            color: var(--text-medium);
             border-bottom: 3px solid transparent;
             text-align: center;
         }
 
         .tab-button:hover {
-            background-color: rgba(37, 99, 235, 0.05);
+            background-color: #eef2ff;
             color: var(--primary-color);
         }
 
         .tab-button.active {
-            background-color: white;
+            background-color: #eef2ff;
             color: var(--primary-color);
             border-bottom: 3px solid var(--primary-color);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .tab-content {
             display: none;
             padding: 24px;
-            border-radius: var(--radius);
+            border-radius: 16px;
             background-color: white;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            border: 1px solid #e0e7ff;
             margin-bottom: 32px;
         }
 
@@ -301,39 +320,47 @@
             display: inline-block;
             padding: 4px 12px;
             border-radius: 50px;
-            color: white;
-            font-weight: 600;
+            font-weight: 800;
             margin-left: 10px;
-            font-size: 0.9rem;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            font-size: 0.78rem;
+            letter-spacing: .04em;
+            text-shadow: none;
         }
 
         .ottimo {
-            background-color: #15803d; /* Verde scuro migliorato */
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
         .distinto {
-            background-color: #16a34a; /* Verde */
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
         }
 
         .buono {
-            background-color: #65a30d; /* Verde-giallo */
-            color: white;
+            background: #ede9fe;
+            color: #6d28d9;
+            border: 1px solid #ddd6fe;
         }
 
         .discreto {
-            background-color: #ca8a04; /* Giallo */
-            color: white;
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde68a;
         }
 
         .sufficiente {
-            background-color: #ea580c; /* Arancione */
-            color: white;
+            background: #ffedd5;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
         }
 
         .non-sufficiente {
-            background-color: #dc2626; /* Rosso */
-            color: white;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
         
         /* Table styling */
@@ -353,11 +380,11 @@
         }
 
         th {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             letter-spacing: 0.5px;
         }
 
@@ -487,32 +514,33 @@
         .drive-button {
             position: absolute;
             left: 0;
-            background: #f1f5f9;
-            border: 1.5px solid var(--border-color);
+            background: rgba(255,255,255,.2);
+            border: 1px solid rgba(255,255,255,.35);
             border-radius: 20px;
-            padding: 4px 12px 4px 8px;
-            color: var(--text-medium);
+            padding: 5px 14px 5px 10px;
+            color: white;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 6px;
             font-size: 0.78rem;
-            font-weight: 600;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
         }
         .drive-button:hover {
-            background: #e2e8f0;
+            background: rgba(255,255,255,.32);
         }
         .drive-button .drive-dot {
-            width: 8px; height: 8px;
+            width: 7px; height: 7px;
             border-radius: 50%;
-            background: #94a3b8;
+            background: rgba(255,255,255,.6);
             transition: var(--transition);
             flex-shrink: 0;
         }
-        .drive-button.connected .drive-dot { background: var(--success-color); }
-        .drive-button.syncing .drive-dot   { background: var(--warning-color); animation: pulse 1s infinite; }
-        .drive-button.error .drive-dot     { background: var(--danger-color); }
+        .drive-button.connected .drive-dot { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+        .drive-button.syncing .drive-dot   { background: #fbbf24; animation: pulse 1s infinite; }
+        .drive-button.error .drive-dot     { background: #f87171; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         /* Modal Drive */
@@ -710,35 +738,12 @@
                 print-color-adjust: exact !important;
             }
 
-            .ottimo {
-                background-color: #15803d !important;
-                color: white !important;
-            }
-
-            .distinto {
-                background-color: #16a34a !important;
-                color: white !important;
-            }
-
-            .buono {
-                background-color: #65a30d !important;
-                color: white !important;
-            }
-
-            .discreto {
-                background-color: #ca8a04 !important;
-                color: white !important;
-            }
-
-            .sufficiente {
-                background-color: #ea580c !important;
-                color: white !important;
-            }
-
-            .non-sufficiente {
-                background-color: #dc2626 !important;
-                color: white !important;
-            }
+            .ottimo    { background: #dcfce7 !important; color: #15803d !important; border: 1px solid #bbf7d0 !important; }
+            .distinto  { background: #dbeafe !important; color: #1d4ed8 !important; border: 1px solid #bfdbfe !important; }
+            .buono     { background: #ede9fe !important; color: #6d28d9 !important; border: 1px solid #ddd6fe !important; }
+            .discreto  { background: #fef9c3 !important; color: #854d0e !important; border: 1px solid #fde68a !important; }
+            .sufficiente   { background: #ffedd5 !important; color: #9a3412 !important; border: 1px solid #fed7aa !important; }
+            .non-sufficiente { background: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca !important; }
 
             /* Ottimizzazione layout stampa storico - compatto come registro elettronico */
             @page {
@@ -831,10 +836,11 @@
             cursor: pointer;
             position: relative;
             transition: all 0.3s ease;
+            color: rgba(255,255,255,.85);
         }
-        
+
         .info-subtitle-clickable:hover {
-            color: var(--primary-color);
+            color: white;
             transform: translateY(-2px);
         }
         
@@ -1243,6 +1249,35 @@
             -webkit-touch-callout: none;
         }
     }
+
+    /* Drive Save Toast */
+    .drive-toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #065f46;
+        color: #d1fae5;
+        border: 1px solid #10b981;
+        border-radius: 12px;
+        padding: 12px 22px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 6px 24px rgba(16,185,129,0.35);
+        z-index: 9999;
+        opacity: 0;
+        transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    .drive-toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    .drive-toast i { font-size: 1rem; color: #34d399; }
 </style>
 
 <!-- PWA Manifest and Meta Tags -->
@@ -1264,19 +1299,27 @@
 
 </head>
 <body>
-    <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 8px;">
-        <button id="drive-btn" class="drive-button no-print" onclick="openDriveModal()" title="Connessione Google Drive">
-            <span class="drive-dot"></span>
-            <span id="drive-btn-label">Drive</span>
-        </button>
-        <h1 style="margin: 0;">Valutazione Verifiche Scuola Primaria</h1>
-        <button id="help-btn" class="help-button" onclick="openHelpModal()" title="Guida all'utilizzo">
-            <i class="fas fa-question-circle"></i>
-        </button>
+    <!-- Drive Save Toast -->
+    <div id="drive-toast" class="drive-toast no-print">
+        <i class="fas fa-check-circle"></i>
+        <span>Tutti i dati sono stati salvati sul Drive</span>
     </div>
-    <div id="school-info-subtitle" class="info-subtitle-clickable" onclick="editSchoolInfo()">
-        <!-- Contenuto dinamico -->
-        <div class="edit-tooltip">Clicca per modificare</div>
+
+    <div class="app-header">
+        <div class="app-header-inner">
+            <button id="drive-btn" class="drive-button no-print" onclick="openDriveModal()" title="Connessione Google Drive">
+                <span class="drive-dot"></span>
+                <span id="drive-btn-label">Drive</span>
+            </button>
+            <h1 style="margin: 0;">Valutazione Verifiche Scuola Primaria</h1>
+            <button id="help-btn" class="help-button" onclick="openHelpModal()" title="Guida all'utilizzo">
+                <i class="fas fa-question-circle"></i>
+            </button>
+        </div>
+        <div id="school-info-subtitle" class="info-subtitle-clickable" onclick="editSchoolInfo()">
+            <!-- Contenuto dinamico -->
+            <div class="edit-tooltip">Clicca per modificare</div>
+        </div>
     </div>
     
     <!-- School Info Modal -->
@@ -5313,6 +5356,15 @@ function calculateAveragesForScrutinio() {
         }
     }
 
+    // ── Toast conferma salvataggio Drive ─────────────────────────────────
+    function showDriveSavedToast() {
+        const toast = document.getElementById('drive-toast');
+        if (!toast) return;
+        toast.classList.add('show');
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
     // ── Scrive i dati su Drive (chiamata dopo ogni salvataggio) ───────────
     async function syncToDrive() {
         if (!driveState.enabled || !driveState.accessToken) return;
@@ -5360,6 +5412,7 @@ function calculateAveragesForScrutinio() {
                 saveDriveState();
             }
             updateDriveButton('connected');
+            showDriveSavedToast();
         } catch(err) {
             updateDriveButton('error');
         }
