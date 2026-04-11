@@ -1259,6 +1259,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-192x192.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-192x192.png">
 
+<!-- Google Identity Services (per OAuth2 Drive) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </head>
 <body>
     <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 8px;">
@@ -1398,55 +1401,54 @@
                 <i class="fas fa-times"></i>
             </div>
             <div class="modal-header">
-                <h2><i class="fab fa-google-drive"></i> Connessione Google Drive</h2>
-                <p>Salva i tuoi dati in modo sicuro sul tuo Google Drive scolastico. I dati sono accessibili da qualsiasi dispositivo e non vanno persi se pulisci il browser.</p>
+                <h2><i class="fab fa-google-drive"></i> Google Drive</h2>
+                <p>Collega il tuo account Google per salvare i dati sul tuo Drive scolastico. Accessibili da qualsiasi dispositivo, protetti dal tuo account.</p>
             </div>
 
-            <div id="drive-status-bar" class="drive-status-bar">
-                <i class="fas fa-circle" style="font-size:0.6rem;"></i>
-                <span id="drive-status-text">Non configurato — inserisci l'URL del tuo script</span>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 8px;">
-                <label for="drive-gas-url" style="font-size:0.85rem; font-weight:600;">URL del tuo Google Apps Script:</label>
-                <input type="url" id="drive-gas-url" class="drive-url-input" placeholder="https://script.google.com/macros/s/.../exec">
-            </div>
-            <div style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 4px;">
-                <i class="fas fa-info-circle"></i> Non hai ancora lo script? Segui le <a href="#" onclick="openDriveHelp(); return false;" style="color:var(--primary-color);">istruzioni di installazione</a>.
-            </div>
-
-            <div class="drive-actions">
-                <button type="button" onclick="testDriveConnection()" style="background: var(--secondary-color);">
-                    <i class="fas fa-plug"></i> Testa connessione
+            <!-- Stato: non connesso -->
+            <div id="drive-panel-connect" style="text-align:center; padding: 8px 0 16px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">☁️</div>
+                <p style="color: var(--text-medium); margin-bottom: 20px; font-size: 0.9rem;">
+                    I tuoi dati vengono salvati automaticamente in una cartella<br>
+                    <strong>"Valutazione-Primaria-Dati"</strong> sul tuo Google Drive.
+                </p>
+                <button type="button" onclick="connectToDrive()" style="background: var(--primary-color); font-size:1rem; padding: 12px 28px; width: 100%;">
+                    <i class="fab fa-google"></i> &nbsp; Collega a Google Drive
                 </button>
-                <button type="button" onclick="saveDriveConfig()" style="background: var(--primary-color);">
-                    <i class="fas fa-save"></i> Salva e attiva
-                </button>
-                <button type="button" onclick="disableDrive()" style="background: var(--danger-color);">
-                    <i class="fas fa-unlink"></i> Disconnetti
-                </button>
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 12px;">
+                    <i class="fas fa-shield-alt"></i> L'app accede solo ai file che crea lei stessa, non al resto del tuo Drive.
+                </p>
             </div>
 
-            <div id="drive-migrate-section" class="drive-migrate-section" style="display:none;">
-                <strong><i class="fas fa-upload"></i> Migrazione dati locali</strong><br>
-                Hai <span id="drive-local-count">0</span> valutazioni salvate localmente nel browser. Puoi caricarle su Drive adesso per non perderle.
-                <div style="margin-top: 8px;">
-                    <button type="button" onclick="migrateLocalToDrive()" style="background: var(--warning-color); color: white; width: 100%;">
-                        <i class="fas fa-cloud-upload-alt"></i> Carica dati locali su Drive
+            <!-- Stato: connesso -->
+            <div id="drive-panel-connected" style="display:none;">
+                <div id="drive-status-bar" class="drive-status-bar ok">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="drive-status-text">Connesso — i dati vengono salvati automaticamente</span>
+                </div>
+                <div id="drive-user-info" style="font-size:0.85rem; color: var(--text-medium); margin-bottom: 14px; padding: 8px 12px; background: #f8fafc; border-radius: var(--radius);">
+                    <i class="fas fa-user-circle"></i> <span id="drive-user-email"></span>
+                    <span style="float:right; color: var(--text-light);">Cartella: Valutazione-Primaria-Dati</span>
+                </div>
+                <div class="drive-actions">
+                    <button type="button" onclick="syncFromDrive(true)" style="background: var(--primary-color); flex:2;">
+                        <i class="fas fa-sync"></i> Ricarica da Drive
+                    </button>
+                    <button type="button" onclick="disconnectDrive()" style="background: var(--danger-color); flex:1;">
+                        <i class="fas fa-unlink"></i> Disconnetti
                     </button>
                 </div>
             </div>
 
-            <div id="drive-help-section" style="display:none; margin-top:16px; padding:14px; background:#f8fafc; border-radius:var(--radius); border:1px solid var(--border-color); font-size:0.82rem; line-height:1.7;">
-                <strong>Come installare il tuo script (5 minuti):</strong><br>
-                1. Vai su <a href="https://script.google.com" target="_blank" style="color:var(--primary-color);">script.google.com</a> con il tuo account scolastico<br>
-                2. Clicca <strong>Nuovo progetto</strong><br>
-                3. Cancella il codice esistente e incolla il codice dal file <code>Code.gs</code> (ti è stato inviato)<br>
-                4. Clicca <strong>Distribuisci → Nuova distribuzione</strong><br>
-                5. Tipo: <strong>App web</strong> | Esegui come: <strong>Me</strong> | Accesso: <strong>Chiunque</strong><br>
-                6. Clicca <strong>Distribuisci</strong> → autorizza → copia l'URL e incollalo qui sopra<br>
-                <br>
-                <i class="fas fa-shield-alt" style="color:var(--success-color);"></i> I tuoi dati vengono salvati <strong>solo sul tuo Drive</strong>, in una cartella chiamata "Valutazione-Primaria-Dati".
+            <!-- Stato: errore -->
+            <div id="drive-panel-error" style="display:none; text-align:center; padding: 8px 0 12px;">
+                <div id="drive-status-bar-err" class="drive-status-bar err">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="drive-error-text">Errore di connessione</span>
+                </div>
+                <button type="button" onclick="connectToDrive()" style="background: var(--primary-color); width:100%; margin-top: 10px;">
+                    <i class="fab fa-google"></i> Riprova
+                </button>
             </div>
         </div>
     </div>
@@ -5065,26 +5067,46 @@ function calculateAveragesForScrutinio() {
 
         // ========== FINE FUNZIONI STAMPA VERIFICHE ==========
 
-    // ========== DRIVE INTEGRATION ==========
+    // ========== DRIVE INTEGRATION (OAuth2 + Drive API) ==========
 
-    let driveConfig = { gasUrl: '', enabled: false };
+    // ⚠️  CONFIGURAZIONE: sostituire con il Client ID reale da Google Cloud Console
+    //     Vedi: https://console.cloud.google.com → Credenziali → ID client OAuth 2.0
+    const DRIVE_CLIENT_ID   = 'DA_CONFIGURARE.apps.googleusercontent.com';
+    const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.file email profile';
+    const DRIVE_FOLDER_NAME = 'Valutazione-Primaria-Dati';
+    const DRIVE_FILE_NAME   = 'valutazione_dati.json';
 
+    // Stato Drive (persiste in localStorage)
+    let driveState = {
+        enabled:     false,
+        accessToken: null,
+        tokenExpiry: 0,
+        fileId:      null,
+        folderId:    null,
+        userEmail:   ''
+    };
+
+    // ── Carica stato all'avvio ─────────────────────────────────────────────
     function loadDriveConfig() {
         try {
-            const saved = localStorage.getItem('driveConfig');
-            if (saved) driveConfig = JSON.parse(saved);
+            const saved = localStorage.getItem('driveState_v2');
+            if (saved) driveState = Object.assign(driveState, JSON.parse(saved));
         } catch(e) {}
         updateDriveButton();
-        if (driveConfig.enabled && driveConfig.gasUrl) {
-            syncFromDrive();
+        // Se era connesso e il token è ancora valido, ricarica da Drive
+        if (driveState.enabled && driveState.accessToken && Date.now() < driveState.tokenExpiry - 30000) {
+            syncFromDrive(false);
+        } else if (driveState.enabled) {
+            // Token scaduto: prova rinnovo silenzioso
+            trySilentAuth();
         }
     }
 
-    function saveDriveConfigToStorage() {
-        localStorage.setItem('driveConfig', JSON.stringify(driveConfig));
+    function saveDriveState() {
+        localStorage.setItem('driveState_v2', JSON.stringify(driveState));
     }
 
-    // ── Aggiorna pulsante Drive nell'header ────────────────────────────────
+    // ── Aggiorna pulsante Drive nell'header ───────────────────────────────
     function updateDriveButton(state) {
         const btn   = document.getElementById('drive-btn');
         const label = document.getElementById('drive-btn-label');
@@ -5096,7 +5118,7 @@ function calculateAveragesForScrutinio() {
         } else if (state === 'error') {
             btn.classList.add('error');
             label.textContent = 'Drive ⚠️';
-        } else if (driveConfig.enabled && driveConfig.gasUrl) {
+        } else if (driveState.enabled && driveState.accessToken) {
             btn.classList.add('connected');
             label.textContent = 'Drive ✓';
         } else {
@@ -5104,106 +5126,231 @@ function calculateAveragesForScrutinio() {
         }
     }
 
-    // ── Legge i dati dal Drive (all'avvio) ────────────────────────────────
-    function syncFromDrive() {
-        if (!driveConfig.gasUrl) return;
-        updateDriveButton('syncing');
-        fetch(driveConfig.gasUrl, { redirect: 'follow' })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                // Aggiorna solo se Drive ha dati più aggiornati
-                if (data.evaluations && data.evaluations.length >= 0) {
-                    evaluations = data.evaluations;
-                    if (data.schoolInfo)     schoolInfo = data.schoolInfo;
-                    if (data.averageWeights) averageWeights = data.averageWeights;
-                    if (data.studentAverages) studentAverages = data.studentAverages;
-                    // Aggiorna localStorage come cache locale
-                    localStorage.setItem('evaluations', JSON.stringify(evaluations));
-                    localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
-                    localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
-                    localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
-                    // Aggiorna UI
-                    updateHistoryTable();
-                    updateStudentsFilter();
-                    updateStudentDatalist();
-                    calculateAveragesForScrutinio();
-                }
-                updateDriveButton('connected');
-            })
-            .catch(() => updateDriveButton('error'));
-    }
-
-    // ── Scrive i dati sul Drive (dopo ogni salvataggio) ───────────────────
-    function syncToDrive() {
-        if (!driveConfig.enabled || !driveConfig.gasUrl) return;
-        updateDriveButton('syncing');
-        const payload = {
-            evaluations:    evaluations,
-            schoolInfo:     schoolInfo,
-            averageWeights: averageWeights,
-            studentAverages: studentAverages
-        };
-        fetch(driveConfig.gasUrl, {
-            method:   'POST',
-            body:     JSON.stringify(payload),
-            headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
-            redirect: 'follow'
-        })
-        .then(r => r.json())
-        .then(data => {
-            updateDriveButton(data.error ? 'error' : 'connected');
-        })
-        .catch(() => updateDriveButton('error'));
-    }
-
-    // ── Migra i dati locali su Drive (one-shot) ───────────────────────────
-    function migrateLocalToDrive() {
-        if (!driveConfig.gasUrl) {
-            alert('Configura prima l\'URL del tuo script.');
+    // ── Click su "Collega a Google Drive" ─────────────────────────────────
+    function connectToDrive() {
+        if (DRIVE_CLIENT_ID === 'DA_CONFIGURARE.apps.googleusercontent.com') {
+            alert('⚠️ Client ID non configurato. Contatta il responsabile dell\'app per attivare questa funzione.');
             return;
         }
-        if (!confirm('Carico i ' + evaluations.length + ' valutazioni attualmente nel browser su Google Drive. Confermi?')) return;
-        updateDriveButton('syncing');
-        const payload = {
-            evaluations:    evaluations,
-            schoolInfo:     schoolInfo,
-            averageWeights: averageWeights,
-            studentAverages: studentAverages
-        };
-        fetch(driveConfig.gasUrl, {
-            method:   'POST',
-            body:     JSON.stringify(payload),
-            headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
-            redirect: 'follow'
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.error) throw new Error(data.error);
-            updateDriveButton('connected');
-            alert('✅ Migrazione completata! ' + evaluations.length + ' valutazioni caricate su Drive.');
-            document.getElementById('drive-migrate-section').style.display = 'none';
-        })
-        .catch(err => {
-            updateDriveButton('error');
-            alert('Errore durante la migrazione: ' + err.message);
+        if (typeof google === 'undefined' || !google.accounts) {
+            alert('Le librerie Google non sono ancora caricate. Riprova tra qualche secondo.');
+            return;
+        }
+        const client = google.accounts.oauth2.initTokenClient({
+            client_id: DRIVE_CLIENT_ID,
+            scope: DRIVE_SCOPE,
+            callback: (tokenResponse) => {
+                if (tokenResponse.error) {
+                    showDrivePanel('error', 'Autorizzazione negata: ' + tokenResponse.error);
+                    return;
+                }
+                driveState.accessToken = tokenResponse.access_token;
+                driveState.tokenExpiry = Date.now() + (tokenResponse.expires_in * 1000);
+                driveState.enabled     = true;
+                saveDriveState();
+                updateDriveButton('syncing');
+                initDriveConnection();
+            }
         });
+        client.requestAccessToken({ prompt: 'consent' });
     }
 
-    // ── Modal Drive: apri ─────────────────────────────────────────────────
-    function openDriveModal() {
-        const urlInput = document.getElementById('drive-gas-url');
-        urlInput.value = driveConfig.gasUrl || '';
-        updateDriveStatusBar();
-        // Mostra sezione migrazione se ci sono dati locali e Drive è configurato
-        const migrateSection = document.getElementById('drive-migrate-section');
-        if (driveConfig.enabled && evaluations.length > 0) {
-            document.getElementById('drive-local-count').textContent = evaluations.length;
-            migrateSection.style.display = 'block';
-        } else {
-            migrateSection.style.display = 'none';
+    // ── Prova rinnovo silenzioso del token ────────────────────────────────
+    function trySilentAuth() {
+        if (typeof google === 'undefined' || !google.accounts) return;
+        if (DRIVE_CLIENT_ID === 'DA_CONFIGURARE.apps.googleusercontent.com') return;
+        const client = google.accounts.oauth2.initTokenClient({
+            client_id: DRIVE_CLIENT_ID,
+            scope: DRIVE_SCOPE,
+            prompt: '',
+            callback: (tokenResponse) => {
+                if (tokenResponse.access_token) {
+                    driveState.accessToken = tokenResponse.access_token;
+                    driveState.tokenExpiry = Date.now() + (tokenResponse.expires_in * 1000);
+                    saveDriveState();
+                    updateDriveButton('connected');
+                    syncFromDrive(false);
+                } else {
+                    updateDriveButton('error');
+                }
+            }
+        });
+        client.requestAccessToken({ prompt: '' });
+    }
+
+    // ── Prima connessione: cerca/crea cartella e file ─────────────────────
+    async function initDriveConnection() {
+        try {
+            // Recupera email utente
+            const info = await driveApiFetch('https://www.googleapis.com/oauth2/v2/userinfo');
+            driveState.userEmail = info.email || '';
+
+            // Cerca/crea cartella su Drive
+            if (!driveState.folderId) {
+                driveState.folderId = await findOrCreateDriveFolder();
+            }
+            // Cerca file esistente
+            if (!driveState.fileId) {
+                driveState.fileId = await findDriveFile();
+            }
+            saveDriveState();
+
+            if (driveState.fileId) {
+                // File esiste: carica dati da Drive
+                await syncFromDrive(true);
+                document.getElementById('drive-user-email').textContent = driveState.userEmail;
+                showDrivePanel('connected');
+            } else {
+                // Prima volta: carica i dati locali su Drive
+                await syncToDrive();
+                document.getElementById('drive-user-email').textContent = driveState.userEmail;
+                showDrivePanel('connected');
+                document.getElementById('drive-status-text').textContent =
+                    '✅ Connesso — ' + evaluations.length + ' valutazioni caricate su Drive';
+            }
+            updateDriveButton('connected');
+        } catch(err) {
+            updateDriveButton('error');
+            showDrivePanel('error', 'Errore: ' + err.message);
         }
-        document.getElementById('drive-help-section').style.display = 'none';
+    }
+
+    // ── Trova o crea la cartella su Drive ─────────────────────────────────
+    async function findOrCreateDriveFolder() {
+        const q = encodeURIComponent(`name='${DRIVE_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+        if (resp.files && resp.files.length > 0) return resp.files[0].id;
+        const created = await driveApiFetch(
+            'https://www.googleapis.com/drive/v3/files',
+            'POST',
+            { name: DRIVE_FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' }
+        );
+        return created.id;
+    }
+
+    // ── Trova il file dati nella cartella ─────────────────────────────────
+    async function findDriveFile() {
+        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${driveState.folderId}' in parents and trashed=false`);
+        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+        if (resp.files && resp.files.length > 0) return resp.files[0].id;
+        return null;
+    }
+
+    // ── Legge i dati da Drive ─────────────────────────────────────────────
+    async function syncFromDrive(showFeedback) {
+        if (!driveState.enabled || !driveState.accessToken || !driveState.fileId) return;
+        updateDriveButton('syncing');
+        try {
+            const resp = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${driveState.fileId}?alt=media`,
+                { headers: { Authorization: 'Bearer ' + driveState.accessToken } }
+            );
+            if (!resp.ok) throw new Error('Lettura Drive fallita (' + resp.status + ')');
+            const data = await resp.json();
+            if (Array.isArray(data.evaluations)) {
+                evaluations    = data.evaluations;
+                if (data.schoolInfo)      schoolInfo     = data.schoolInfo;
+                if (data.averageWeights)  averageWeights = data.averageWeights;
+                if (data.studentAverages) studentAverages= data.studentAverages;
+                localStorage.setItem('evaluations',    JSON.stringify(evaluations));
+                localStorage.setItem('schoolInfo',     JSON.stringify(schoolInfo));
+                localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+                localStorage.setItem('studentAverages',JSON.stringify(studentAverages));
+                updateHistoryTable();
+                updateStudentsFilter();
+                updateStudentDatalist();
+                calculateAveragesForScrutinio();
+            }
+            updateDriveButton('connected');
+            if (showFeedback) alert('✅ Dati ricaricati da Drive (' + evaluations.length + ' valutazioni).');
+        } catch(err) {
+            updateDriveButton('error');
+            if (showFeedback) alert('Errore lettura Drive: ' + err.message);
+        }
+    }
+
+    // ── Scrive i dati su Drive (chiamata dopo ogni salvataggio) ───────────
+    async function syncToDrive() {
+        if (!driveState.enabled || !driveState.accessToken) return;
+        if (Date.now() > driveState.tokenExpiry) { updateDriveButton('error'); return; }
+
+        updateDriveButton('syncing');
+        const payload = JSON.stringify({
+            evaluations, schoolInfo, averageWeights, studentAverages,
+            lastSync: new Date().toISOString()
+        });
+
+        try {
+            if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
+            if (!driveState.fileId)   driveState.fileId   = await findDriveFile();
+
+            const boundary = 'valprim_' + Date.now();
+            let body = '';
+            if (!driveState.fileId) {
+                // Crea nuovo file (con metadati cartella)
+                body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n` +
+                    JSON.stringify({ name: DRIVE_FILE_NAME, parents: [driveState.folderId] }) +
+                    `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
+            } else {
+                // Aggiorna file esistente (solo contenuto)
+                body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
+            }
+
+            const url = driveState.fileId
+                ? `https://www.googleapis.com/upload/drive/v3/files/${driveState.fileId}?uploadType=multipart`
+                : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+            const method = driveState.fileId ? 'PATCH' : 'POST';
+
+            const resp = await fetch(url, {
+                method,
+                headers: {
+                    Authorization:  'Bearer ' + driveState.accessToken,
+                    'Content-Type': 'multipart/related; boundary=' + boundary
+                },
+                body
+            });
+            if (!resp.ok) throw new Error('Scrittura Drive fallita (' + resp.status + ')');
+            const result = await resp.json();
+            if (!driveState.fileId) {
+                driveState.fileId = result.id;
+                saveDriveState();
+            }
+            updateDriveButton('connected');
+        } catch(err) {
+            updateDriveButton('error');
+        }
+    }
+
+    // ── Disconnetti Drive ─────────────────────────────────────────────────
+    function disconnectDrive() {
+        if (!confirm('Disconnetto Drive. I dati rimangono nel browser. Confermi?')) return;
+        if (driveState.accessToken && typeof google !== 'undefined' && google.accounts) {
+            google.accounts.oauth2.revoke(driveState.accessToken);
+        }
+        driveState = { enabled: false, accessToken: null, tokenExpiry: 0, fileId: null, folderId: null, userEmail: '' };
+        saveDriveState();
+        updateDriveButton();
+        showDrivePanel('connect');
+    }
+
+    // ── Helper: chiamate Drive/Google API ─────────────────────────────────
+    async function driveApiFetch(url, method, body) {
+        const opts = { method: method || 'GET', headers: { Authorization: 'Bearer ' + driveState.accessToken } };
+        if (body) { opts.body = JSON.stringify(body); opts.headers['Content-Type'] = 'application/json'; }
+        const resp = await fetch(url, opts);
+        if (!resp.ok) throw new Error('API error ' + resp.status + ' su ' + url);
+        return resp.json();
+    }
+
+    // ── Gestione pannelli nel modal ────────────────────────────────────────
+    function openDriveModal() {
+        const panel = (driveState.enabled && driveState.accessToken && Date.now() < driveState.tokenExpiry)
+            ? 'connected' : 'connect';
+        if (panel === 'connected') {
+            document.getElementById('drive-user-email').textContent = driveState.userEmail;
+            document.getElementById('drive-status-text').textContent = '✅ Connesso — i dati vengono salvati automaticamente';
+        }
+        showDrivePanel(panel);
         document.getElementById('drive-modal').style.display = 'flex';
     }
 
@@ -5211,74 +5358,16 @@ function calculateAveragesForScrutinio() {
         document.getElementById('drive-modal').style.display = 'none';
     }
 
-    function openDriveHelp() {
-        const h = document.getElementById('drive-help-section');
-        h.style.display = h.style.display === 'none' ? 'block' : 'none';
-    }
-
-    // ── Aggiorna barra stato nel modal ────────────────────────────────────
-    function updateDriveStatusBar(state, message) {
-        const bar  = document.getElementById('drive-status-bar');
-        const text = document.getElementById('drive-status-text');
-        bar.className = 'drive-status-bar';
-        if (state === 'ok') {
-            bar.classList.add('ok');
-            text.textContent = message || '✅ Connessione riuscita';
-        } else if (state === 'err') {
-            bar.classList.add('err');
-            text.textContent = message || '❌ Connessione fallita — controlla l\'URL';
-        } else if (driveConfig.enabled && driveConfig.gasUrl) {
-            bar.classList.add('ok');
-            text.textContent = '✅ Drive attivo — i dati vengono salvati automaticamente';
-        } else {
-            text.textContent = 'Non configurato — inserisci l\'URL del tuo script';
+    function showDrivePanel(which, errorMsg) {
+        ['connect', 'connected', 'error'].forEach(p => {
+            const el = document.getElementById('drive-panel-' + p);
+            if (el) el.style.display = (p === which) ? '' : 'none';
+        });
+        if (which === 'error' && errorMsg) {
+            const el = document.getElementById('drive-error-text');
+            if (el) el.textContent = errorMsg;
         }
     }
-
-    // ── Testa la connessione senza salvare ────────────────────────────────
-    function testDriveConnection() {
-        const url = document.getElementById('drive-gas-url').value.trim();
-        if (!url) { alert('Inserisci prima l\'URL dello script.'); return; }
-        updateDriveStatusBar(null, '⏳ Connessione in corso…');
-        fetch(url, { redirect: 'follow' })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) throw new Error(data.error);
-                updateDriveStatusBar('ok', '✅ Connessione riuscita! Lo script risponde correttamente.');
-            })
-            .catch(err => {
-                updateDriveStatusBar('err', '❌ Errore: ' + err.message + '. Controlla URL e autorizzazioni.');
-            });
-    }
-
-    // ── Salva configurazione e attiva ─────────────────────────────────────
-    function saveDriveConfig() {
-        const url = document.getElementById('drive-gas-url').value.trim();
-        if (!url) { alert('Inserisci l\'URL dello script prima di salvare.'); return; }
-        driveConfig = { gasUrl: url, enabled: true };
-        saveDriveConfigToStorage();
-        updateDriveButton('connected');
-        updateDriveStatusBar('ok', '✅ Drive attivo — i dati vengono salvati automaticamente.');
-        // Mostra sezione migrazione se ci sono dati locali
-        if (evaluations.length > 0) {
-            document.getElementById('drive-local-count').textContent = evaluations.length;
-            document.getElementById('drive-migrate-section').style.display = 'block';
-        }
-    }
-
-    // ── Disconnetti Drive ─────────────────────────────────────────────────
-    function disableDrive() {
-        if (!confirm('Disabilito la connessione Drive. I dati rimarranno nel browser ma non verranno più sincronizzati. Confermi?')) return;
-        driveConfig = { gasUrl: '', enabled: false };
-        saveDriveConfigToStorage();
-        updateDriveButton();
-        updateDriveStatusBar(null, 'Non configurato — inserisci l\'URL del tuo script');
-        document.getElementById('drive-gas-url').value = '';
-        document.getElementById('drive-migrate-section').style.display = 'none';
-    }
-
-    // ── Hook: chiama syncToDrive dopo ogni salvataggio dati ───────────────
-    // (già integrato in doSaveEvaluation tramite chiamata esplicita sotto)
 
     // ========== FINE DRIVE INTEGRATION ==========
 
