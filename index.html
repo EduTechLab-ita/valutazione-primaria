@@ -5407,9 +5407,9 @@ function calculateAveragesForScrutinio() {
             if (saved) driveState = Object.assign(driveState, JSON.parse(saved));
         } catch(e) {}
         updateDriveButton();
-        // Se era connesso e il token è ancora valido, ricarica da Drive
+        // Se era connesso e il token è ancora valido, migra (se necessario) e ricarica
         if (driveState.enabled && driveState.accessToken && Date.now() < driveState.tokenExpiry - 30000) {
-            syncFromDrive(false);
+            runMigrationIfNeeded().then(() => syncFromDrive(false));
         } else if (driveState.enabled) {
             // Token scaduto: prova rinnovo silenzioso
             trySilentAuth();
@@ -5489,7 +5489,7 @@ function calculateAveragesForScrutinio() {
                     driveState.tokenExpiry = Date.now() + (tokenResponse.expires_in * 1000);
                     saveDriveState();
                     updateDriveButton('connected');
-                    syncFromDrive(false);
+                    runMigrationIfNeeded().then(() => syncFromDrive(false));
                 } else {
                     updateDriveButton('error');
                 }
@@ -5608,6 +5608,32 @@ function calculateAveragesForScrutinio() {
         return null;
     }
 
+    // ── Migrazione automatica all'avvio: sposta il file dalla root alla sottocartella anno ──
+    async function runMigrationIfNeeded() {
+        if (!driveState.enabled || !driveState.accessToken) return;
+        if (driveState.yearFolderId) return;  // già migrato in sessioni precedenti
+        try {
+            if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
+            const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+            driveState.yearFolderId = await findOrCreateYearFolder(anno);
+            // Controlla se il file è già nella sottocartella anno
+            const fileInYear = await findDriveFile();
+            if (!fileInYear && driveState.fileId) {
+                // Il file è nella root (fileId punta lì) → spostalo nella sottocartella
+                await driveApiFetch(
+                    `https://www.googleapis.com/drive/v3/files/${driveState.fileId}?addParents=${driveState.yearFolderId}&removeParents=${driveState.folderId}&fields=id`,
+                    'PATCH'
+                );
+                // fileId rimane lo stesso (stesso file, spostato)
+            } else if (fileInYear) {
+                driveState.fileId = fileInYear;
+            }
+            saveDriveState();
+        } catch(e) {
+            console.warn('Migrazione Drive non completata:', e.message);
+        }
+    }
+
     // ── Legge i dati da Drive ─────────────────────────────────────────────
     async function syncFromDrive(showFeedback) {
         if (!driveState.enabled || !driveState.accessToken || !driveState.fileId) return;
@@ -5722,10 +5748,8 @@ function calculateAveragesForScrutinio() {
             });
             if (!resp.ok) throw new Error('Scrittura Drive fallita (' + resp.status + ')');
             const result = await resp.json();
-            if (!driveState.fileId) {
-                driveState.fileId = result.id;
-                saveDriveState();
-            }
+            if (!driveState.fileId) driveState.fileId = result.id;
+            saveDriveState();  // salva sempre: persiste yearFolderId anche quando fileId era già noto
             updateDriveButton('connected');
             showDriveSavedToast();
         } catch(err) {
