@@ -1862,37 +1862,58 @@
         <!-- Tab 4: Importa / Esporta / Salva / Stampa -->
     <div id="tab4" class="tab-content">
         <h2>Importa/Esporta/Modifica</h2>
-        
-        <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 32px;">
-            <button type="button" onclick="exportToJSON()" style="flex: 1;">
-                <i class="fas fa-file-export"></i> Esporta JSON
-            </button>
-            <button type="button" onclick="exportToCSV()" style="flex: 1;">
-                <i class="fas fa-file-csv"></i> Esporta CSV
+
+        <!-- SEZIONE DRIVE (PRIORITARIA) -->
+        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: var(--radius); padding: 16px; margin-bottom: 28px;">
+            <h3 style="margin: 0 0 8px; color: #166534; font-size: 1rem;">
+                <i class="fab fa-google-drive"></i> Salvataggio su Google Drive — consigliato
+            </h3>
+            <p style="margin: 0 0 14px; font-size: 0.85rem; color: #166534; line-height: 1.5;">
+                I dati vengono salvati <strong>sul tuo Google Drive personale/scolastico</strong>, accessibili da qualsiasi dispositivo.
+                Nessun dato condiviso con altri utenti. Nessun dato memorizzato su internet o server esterni.
+                Solo tu puoi accedere ai tuoi dati tramite il tuo account Google.
+            </p>
+            <button type="button" onclick="openDriveModal()" style="background: #16a34a; width: 100%;">
+                <i class="fab fa-google-drive"></i> Gestisci connessione Drive
             </button>
         </div>
-        
-        <div class="form-group" style="margin-bottom: 32px;">
-            <button type="button" onclick="importFromJSONDialog()" style="background-color: var(--success-color); width: 100%;">
-                <i class="fas fa-file-import"></i> Importa JSON
-            </button>
-        </div>
-        
-        <div class="form-group" style="margin-bottom: 32px;">
+
+        <!-- STAMPA -->
+        <div class="form-group" style="margin-bottom: 12px;">
             <button type="button" onclick="printHistory()">
                 <i class="fas fa-print"></i> Stampa PDF (Storico)
             </button>
         </div>
-
-        <div class="form-group" style="margin-bottom: 32px;">
+        <div class="form-group" style="margin-bottom: 12px;">
             <button type="button" onclick="preparePrintVerifiche()" style="background-color: #7c3aed;">
                 <i class="fas fa-file-alt"></i> Stampa Voti per Registro Elettronico
             </button>
         </div>
-
-        <div class="form-group" style="margin-bottom: 32px;">
+        <div class="form-group" style="margin-bottom: 28px;">
             <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color);">
                 <i class="fas fa-print"></i> Stampa Medie e Livelli
+            </button>
+        </div>
+
+        <!-- BACKUP JSON/CSV (secondario) -->
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); padding: 14px; margin-bottom: 28px;">
+            <h3 style="margin: 0 0 6px; color: #92400e; font-size: 0.95rem;">
+                <i class="fas fa-archive"></i> Backup manuale (solo se necessario)
+            </h3>
+            <p style="margin: 0 0 12px; font-size: 0.82rem; color: #92400e; line-height: 1.5;">
+                Usa questa opzione <strong>solo come backup aggiuntivo</strong> o se non usi Google Drive.
+                Se hai già collegato Drive, i tuoi dati sono già al sicuro — non è necessario esportare.
+            </p>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <button type="button" onclick="exportToJSON()" style="flex: 1; background: var(--secondary-color); font-size: 0.85rem; padding: 8px;">
+                    <i class="fas fa-file-export"></i> Esporta JSON
+                </button>
+                <button type="button" onclick="exportToCSV()" style="flex: 1; background: var(--secondary-color); font-size: 0.85rem; padding: 8px;">
+                    <i class="fas fa-file-csv"></i> Esporta CSV
+                </button>
+            </div>
+            <button type="button" onclick="importFromJSONDialog()" style="background-color: var(--success-color); width: 100%; font-size: 0.85rem; padding: 8px;">
+                <i class="fas fa-file-import"></i> Importa da file JSON (ripristino backup)
             </button>
         </div>
         
@@ -2197,20 +2218,27 @@
                     </div>
                 </div>
 
-                <!-- Sezione Import/Export -->
+                <!-- Sezione Drive e Sicurezza -->
                 <div class="help-section">
-                    <h3><i class="fas fa-download"></i> 5. Esportazione e Backup</h3>
+                    <h3><i class="fab fa-google-drive"></i> 5. Salvataggio su Google Drive</h3>
+                    <p>
+                        Clicca il pulsante <strong>"Drive"</strong> in alto a sinistra → <strong>"Collega a Google Drive"</strong>
+                        → accedi con il tuo account Google scolastico → fine.
+                    </p>
+                    <p style="margin-top: 10px;">Da quel momento ogni valutazione viene salvata automaticamente sul tuo Drive.</p>
                     <div class="help-subsection">
-                        <h4><i class="fas fa-file-excel"></i> Esporta Excel</h4>
-                        <p>Genera file .xlsx compatibili con i registri elettronici, include voti, livelli e medie.</p>
+                        <h4><i class="fas fa-shield-alt"></i> I tuoi dati sono al sicuro e privati</h4>
+                        <ul>
+                            <li>I dati vengono salvati <strong>solo sul tuo Google Drive</strong>, in una cartella chiamata "Valutazione-Primaria-Dati"</li>
+                            <li><strong>Nessun altro utente vede i tuoi dati</strong> — ogni docente ha il proprio account e la propria cartella separata</li>
+                            <li>L'app non ha server propri: i dati non passano per nessun intermediario, vanno direttamente da te a Google Drive</li>
+                            <li>L'accesso è protetto dal tuo account Google: solo chi conosce la tua password può vedere i tuoi dati</li>
+                            <li><strong>Non è necessario esportare JSON</strong> se usi Drive — i dati sono già al sicuro</li>
+                        </ul>
                     </div>
                     <div class="help-subsection">
-                        <h4><i class="fas fa-save"></i> Backup JSON</h4>
-                        <p>Salva tutti i dati in formato JSON per backup completo o trasferimento su altro dispositivo.</p>
-                    </div>
-                    <div class="help-subsection">
-                        <h4><i class="fas fa-print"></i> Stampa</h4>
-                        <p>Stampa report ottimizzati per documentazione cartacea o salvataggio PDF.</p>
+                        <h4><i class="fas fa-archive"></i> Backup manuale (opzionale)</h4>
+                        <p>Nella tab "Importa/Esporta" puoi esportare i dati in JSON o CSV come backup aggiuntivo. Utile solo se vuoi una copia locale extra o non usi Drive.</p>
                     </div>
                 </div>
 
@@ -2250,16 +2278,24 @@
                 <div class="help-section">
                     <h3><i class="fas fa-question"></i> 8. Domande Frequenti</h3>
                     <div class="faq-item">
-                        <h4>❓ I dati si perdono chiudendo il browser?</h4>
-                        <p><strong>No</strong>, tutti i dati sono salvati permanentemente nel browser.</p>
+                        <h4>❓ Un altro docente può vedere i miei dati?</h4>
+                        <p><strong>No.</strong> Ogni docente si collega con il proprio account Google. I dati di ognuno vanno sul proprio Drive personale. Non esiste nessun database condiviso.</p>
                     </div>
                     <div class="faq-item">
-                        <h4>❓ Come trasferisco dati su un altro dispositivo?</h4>
-                        <p>Esporta in <strong>JSON</strong> dal dispositivo origine, poi importa nel nuovo dispositivo.</p>
+                        <h4>❓ I dati si perdono se cambio browser o PC?</h4>
+                        <p><strong>No, se usi Drive.</strong> Collega l'app al tuo Google Drive: i dati vengono caricati automaticamente su qualsiasi dispositivo dove accedi al tuo account Google.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>❓ Come trasferisco i dati su un altro dispositivo?</h4>
+                        <p>Basta aprire l'app sul nuovo dispositivo e cliccare "Collega a Drive" con lo stesso account Google. I dati vengono caricati automaticamente.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>❓ Devo esportare il JSON per fare il backup?</h4>
+                        <p><strong>No, se usi Drive.</strong> Google Drive è già un backup sicuro. L'esportazione JSON è utile solo come copia extra locale o in caso di emergenza.</p>
                     </div>
                     <div class="faq-item">
                         <h4>❓ Posso usare l'app senza internet?</h4>
-                        <p><strong>Sì</strong>, una volta caricata la prima volta funziona completamente offline.</p>
+                        <p><strong>Sì.</strong> I dati restano disponibili nel browser anche offline. Quando torni online, l'app sincronizza automaticamente con Drive.</p>
                     </div>
                 </div>
             </div>
