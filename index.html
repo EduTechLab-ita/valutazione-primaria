@@ -2096,6 +2096,10 @@
                 <i class="fas fa-print"></i>
                 <span class="button-tooltip">Stampa Medie</span>
             </div>
+            <div class="menu-button" onclick="unifyDuplicateNames()" style="background-color: var(--warning-color);">
+                <i class="fas fa-user-check"></i>
+                <span class="button-tooltip">Unifica Nomi Duplicati</span>
+            </div>
         </div>
         <div class="main-button" id="floating-menu-toggle">
             <i class="fas fa-plus"></i>
@@ -2113,6 +2117,10 @@
             <div class="menu-button" onclick="preparePrintVerifiche()" style="background-color: #7c3aed;">
                 <i class="fas fa-file-alt"></i>
                 <span class="button-tooltip">Stampa Registro</span>
+            </div>
+            <div class="menu-button" onclick="unifyDuplicateNames()" style="background-color: var(--warning-color);">
+                <i class="fas fa-user-check"></i>
+                <span class="button-tooltip">Unifica Nomi Duplicati</span>
             </div>
         </div>
         <div class="main-button" id="floating-menu-storico-toggle">
@@ -5071,7 +5079,7 @@ function calculateAveragesForScrutinio() {
 
     // ⚠️  CONFIGURAZIONE: sostituire con il Client ID reale da Google Cloud Console
     //     Vedi: https://console.cloud.google.com → Credenziali → ID client OAuth 2.0
-    const DRIVE_CLIENT_ID   = 'DA_CONFIGURARE.apps.googleusercontent.com';
+    const DRIVE_CLIENT_ID   = '374342529488-c123a5j5v8hnfs241udbl55fos5thfq6.apps.googleusercontent.com';
     const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.file email profile';
     const DRIVE_FOLDER_NAME = 'Valutazione-Primaria-Dati';
     const DRIVE_FILE_NAME   = 'valutazione_dati.json';
