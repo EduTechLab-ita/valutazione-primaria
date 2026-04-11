@@ -72,26 +72,21 @@
         .help-button {
             position: absolute;
             right: 0;
-            background: rgba(255,255,255,.2);
-            border: 1px solid rgba(255,255,255,.35);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            color: white;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,.85);
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0;
-            backdrop-filter: blur(8px);
+            font-size: 26px;
+            padding: 4px;
         }
 
         .help-button:hover {
-            background: rgba(255,255,255,.35);
-            transform: scale(1.05);
+            color: white;
+            transform: scale(1.1);
         }
 
         .help-button:active {
@@ -1315,7 +1310,7 @@
             </button>
             <h1 style="margin: 0;">Valutazione Verifiche Scuola Primaria</h1>
             <button id="help-btn" class="help-button" onclick="openHelpModal()" title="Guida all'utilizzo">
-                <i class="fas fa-info" style="font-size:14px;"></i>
+                <i class="fas fa-circle-info"></i>
             </button>
         </div>
         <div id="school-info-subtitle" class="info-subtitle-clickable" onclick="editSchoolInfo()">
