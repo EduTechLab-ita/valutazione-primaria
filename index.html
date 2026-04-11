@@ -483,6 +483,62 @@
             color: var(--success-color);
         }
 
+        /* Pulsante Drive */
+        .drive-button {
+            position: absolute;
+            left: 0;
+            background: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: 20px;
+            padding: 4px 12px 4px 8px;
+            color: var(--text-medium);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .drive-button:hover {
+            background: #e2e8f0;
+        }
+        .drive-button .drive-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .drive-button.connected .drive-dot { background: var(--success-color); }
+        .drive-button.syncing .drive-dot   { background: var(--warning-color); animation: pulse 1s infinite; }
+        .drive-button.error .drive-dot     { background: var(--danger-color); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Modal Drive */
+        #drive-modal .modal-content { max-width: 500px; }
+        .drive-status-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: var(--radius);
+            background: #f8fafc; border: 1px solid var(--border-color);
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
+        .drive-status-bar.ok  { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+        .drive-status-bar.err { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+        .drive-url-input {
+            font-family: monospace; font-size: 0.78rem;
+            padding: 8px 10px; width: 100%;
+            border: 1px solid var(--border-color); border-radius: var(--radius);
+        }
+        .drive-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .drive-actions button { flex: 1; min-width: 120px; }
+        .drive-migrate-section {
+            margin-top: 16px; padding: 12px;
+            background: #fffbeb; border: 1px solid #fde68a;
+            border-radius: var(--radius); font-size: 0.85rem;
+        }
+        .drive-migrate-section strong { color: #92400e; }
+
         /* Modal conflitto nomi */
         #name-conflict-modal .modal-content {
             max-width: 460px;
@@ -1206,6 +1262,10 @@
 </head>
 <body>
     <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 8px;">
+        <button id="drive-btn" class="drive-button no-print" onclick="openDriveModal()" title="Connessione Google Drive">
+            <span class="drive-dot"></span>
+            <span id="drive-btn-label">Drive</span>
+        </button>
         <h1 style="margin: 0;">Valutazione Verifiche Scuola Primaria</h1>
         <button id="help-btn" class="help-button" onclick="openHelpModal()" title="Guida all'utilizzo">
             <i class="fas fa-question-circle"></i>
@@ -1331,6 +1391,66 @@
         </div>
     </div>
     
+    <!-- Modal Drive Config -->
+    <div id="drive-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="close-modal" onclick="closeDriveModal()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-header">
+                <h2><i class="fab fa-google-drive"></i> Connessione Google Drive</h2>
+                <p>Salva i tuoi dati in modo sicuro sul tuo Google Drive scolastico. I dati sono accessibili da qualsiasi dispositivo e non vanno persi se pulisci il browser.</p>
+            </div>
+
+            <div id="drive-status-bar" class="drive-status-bar">
+                <i class="fas fa-circle" style="font-size:0.6rem;"></i>
+                <span id="drive-status-text">Non configurato — inserisci l'URL del tuo script</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label for="drive-gas-url" style="font-size:0.85rem; font-weight:600;">URL del tuo Google Apps Script:</label>
+                <input type="url" id="drive-gas-url" class="drive-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 4px;">
+                <i class="fas fa-info-circle"></i> Non hai ancora lo script? Segui le <a href="#" onclick="openDriveHelp(); return false;" style="color:var(--primary-color);">istruzioni di installazione</a>.
+            </div>
+
+            <div class="drive-actions">
+                <button type="button" onclick="testDriveConnection()" style="background: var(--secondary-color);">
+                    <i class="fas fa-plug"></i> Testa connessione
+                </button>
+                <button type="button" onclick="saveDriveConfig()" style="background: var(--primary-color);">
+                    <i class="fas fa-save"></i> Salva e attiva
+                </button>
+                <button type="button" onclick="disableDrive()" style="background: var(--danger-color);">
+                    <i class="fas fa-unlink"></i> Disconnetti
+                </button>
+            </div>
+
+            <div id="drive-migrate-section" class="drive-migrate-section" style="display:none;">
+                <strong><i class="fas fa-upload"></i> Migrazione dati locali</strong><br>
+                Hai <span id="drive-local-count">0</span> valutazioni salvate localmente nel browser. Puoi caricarle su Drive adesso per non perderle.
+                <div style="margin-top: 8px;">
+                    <button type="button" onclick="migrateLocalToDrive()" style="background: var(--warning-color); color: white; width: 100%;">
+                        <i class="fas fa-cloud-upload-alt"></i> Carica dati locali su Drive
+                    </button>
+                </div>
+            </div>
+
+            <div id="drive-help-section" style="display:none; margin-top:16px; padding:14px; background:#f8fafc; border-radius:var(--radius); border:1px solid var(--border-color); font-size:0.82rem; line-height:1.7;">
+                <strong>Come installare il tuo script (5 minuti):</strong><br>
+                1. Vai su <a href="https://script.google.com" target="_blank" style="color:var(--primary-color);">script.google.com</a> con il tuo account scolastico<br>
+                2. Clicca <strong>Nuovo progetto</strong><br>
+                3. Cancella il codice esistente e incolla il codice dal file <code>Code.gs</code> (ti è stato inviato)<br>
+                4. Clicca <strong>Distribuisci → Nuova distribuzione</strong><br>
+                5. Tipo: <strong>App web</strong> | Esegui come: <strong>Me</strong> | Accesso: <strong>Chiunque</strong><br>
+                6. Clicca <strong>Distribuisci</strong> → autorizza → copia l'URL e incollalo qui sopra<br>
+                <br>
+                <i class="fas fa-shield-alt" style="color:var(--success-color);"></i> I tuoi dati vengono salvati <strong>solo sul tuo Drive</strong>, in una cartella chiamata "Valutazione-Primaria-Dati".
+            </div>
+        </div>
+    </div>
+
     <!-- Modal conflitto nomi studente -->
     <div id="name-conflict-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
@@ -1774,12 +1894,20 @@
             </button>
         </div>
         
-        <!-- NUOVO: PULISCI STORICO -->
-        <div class="form-group" style="margin-top: 16px; margin-bottom: 32px;">
-          <button 
-            type="button" 
-            id="open-clear-modal" 
-            style="background-color: var(--danger-color); color: #fff; width: 100%;"
+        <!-- UNIFICA NOMI + PULISCI STORICO -->
+        <div class="form-group" style="margin-top: 16px; margin-bottom: 8px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button
+            type="button"
+            onclick="unifyDuplicateNames()"
+            style="flex:1; background-color: var(--warning-color); color: #fff; min-width:200px;"
+            title="Rileva e unifica nomi scritti in modo diverso (es. 'mario rossi' e 'Rossi Mario')"
+          >
+            <i class="fas fa-user-check"></i> Unifica nomi duplicati
+          </button>
+          <button
+            type="button"
+            id="open-clear-modal"
+            style="flex:1; background-color: var(--danger-color); color: #fff; min-width:200px;"
           >
             <i class="fas fa-trash-alt"></i> Ripulisci storico verifiche
           </button>
@@ -2221,6 +2349,7 @@
             updateHistoryTable();
             updateStudentsFilter();
             updateStudentDatalist();
+            loadDriveConfig();
             
             // Add initial student row to class evaluation
             addStudentRow();
@@ -2974,6 +3103,7 @@ function calculateAveragesForScrutinio() {
             updateStudentsFilter();
             updateStudentDatalist();
             calculateAveragesForScrutinio();
+            syncToDrive();
 
             document.getElementById('single-evaluation-form').reset();
             document.getElementById('evaluation-result').style.display = 'none';
@@ -3835,6 +3965,65 @@ function calculateAveragesForScrutinio() {
             updateHistoryTable();
         }
         
+        // Rileva e unifica nomi studenti duplicati (stesso set di parole, ordine/case diversi)
+        function findDuplicateNameGroups() {
+            const allNames = [...new Set(evaluations.map(e => e.studentName).filter(Boolean))];
+            const groups = {}; // key → [nomi diversi ma equivalenti]
+            allNames.forEach(name => {
+                const key = name.split(' ').map(w => w.toUpperCase()).sort().join('|');
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(name);
+            });
+            // Restituisce solo i gruppi con più di un nome (i veri duplicati)
+            return Object.values(groups).filter(g => g.length > 1);
+        }
+
+        function unifyDuplicateNames() {
+            const groups = findDuplicateNameGroups();
+            if (groups.length === 0) {
+                alert('✅ Nessun nome duplicato rilevato. Tutto in ordine!');
+                return;
+            }
+
+            // Costruisci il messaggio di anteprima
+            let preview = 'Ho trovato ' + groups.length + ' gruppo/i di nomi che sembrano lo stesso studente:\n\n';
+            groups.forEach((g, i) => {
+                // Usa il nome in Title Case corretto come canonico
+                const canonical = normalizeToTitleCase(g[0]);
+                preview += (i + 1) + '. ' + g.join(', ') + '\n   → verrà unificato come: "' + canonical + '"\n\n';
+            });
+            preview += 'Vuoi procedere? Le valutazioni verranno mantenute, solo i nomi verranno normalizzati.';
+
+            if (!confirm(preview)) return;
+
+            // Applica la normalizzazione
+            let count = 0;
+            groups.forEach(g => {
+                const canonical = normalizeToTitleCase(g[0]);
+                const keyToUnify = g[0].split(' ').map(w => w.toUpperCase()).sort().join('|');
+                evaluations.forEach(e => {
+                    if (!e.studentName) return;
+                    const eKey = e.studentName.split(' ').map(w => w.toUpperCase()).sort().join('|');
+                    if (eKey === keyToUnify && e.studentName !== canonical) {
+                        e.studentName = canonical;
+                        count++;
+                    }
+                });
+            });
+
+            // Salva
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            syncToDrive();
+
+            // Aggiorna UI
+            updateHistoryTable();
+            updateStudentsFilter();
+            updateStudentDatalist();
+            calculateAveragesForScrutinio();
+
+            alert('✅ Fatto! ' + count + ' valutazioni aggiornate. I dati sono stati salvati.');
+        }
+
         // Reset history filters
         function resetFilters() {
             const studentFilter = document.getElementById('filter-student');
@@ -4875,6 +5064,223 @@ function calculateAveragesForScrutinio() {
         }
 
         // ========== FINE FUNZIONI STAMPA VERIFICHE ==========
+
+    // ========== DRIVE INTEGRATION ==========
+
+    let driveConfig = { gasUrl: '', enabled: false };
+
+    function loadDriveConfig() {
+        try {
+            const saved = localStorage.getItem('driveConfig');
+            if (saved) driveConfig = JSON.parse(saved);
+        } catch(e) {}
+        updateDriveButton();
+        if (driveConfig.enabled && driveConfig.gasUrl) {
+            syncFromDrive();
+        }
+    }
+
+    function saveDriveConfigToStorage() {
+        localStorage.setItem('driveConfig', JSON.stringify(driveConfig));
+    }
+
+    // ── Aggiorna pulsante Drive nell'header ────────────────────────────────
+    function updateDriveButton(state) {
+        const btn   = document.getElementById('drive-btn');
+        const label = document.getElementById('drive-btn-label');
+        if (!btn) return;
+        btn.className = 'drive-button no-print';
+        if (state === 'syncing') {
+            btn.classList.add('syncing');
+            label.textContent = 'Sincronizzo…';
+        } else if (state === 'error') {
+            btn.classList.add('error');
+            label.textContent = 'Drive ⚠️';
+        } else if (driveConfig.enabled && driveConfig.gasUrl) {
+            btn.classList.add('connected');
+            label.textContent = 'Drive ✓';
+        } else {
+            label.textContent = 'Drive';
+        }
+    }
+
+    // ── Legge i dati dal Drive (all'avvio) ────────────────────────────────
+    function syncFromDrive() {
+        if (!driveConfig.gasUrl) return;
+        updateDriveButton('syncing');
+        fetch(driveConfig.gasUrl, { redirect: 'follow' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                // Aggiorna solo se Drive ha dati più aggiornati
+                if (data.evaluations && data.evaluations.length >= 0) {
+                    evaluations = data.evaluations;
+                    if (data.schoolInfo)     schoolInfo = data.schoolInfo;
+                    if (data.averageWeights) averageWeights = data.averageWeights;
+                    if (data.studentAverages) studentAverages = data.studentAverages;
+                    // Aggiorna localStorage come cache locale
+                    localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                    localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                    localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+                    localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+                    // Aggiorna UI
+                    updateHistoryTable();
+                    updateStudentsFilter();
+                    updateStudentDatalist();
+                    calculateAveragesForScrutinio();
+                }
+                updateDriveButton('connected');
+            })
+            .catch(() => updateDriveButton('error'));
+    }
+
+    // ── Scrive i dati sul Drive (dopo ogni salvataggio) ───────────────────
+    function syncToDrive() {
+        if (!driveConfig.enabled || !driveConfig.gasUrl) return;
+        updateDriveButton('syncing');
+        const payload = {
+            evaluations:    evaluations,
+            schoolInfo:     schoolInfo,
+            averageWeights: averageWeights,
+            studentAverages: studentAverages
+        };
+        fetch(driveConfig.gasUrl, {
+            method:   'POST',
+            body:     JSON.stringify(payload),
+            headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow'
+        })
+        .then(r => r.json())
+        .then(data => {
+            updateDriveButton(data.error ? 'error' : 'connected');
+        })
+        .catch(() => updateDriveButton('error'));
+    }
+
+    // ── Migra i dati locali su Drive (one-shot) ───────────────────────────
+    function migrateLocalToDrive() {
+        if (!driveConfig.gasUrl) {
+            alert('Configura prima l\'URL del tuo script.');
+            return;
+        }
+        if (!confirm('Carico i ' + evaluations.length + ' valutazioni attualmente nel browser su Google Drive. Confermi?')) return;
+        updateDriveButton('syncing');
+        const payload = {
+            evaluations:    evaluations,
+            schoolInfo:     schoolInfo,
+            averageWeights: averageWeights,
+            studentAverages: studentAverages
+        };
+        fetch(driveConfig.gasUrl, {
+            method:   'POST',
+            body:     JSON.stringify(payload),
+            headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow'
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+            updateDriveButton('connected');
+            alert('✅ Migrazione completata! ' + evaluations.length + ' valutazioni caricate su Drive.');
+            document.getElementById('drive-migrate-section').style.display = 'none';
+        })
+        .catch(err => {
+            updateDriveButton('error');
+            alert('Errore durante la migrazione: ' + err.message);
+        });
+    }
+
+    // ── Modal Drive: apri ─────────────────────────────────────────────────
+    function openDriveModal() {
+        const urlInput = document.getElementById('drive-gas-url');
+        urlInput.value = driveConfig.gasUrl || '';
+        updateDriveStatusBar();
+        // Mostra sezione migrazione se ci sono dati locali e Drive è configurato
+        const migrateSection = document.getElementById('drive-migrate-section');
+        if (driveConfig.enabled && evaluations.length > 0) {
+            document.getElementById('drive-local-count').textContent = evaluations.length;
+            migrateSection.style.display = 'block';
+        } else {
+            migrateSection.style.display = 'none';
+        }
+        document.getElementById('drive-help-section').style.display = 'none';
+        document.getElementById('drive-modal').style.display = 'flex';
+    }
+
+    function closeDriveModal() {
+        document.getElementById('drive-modal').style.display = 'none';
+    }
+
+    function openDriveHelp() {
+        const h = document.getElementById('drive-help-section');
+        h.style.display = h.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // ── Aggiorna barra stato nel modal ────────────────────────────────────
+    function updateDriveStatusBar(state, message) {
+        const bar  = document.getElementById('drive-status-bar');
+        const text = document.getElementById('drive-status-text');
+        bar.className = 'drive-status-bar';
+        if (state === 'ok') {
+            bar.classList.add('ok');
+            text.textContent = message || '✅ Connessione riuscita';
+        } else if (state === 'err') {
+            bar.classList.add('err');
+            text.textContent = message || '❌ Connessione fallita — controlla l\'URL';
+        } else if (driveConfig.enabled && driveConfig.gasUrl) {
+            bar.classList.add('ok');
+            text.textContent = '✅ Drive attivo — i dati vengono salvati automaticamente';
+        } else {
+            text.textContent = 'Non configurato — inserisci l\'URL del tuo script';
+        }
+    }
+
+    // ── Testa la connessione senza salvare ────────────────────────────────
+    function testDriveConnection() {
+        const url = document.getElementById('drive-gas-url').value.trim();
+        if (!url) { alert('Inserisci prima l\'URL dello script.'); return; }
+        updateDriveStatusBar(null, '⏳ Connessione in corso…');
+        fetch(url, { redirect: 'follow' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                updateDriveStatusBar('ok', '✅ Connessione riuscita! Lo script risponde correttamente.');
+            })
+            .catch(err => {
+                updateDriveStatusBar('err', '❌ Errore: ' + err.message + '. Controlla URL e autorizzazioni.');
+            });
+    }
+
+    // ── Salva configurazione e attiva ─────────────────────────────────────
+    function saveDriveConfig() {
+        const url = document.getElementById('drive-gas-url').value.trim();
+        if (!url) { alert('Inserisci l\'URL dello script prima di salvare.'); return; }
+        driveConfig = { gasUrl: url, enabled: true };
+        saveDriveConfigToStorage();
+        updateDriveButton('connected');
+        updateDriveStatusBar('ok', '✅ Drive attivo — i dati vengono salvati automaticamente.');
+        // Mostra sezione migrazione se ci sono dati locali
+        if (evaluations.length > 0) {
+            document.getElementById('drive-local-count').textContent = evaluations.length;
+            document.getElementById('drive-migrate-section').style.display = 'block';
+        }
+    }
+
+    // ── Disconnetti Drive ─────────────────────────────────────────────────
+    function disableDrive() {
+        if (!confirm('Disabilito la connessione Drive. I dati rimarranno nel browser ma non verranno più sincronizzati. Confermi?')) return;
+        driveConfig = { gasUrl: '', enabled: false };
+        saveDriveConfigToStorage();
+        updateDriveButton();
+        updateDriveStatusBar(null, 'Non configurato — inserisci l\'URL del tuo script');
+        document.getElementById('drive-gas-url').value = '';
+        document.getElementById('drive-migrate-section').style.display = 'none';
+    }
+
+    // ── Hook: chiama syncToDrive dopo ogni salvataggio dati ───────────────
+    // (già integrato in doSaveEvaluation tramite chiamata esplicita sotto)
+
+    // ========== FINE DRIVE INTEGRATION ==========
 
     // Apertura e chiusura del modal di cancellazione storico
     document.getElementById('open-clear-modal').addEventListener('click', function() {
