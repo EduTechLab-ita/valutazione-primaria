@@ -4500,34 +4500,33 @@ function calculateAveragesForScrutinio() {
         // Funzione per confermare l'uscita dall'app
         function confirmExit() {
             const hasData = evaluations.length > 0 || (schoolInfo.istituto && schoolInfo.classe);
-            
-            if (hasData) {
-                const confirmMessage = "ATTENZIONE!\n\n" +
-                    "Hai dati salvati nell'applicazione. Ricorda che questi dati sono salvati solo nel browser locale.\n\n" +
-                    "Ti consigliamo di esportare i dati in formato JSON prima di uscire per poterli recuperare in futuro.\n\n" +
-                    "Vuoi esportare i dati prima di uscire?";
-                
-                if (confirm(confirmMessage)) {
-                    // Esporta dati prima di uscire
+
+            if (hasData && driveState.enabled) {
+                // Drive connesso: i dati sono al sicuro
+                const msg = "✅ I tuoi dati sono al sicuro su Google Drive.\n\n" +
+                    (evaluations.length > 0 ? "Valutazioni salvate: " + evaluations.length + "\n\n" : "") +
+                    "💡 Se stai usando un PC condiviso, clicca 'Annulla' e usa il pulsante Drive → Disconnetti " +
+                    "per rimuovere i dati anche dalla cache del browser.\n\n" +
+                    "Vuoi uscire?";
+                if (confirm(msg)) closeApp();
+
+            } else if (hasData && !driveState.enabled) {
+                // Drive NON connesso: dati solo in locale
+                const msg = "⚠️ ATTENZIONE\n\n" +
+                    "Non sei collegato a Google Drive. I tuoi dati sono salvati solo in questo browser.\n\n" +
+                    "Vuoi esportare i dati in JSON prima di uscire?";
+                if (confirm(msg)) {
                     exportToJSON();
-                    
-                    // Chiedi nuovamente per confermare l'uscita
                     setTimeout(() => {
-                        if (confirm("Sei sicuro di voler uscire dall'applicazione?")) {
-                            closeApp();
-                        }
-                    }, 1000); // Breve ritardo per permettere il download del file
+                        if (confirm("Esportazione completata. Vuoi uscire?")) closeApp();
+                    }, 1000);
                 } else {
-                    // Conferma finale
-                    if (confirm("Sei sicuro di voler uscire senza salvare i dati? I dati non esportati potrebbero andare persi.")) {
-                        closeApp();
-                    }
+                    if (confirm("Sei sicuro di voler uscire? I dati potrebbero andare persi.")) closeApp();
                 }
+
             } else {
-                // Nessun dato da salvare
-                if (confirm("Sei sicuro di voler uscire dall'applicazione?")) {
-                    closeApp();
-                }
+                // Nessun dato
+                if (confirm("Sei sicuro di voler uscire dall'applicazione?")) closeApp();
             }
         }
         
