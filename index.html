@@ -5592,57 +5592,49 @@ function calculateAveragesForScrutinio() {
         return created.id;
     }
 
-    // ── Trova il file dati nella sottocartella anno (il più recente se ce ne sono più) ──
+    // ── Trova il file dati cercando in tutto il Drive dell'app ───────────
+    //    (scope drive.file: vede solo i file creati da questa app — nessun rischio cross-user)
     async function findDriveFile() {
-        if (!driveState.yearFolderId) return null;
-        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${driveState.yearFolderId}' in parents and trashed=false`);
-        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc`);
+        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
+        const resp = await driveApiFetch(
+            `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc`
+        );
         if (resp.files && resp.files.length > 0) return resp.files[0].id;
         return null;
     }
 
-    // ── Cerca il file in una cartella specifica (usato per migrazione) ────
-    async function findDriveFileInFolder(folderId) {
-        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${folderId}' in parents and trashed=false`);
-        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
-        if (resp.files && resp.files.length > 0) return resp.files[0].id;
-        return null;
-    }
-
-    // Flag runtime (NON in driveState per evitare che venga serializzato in localStorage)
+    // Flag runtime (NON in driveState: non deve essere serializzato in localStorage)
     let _driveVerifiedThisSession = false;
 
-    // ── Verifica e corregge fileId ad ogni avvio (self-healing) ──────────
+    // ── Verifica fileId ad ogni avvio e lo corregge se stale ─────────────
     async function runMigrationIfNeeded() {
         if (!driveState.enabled || !driveState.accessToken) return;
-        if (_driveVerifiedThisSession) return;   // già eseguita in questa sessione
+        if (_driveVerifiedThisSession) return;
         _driveVerifiedThisSession = true;
         try {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
             const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
             driveState.yearFolderId = await findOrCreateYearFolder(anno);
 
-            // Verifica sempre quale file è effettivamente nella sottocartella anno
-            const fileInYear = await findDriveFile();
-            if (fileInYear) {
-                // File trovato nella posizione corretta → usa quello (aggiorna fileId se stale)
-                driveState.fileId = fileInYear;
-            } else {
-                // File non trovato nell'anno → cerca nella root (migrazione vecchia struttura)
-                const fileInRoot = await findDriveFileInFolder(driveState.folderId);
-                if (fileInRoot) {
-                    await driveApiFetch(
-                        `https://www.googleapis.com/drive/v3/files/${fileInRoot}?addParents=${driveState.yearFolderId}&removeParents=${driveState.folderId}&fields=id`,
-                        'PATCH'
+            // 1. Verifica che il fileId salvato sia ancora valido (non cancellato)
+            if (driveState.fileId) {
+                try {
+                    const check = await driveApiFetch(
+                        `https://www.googleapis.com/drive/v3/files/${driveState.fileId}?fields=id,trashed`
                     );
-                    driveState.fileId = fileInRoot;
-                } else {
-                    driveState.fileId = null;  // nessun file trovato: verrà creato al prossimo salvataggio
+                    if (check.trashed) driveState.fileId = null;
+                    // altrimenti fileId è valido → lo teniamo
+                } catch(e) {
+                    driveState.fileId = null;  // file cancellato o inaccessibile
                 }
             }
+
+            // 2. Se fileId non valido, cerca il file in tutto il Drive dell'app
+            if (!driveState.fileId) driveState.fileId = await findDriveFile();
+
             saveDriveState();
         } catch(e) {
-            console.warn('Verifica Drive non completata:', e.message);
+            console.warn('Drive verification failed:', e.message);
         }
     }
 
@@ -5741,8 +5733,8 @@ function calculateAveragesForScrutinio() {
                     JSON.stringify({ name: DRIVE_FILE_NAME, parents: [parentId] }) +
                     `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
             } else {
-                // Aggiorna file esistente (solo contenuto)
-                body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
+                // Aggiorna file esistente — multipart PATCH: parte 1 = metadata vuota, parte 2 = contenuto
+                body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n{}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
             }
 
             const url = driveState.fileId
