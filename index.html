@@ -5295,14 +5295,9 @@ function calculateAveragesForScrutinio() {
             const info = await driveApiFetch('https://www.googleapis.com/oauth2/v2/userinfo');
             driveState.userEmail = info.email || '';
 
-            // Cerca/crea cartella su Drive
-            if (!driveState.folderId) {
-                driveState.folderId = await findOrCreateDriveFolder();
-            }
-            // Cerca file esistente
-            if (!driveState.fileId) {
-                driveState.fileId = await findDriveFile();
-            }
+            // Ricalcola SEMPRE cartella e file (evita ID stale se l'utente ha cancellato il file)
+            driveState.folderId = await findOrCreateDriveFolder();
+            driveState.fileId   = await findDriveFile();
             saveDriveState();
 
             if (driveState.fileId) {
@@ -5378,6 +5373,12 @@ function calculateAveragesForScrutinio() {
             if (!resp.ok) throw new Error('Lettura Drive fallita HTTP ' + resp.status);
             const data = await resp.json();
             if (Array.isArray(data.evaluations)) {
+                // Se il caricamento è automatico (non manuale) e il Drive ha MENO dati
+                // di quelli già presenti in memoria, non sovrascrivere (evita race condition)
+                if (!showFeedback && data.evaluations.length < evaluations.length && evaluations.length > 0) {
+                    updateDriveButton('connected');
+                    return;
+                }
                 evaluations    = data.evaluations;
                 if (data.schoolInfo)      schoolInfo     = data.schoolInfo;
                 if (data.averageWeights)  averageWeights = data.averageWeights;
