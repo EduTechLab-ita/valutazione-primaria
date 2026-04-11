@@ -4456,15 +4456,16 @@ function calculateAveragesForScrutinio() {
             evaluations[evaluationIndex].level = level;
             evaluations[evaluationIndex].levelClass = levelClass;
             
-            // Save to localStorage
+            // Save to localStorage e Drive
             localStorage.setItem('evaluations', JSON.stringify(evaluations));
-            
+            syncToDrive();
+
             // Close modal
             closeEditScoreModal();
-            
+
             // Update table
             updateHistoryTable();
-            
+
             // Aggiorna le medie
             calculateAveragesForScrutinio();
         }
@@ -6034,7 +6035,7 @@ function calculateAveragesForScrutinio() {
         const id    = document.getElementById('edit-ev-id').value;
         const idx   = evaluations.findIndex(e => e.id === id);
         if (idx === -1) { closeEditEvalModal(); return; }
-        const ev    = evaluations[idx];
+        const ev       = evaluations[idx];
         const newDate  = document.getElementById('edit-ev-date').value;
         const newDisc  = document.getElementById('edit-ev-discipline').value.trim();
         const newDesc  = document.getElementById('edit-ev-desc').value.trim();
@@ -6042,7 +6043,30 @@ function calculateAveragesForScrutinio() {
         const newScore = parseFloat(document.getElementById('edit-ev-score').value);
         if (!newDate || !newDisc || !newDesc) { alert('Compila tutti i campi obbligatori.'); return; }
         if (isNaN(newScore) || newScore < 1 || newScore > 10) { alert('Voto non valido (1-10).'); return; }
-        evaluations[idx] = { ...ev, date: newDate, discipline: newDisc, description: newDesc, tipo: newTipo, score: newScore.toFixed(1) };
+
+        // Logica M: se il voto cambia, marca come modificato e salva originale
+        const scoreChanged = newScore.toFixed(1) !== parseFloat(ev.score).toFixed(1);
+        if (scoreChanged && !ev.modified) {
+            evaluations[idx].originalScore = parseFloat(ev.score).toFixed(1);
+        }
+        const isModified = ev.modified || scoreChanged;
+
+        // Ricalcola livello in base al nuovo voto
+        let level, levelClass;
+        if      (newScore >= 10)  { level = 'OTTIMO';          levelClass = 'ottimo'; }
+        else if (newScore >= 9.0) { level = 'DISTINTO';        levelClass = 'distinto'; }
+        else if (newScore >= 8.0) { level = 'BUONO';           levelClass = 'buono'; }
+        else if (newScore >= 7.0) { level = 'DISCRETO';        levelClass = 'discreto'; }
+        else if (newScore >= 6.0) { level = 'SUFFICIENTE';     levelClass = 'sufficiente'; }
+        else                      { level = 'NON SUFFICIENTE'; levelClass = 'non-sufficiente'; }
+
+        evaluations[idx] = {
+            ...ev,
+            date: newDate, discipline: newDisc, description: newDesc, tipo: newTipo,
+            score: newScore.toFixed(1), level, levelClass,
+            modified: isModified
+        };
+
         localStorage.setItem('evaluations', JSON.stringify(evaluations));
         syncToDrive();
         updateHistoryTable();
