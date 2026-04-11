@@ -1481,6 +1481,9 @@
                         <i class="fas fa-unlink"></i> Disconnetti
                     </button>
                 </div>
+                <p style="margin-top:12px; font-size:0.78rem; color:#92400e; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px;">
+                    <i class="fas fa-desktop"></i> <strong>PC condiviso?</strong> Clicca <strong>Disconnetti</strong> al termine: rimuove i tuoi dati dal browser e li lascia al sicuro solo sul tuo Drive.
+                </p>
             </div>
 
             <!-- Stato: errore -->
@@ -2280,6 +2283,15 @@
                         </ul>
                     </div>
                     <div class="help-subsection">
+                        <h4><i class="fas fa-desktop"></i> PC condivisi (sala professori, laboratorio...)</h4>
+                        <p>
+                            I dati vengono temporaneamente memorizzati anche nella cache del browser per permettere l'apertura rapida.
+                            <strong>Al termine del lavoro clicca sempre "Drive → Disconnetti"</strong>: questo rimuove
+                            automaticamente tutti i dati dalla cache del browser, lasciandoli al sicuro solo sul tuo Drive.
+                            Nessun collega potrà vedere i tuoi dati aprendo lo stesso browser.
+                        </p>
+                    </div>
+                    <div class="help-subsection">
                         <h4><i class="fas fa-archive"></i> Backup manuale (opzionale)</h4>
                         <p>Nella tab "Importa/Esporta" puoi esportare i dati in JSON o CSV come backup aggiuntivo. Utile solo se vuoi una copia locale extra o non usi Drive.</p>
                     </div>
@@ -2458,8 +2470,11 @@
                 // Hide modal and show subtitle
                 document.getElementById('school-info-modal').style.display = 'none';
                 updateSchoolInfoSubtitle();
+            } else if (driveState.enabled) {
+                // Drive connesso: aspetta il caricamento da Drive, non mostrare il modal ora
+                document.getElementById('school-info-modal').style.display = 'none';
             } else {
-                // Show modal to collect school info
+                // Nessun Drive e nessuna info scuola: mostra il modal
                 document.getElementById('school-info-modal').style.display = 'flex';
             }
             
@@ -2923,6 +2938,7 @@ function calculateAveragesForScrutinio() {
                             if (confirm(`Il file contiene anche ${importedData.evaluations.length} valutazioni. Vuoi importarle?`)) {
                                 evaluations = importedData.evaluations;
                                 localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                syncToDrive();
                                 alert('Valutazioni importate con successo!');
                             }
                         }
@@ -4395,12 +4411,13 @@ function calculateAveragesForScrutinio() {
                                 updateHistoryTable();
                                 updateStudentsFilter();
                                 calculateAveragesForScrutinio();
+                                syncToDrive();
                                 alert('Importazione completata con successo!');
                             }
                         } else if (Array.isArray(importedData)) {
                             // Handle old format (just an array of evaluations)
                             const importedEvaluations = importedData;
-                            
+
                             // Confirm import
                             if (confirm(`Importare ${importedEvaluations.length} valutazioni? Questa operazione sostituirà tutte le valutazioni esistenti.`)) {
                                 // Assicurati che tutte le valutazioni abbiano un quadrimestre e un tipo
@@ -4412,12 +4429,13 @@ function calculateAveragesForScrutinio() {
                                         ev.tipo = 'compito'; // Default a "compito" per retrocompatibilità
                                     }
                                 });
-                                
+
                                 evaluations = importedEvaluations;
                                 localStorage.setItem('evaluations', JSON.stringify(evaluations));
                                 updateHistoryTable();
                                 updateStudentsFilter();
                                 calculateAveragesForScrutinio();
+                                syncToDrive();
                                 alert('Importazione completata con successo!');
                             }
                         } else {
@@ -5354,7 +5372,13 @@ function calculateAveragesForScrutinio() {
                 calculateAveragesForScrutinio();
             }
             updateDriveButton('connected');
+            updateSchoolInfoSubtitle();
             if (showFeedback) alert('✅ Dati ricaricati da Drive (' + evaluations.length + ' valutazioni).');
+            else showDriveLoadedToast(evaluations.length);
+            // Se dopo il caricamento Drive le info scuola sono ancora vuote, mostra il modal
+            if (!schoolInfo.istituto || !schoolInfo.classe) {
+                document.getElementById('school-info-modal').style.display = 'flex';
+            }
         } catch(err) {
             // Se errore di autenticazione (token scaduto), prova rinnovo automatico
             if (err.message && (err.message.includes('401') || err.message.includes('403'))) {
@@ -5366,13 +5390,21 @@ function calculateAveragesForScrutinio() {
         }
     }
 
-    // ── Toast conferma salvataggio Drive ─────────────────────────────────
+    // ── Toast Drive (salvataggio o caricamento) ───────────────────────────
     function showDriveSavedToast() {
+        _showDriveToast('<i class="fas fa-check-circle"></i> Tutti i dati sono stati salvati sul Drive');
+    }
+    function showDriveLoadedToast(count) {
+        _showDriveToast('<i class="fas fa-cloud-download-alt"></i> ' + count + ' valutazioni caricate dal Drive');
+    }
+    function _showDriveToast(html) {
         const toast = document.getElementById('drive-toast');
         if (!toast) return;
+        toast.querySelector('i').outerHTML; // non usato
+        toast.innerHTML = html;
         toast.classList.add('show');
         clearTimeout(toast._hideTimer);
-        toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+        toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 4000);
     }
 
     // ── Scrive i dati su Drive (chiamata dopo ogni salvataggio) ───────────
@@ -5430,10 +5462,14 @@ function calculateAveragesForScrutinio() {
 
     // ── Disconnetti Drive ─────────────────────────────────────────────────
     function disconnectDrive() {
-        if (!confirm('Disconnetto Drive. I dati rimangono nel browser. Confermi?')) return;
+        if (!confirm('Disconnetto Drive e rimuovo i dati dal browser (i dati rimangono al sicuro sul tuo Drive). Confermi?')) return;
         if (driveState.accessToken && typeof google !== 'undefined' && google.accounts) {
             google.accounts.oauth2.revoke(driveState.accessToken);
         }
+        // Pulisce le valutazioni dalla cache locale per privacy (utile su PC condivisi)
+        evaluations = [];
+        localStorage.removeItem('evaluations');
+        localStorage.removeItem('studentAverages');
         driveState = { enabled: false, accessToken: null, tokenExpiry: 0, fileId: null, folderId: null, userEmail: '' };
         saveDriveState();
         updateDriveButton();
