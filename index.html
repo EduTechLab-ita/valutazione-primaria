@@ -1471,7 +1471,7 @@
                 </div>
                 <div id="drive-user-info" style="font-size:0.85rem; color: var(--text-medium); margin-bottom: 14px; padding: 8px 12px; background: #f8fafc; border-radius: var(--radius);">
                     <i class="fas fa-user-circle"></i> <span id="drive-user-email"></span>
-                    <span style="float:right; color: var(--text-light);">Cartella: Valutazione-Primaria-Dati</span>
+                    <span style="float:right; color: var(--text-light);">📁 Valutazione-Primaria-Dati / <span id="drive-anno-label">—</span></span>
                 </div>
                 <div class="drive-actions">
                     <button type="button" onclick="syncFromDrive(true)" style="background: var(--primary-color); flex:2;">
@@ -1481,6 +1481,9 @@
                         <i class="fas fa-unlink"></i> Disconnetti
                     </button>
                 </div>
+                <button type="button" onclick="closeDriveModal(); listAnniPrecedenti();" style="width:100%; margin-top:10px; background:#7c3aed; color:white; font-size:0.9rem;">
+                    <i class="fas fa-history"></i> Consulta anno precedente
+                </button>
                 <p style="margin-top:12px; font-size:0.78rem; color:#92400e; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px;">
                     <i class="fas fa-desktop"></i> <strong>PC condiviso?</strong> Clicca <strong>Disconnetti</strong> al termine: rimuove i tuoi dati dal browser e li lascia al sicuro solo sul tuo Drive.
                 </p>
@@ -1495,6 +1498,108 @@
                 <button type="button" onclick="connectToDrive()" style="background: var(--primary-color); width:100%; margin-top: 10px;">
                     <i class="fab fa-google"></i> Riprova
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner Sola Lettura Anno Precedente -->
+    <div id="readonly-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:white; padding:12px 20px; z-index:3000; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.3);">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-eye" style="font-size:1.3rem;"></i>
+            <div>
+                <strong>Modalità consultazione — Anno <span id="readonly-anno-label"></span></strong>
+                <div style="font-size:0.8rem;opacity:0.85;">Stai visualizzando un anno archiviato. I dati sono in sola lettura.</div>
+            </div>
+        </div>
+        <button type="button" onclick="exitReadonlyMode()" style="background:white;color:#7c3aed;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer;white-space:nowrap;">
+            <i class="fas fa-arrow-left"></i> Torna all'anno corrente
+        </button>
+    </div>
+
+    <!-- Modal Fine Anno Scolastico -->
+    <div id="fine-anno-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:2500; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:16px; padding:32px; max-width:500px; width:92%; box-shadow:0 12px 40px rgba(0,0,0,0.35);">
+            <!-- Step 1 -->
+            <div id="fine-anno-step1">
+                <div style="text-align:center; font-size:3rem; margin-bottom:12px;">🎓</div>
+                <h3 style="text-align:center; margin-bottom:16px; color:#0f766e; font-size:1.2rem;">Fine Anno Scolastico</h3>
+                <p style="color:#475569; font-size:0.9rem; margin-bottom:16px;">
+                    Questa procedura <strong>archivia l'anno <span id="fine-anno-anno1"></span></strong> su Google Drive e azzera l'app per il nuovo anno.<br><br>
+                    Verranno salvati nella cartella dell'anno:<br>
+                    &nbsp;&nbsp;📄 File dati JSON (già sincronizzato)<br>
+                    &nbsp;&nbsp;📋 Pagina HTML con lo storico completo (apribile da Drive → stampa PDF)<br><br>
+                    I dati resteranno consultabili su Drive. Il browser verrà azzerato.
+                </p>
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" onclick="closeFineAnnoModal()" style="flex:1; background:#e2e8f0; color:#334155;">Annulla</button>
+                    <button type="button" onclick="fineAnnoStep2()" style="flex:1; background:#0891b2; color:white;">Continua →</button>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div id="fine-anno-step2" style="display:none;">
+                <div style="text-align:center; font-size:3rem; margin-bottom:12px;">⚠️</div>
+                <h3 style="text-align:center; margin-bottom:12px; color:#dc2626; font-size:1.2rem;">Conferma definitiva</h3>
+                <p style="color:#475569; font-size:0.9rem; margin-bottom:8px;">
+                    Stai per archiviare <strong><span id="fine-anno-n-val"></span> valutazioni</strong> dell'anno <strong><span id="fine-anno-anno2"></span></strong>.<br>
+                    Dopo la procedura il browser sarà vuoto e pronto per il nuovo anno. <strong>Irreversibile.</strong>
+                </p>
+                <p style="font-size:0.88rem; color:#475569; margin-bottom:8px;">Digita <strong>FINE ANNO</strong> per confermare:</p>
+                <input type="text" id="fine-anno-confirm-input" placeholder="FINE ANNO"
+                    style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:8px; font-size:1rem; text-align:center; letter-spacing:3px; text-transform:uppercase; font-weight:700;">
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button type="button" onclick="fineAnnoBack()" style="flex:1; background:#e2e8f0; color:#334155;">← Indietro</button>
+                    <button type="button" id="fine-anno-confirm-btn" onclick="eseguiFineAnno()" style="flex:1; background:#dc2626; color:white;">Archivia Anno</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Selezione Anno Precedente -->
+    <div id="anni-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:2500; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:16px; padding:28px; max-width:400px; width:92%; box-shadow:0 12px 40px rgba(0,0,0,0.35);">
+            <h3 style="margin-bottom:8px; color:#1e293b;"><i class="fas fa-history" style="color:#7c3aed;margin-right:8px;"></i>Consulta anno precedente</h3>
+            <p style="font-size:0.85rem; color:#475569; margin-bottom:16px;">Scegli l'anno da visualizzare. I tuoi dati correnti non verranno modificati.</p>
+            <div id="anni-list"></div>
+            <button type="button" onclick="closeSelezioneAnnoModal()" style="width:100%; margin-top:8px; background:#e2e8f0; color:#334155;">Annulla</button>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Valutazione (✏️) -->
+    <div id="edit-ev-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:2500; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:16px; padding:28px; max-width:480px; width:92%; box-shadow:0 12px 40px rgba(0,0,0,0.35);">
+            <h3 style="margin-bottom:16px; color:#1e293b;"><i class="fas fa-pencil-alt" style="color:#0891b2;margin-right:8px;"></i>Modifica valutazione</h3>
+            <input type="hidden" id="edit-ev-id">
+            <div style="display:grid; gap:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Data</label>
+                    <input type="date" id="edit-ev-date" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Disciplina</label>
+                    <input type="text" id="edit-ev-discipline" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;" placeholder="es. Matematica">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Descrizione / Argomento</label>
+                    <input type="text" id="edit-ev-desc" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;" placeholder="es. Operazioni con i decimali">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Tipo valutazione</label>
+                    <select id="edit-ev-tipo" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
+                        <option value="">— seleziona —</option>
+                        <option value="scritta">Verifica scritta</option>
+                        <option value="orale">Interrogazione / Orale</option>
+                        <option value="pratica">Attività pratica</option>
+                        <option value="altro">Altro</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Voto (1–10)</label>
+                    <input type="number" id="edit-ev-score" min="1" max="10" step="0.25" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
+                </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" onclick="closeEditEvalModal()" style="flex:1; background:#e2e8f0; color:#334155;">Annulla</button>
+                <button type="button" onclick="saveEditEvaluation()" style="flex:1; background:#0891b2; color:white;"><i class="fas fa-save"></i> Salva modifiche</button>
             </div>
         </div>
     </div>
@@ -1963,8 +2068,20 @@
             </button>
         </div>
         
+        <!-- FINE ANNO -->
+        <div class="form-group" style="margin-top: 16px; margin-bottom: 8px;">
+          <button
+            type="button"
+            onclick="openFineAnnoModal()"
+            style="width:100%; background: linear-gradient(135deg,#0f766e,#0891b2); color:#fff; font-size:1rem; padding:14px;"
+            title="Archivia l'anno corrente su Drive e prepara l'app per il nuovo anno"
+          >
+            <i class="fas fa-graduation-cap"></i> &nbsp; Fine Anno Scolastico — Archivia e Ricomincia
+          </button>
+        </div>
+
         <!-- UNIFICA NOMI + PULISCI STORICO -->
-        <div class="form-group" style="margin-top: 16px; margin-bottom: 8px; display:flex; gap:10px; flex-wrap:wrap;">
+        <div class="form-group" style="margin-top: 8px; margin-bottom: 8px; display:flex; gap:10px; flex-wrap:wrap;">
           <button
             type="button"
             onclick="unifyDuplicateNames()"
@@ -3022,7 +3139,8 @@ function calculateAveragesForScrutinio() {
             
             // Update subtitle
             updateSchoolInfoSubtitle();
-            
+            updateDriveAnnoLabel();
+
             // Ricalcola le medie per il nuovo quadrimestre
             calculateAveragesForScrutinio();
         }
@@ -3719,8 +3837,11 @@ function calculateAveragesForScrutinio() {
                         </span>
                     </td>
                     <td><span class="level-badge ${evaluation.levelClass || ''}">${evaluation.level || ''}</span></td>
-                    <td class="no-print">
-                        <button type="button" onclick="deleteEvaluation('${evaluation.id}')" style="background-color: var(--danger-color); padding: 6px 12px; margin: 0;">
+                    <td class="no-print" style="white-space:nowrap;">
+                        <button type="button" onclick="openEditEvaluation('${evaluation.id}')" style="background:#0891b2; padding:6px 10px; margin:0 4px 0 0;" title="Modifica valutazione">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button type="button" onclick="deleteEvaluation('${evaluation.id}')" style="background-color: var(--danger-color); padding: 6px 10px; margin: 0;" title="Elimina">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -5265,12 +5386,13 @@ function calculateAveragesForScrutinio() {
 
     // Stato Drive (persiste in localStorage)
     let driveState = {
-        enabled:     false,
-        accessToken: null,
-        tokenExpiry: 0,
-        fileId:      null,
-        folderId:    null,
-        userEmail:   ''
+        enabled:      false,
+        accessToken:  null,
+        tokenExpiry:  0,
+        fileId:       null,
+        folderId:     null,   // cartella root
+        yearFolderId: null,   // sottocartella anno corrente
+        userEmail:    ''
     };
 
     // ── Carica stato all'avvio ─────────────────────────────────────────────
@@ -5308,6 +5430,7 @@ function calculateAveragesForScrutinio() {
         } else if (driveState.enabled && driveState.accessToken) {
             btn.classList.add('connected');
             label.textContent = 'Drive ✓';
+            updateDriveAnnoLabel();
         } else {
             label.textContent = 'Drive';
         }
@@ -5378,8 +5501,10 @@ function calculateAveragesForScrutinio() {
             driveState.userEmail = info.email || '';
 
             // Ricalcola SEMPRE cartella e file (evita ID stale se l'utente ha cancellato il file)
-            driveState.folderId = await findOrCreateDriveFolder();
-            driveState.fileId   = await findDriveFile();
+            driveState.folderId     = await findOrCreateDriveFolder();
+            const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+            driveState.yearFolderId = await findOrCreateYearFolder(anno);
+            driveState.fileId       = await findDriveFile();
             saveDriveState();
 
             if (driveState.fileId) {
@@ -5422,7 +5547,7 @@ function calculateAveragesForScrutinio() {
         }
     }
 
-    // ── Trova o crea la cartella su Drive ─────────────────────────────────
+    // ── Trova o crea la cartella root su Drive ────────────────────────────
     async function findOrCreateDriveFolder() {
         const q = encodeURIComponent(`name='${DRIVE_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
         const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
@@ -5435,9 +5560,23 @@ function calculateAveragesForScrutinio() {
         return created.id;
     }
 
-    // ── Trova il file dati nella cartella ─────────────────────────────────
+    // ── Trova o crea la sottocartella anno ────────────────────────────────
+    async function findOrCreateYearFolder(anno) {
+        const q = encodeURIComponent(`name='${anno}' and '${driveState.folderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+        if (resp.files && resp.files.length > 0) return resp.files[0].id;
+        const created = await driveApiFetch(
+            'https://www.googleapis.com/drive/v3/files',
+            'POST',
+            { name: anno, mimeType: 'application/vnd.google-apps.folder', parents: [driveState.folderId] }
+        );
+        return created.id;
+    }
+
+    // ── Trova il file dati nella sottocartella anno ───────────────────────
     async function findDriveFile() {
-        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${driveState.folderId}' in parents and trashed=false`);
+        const parentId = driveState.yearFolderId || driveState.folderId;
+        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${parentId}' in parents and trashed=false`);
         const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
         if (resp.files && resp.files.length > 0) return resp.files[0].id;
         return null;
@@ -5523,14 +5662,19 @@ function calculateAveragesForScrutinio() {
 
         try {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
-            if (!driveState.fileId)   driveState.fileId   = await findDriveFile();
+            if (!driveState.yearFolderId) {
+                const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+                driveState.yearFolderId = await findOrCreateYearFolder(anno);
+            }
+            if (!driveState.fileId) driveState.fileId = await findDriveFile();
 
             const boundary = 'valprim_' + Date.now();
             let body = '';
             if (!driveState.fileId) {
-                // Crea nuovo file (con metadati cartella)
+                // Crea nuovo file nella sottocartella anno
+                const parentId = driveState.yearFolderId || driveState.folderId;
                 body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n` +
-                    JSON.stringify({ name: DRIVE_FILE_NAME, parents: [driveState.folderId] }) +
+                    JSON.stringify({ name: DRIVE_FILE_NAME, parents: [parentId] }) +
                     `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n--${boundary}--`;
             } else {
                 // Aggiorna file esistente (solo contenuto)
@@ -5616,6 +5760,253 @@ function calculateAveragesForScrutinio() {
     }
 
     // ========== FINE DRIVE INTEGRATION ==========
+
+    // ========== FINE ANNO SCOLASTICO ==========
+
+    function openFineAnnoModal() {
+        if (!driveState.enabled || !driveState.accessToken) {
+            alert('⚠️ Collega Google Drive prima di procedere con la Fine Anno.\n\nI dati devono essere su Drive per poterli archiviare.');
+            return;
+        }
+        const anno = schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim();
+        if (!anno || anno === 'Anno-non-impostato') {
+            alert('⚠️ Imposta l\'Anno Scolastico nelle Impostazioni prima di procedere.\nEsempio: 2024/2025');
+            return;
+        }
+        document.getElementById('fine-anno-anno1').textContent = anno;
+        document.getElementById('fine-anno-n-val').textContent = evaluations.length;
+        document.getElementById('fine-anno-anno2').textContent = anno;
+        document.getElementById('fine-anno-step1').style.display = '';
+        document.getElementById('fine-anno-step2').style.display = 'none';
+        document.getElementById('fine-anno-confirm-input').value = '';
+        document.getElementById('fine-anno-modal').style.display = 'flex';
+    }
+
+    function closeFineAnnoModal() {
+        document.getElementById('fine-anno-modal').style.display = 'none';
+    }
+
+    function fineAnnoStep2() {
+        document.getElementById('fine-anno-step1').style.display = 'none';
+        document.getElementById('fine-anno-step2').style.display = '';
+        setTimeout(() => document.getElementById('fine-anno-confirm-input').focus(), 100);
+    }
+
+    function fineAnnoBack() {
+        document.getElementById('fine-anno-step1').style.display = '';
+        document.getElementById('fine-anno-step2').style.display = 'none';
+        document.getElementById('fine-anno-confirm-input').value = '';
+    }
+
+    async function eseguiFineAnno() {
+        const input = document.getElementById('fine-anno-confirm-input').value.trim().toUpperCase();
+        if (input !== 'FINE ANNO') {
+            document.getElementById('fine-anno-confirm-input').style.borderColor = 'var(--danger-color)';
+            setTimeout(() => document.getElementById('fine-anno-confirm-input').style.borderColor = '', 1500);
+            return;
+        }
+        const btn = document.getElementById('fine-anno-confirm-btn');
+        btn.textContent = '⏳ Archiviazione in corso...';
+        btn.disabled = true;
+        try {
+            // 1. Salva dati aggiornati su Drive (sincronizza ultimo stato)
+            await syncToDrive();
+
+            // 2. Salva una copia HTML dello storico nella cartella anno
+            const htmlStorico = generaHTMLArchiviazione();
+            await salvaSuDriveNellaCartellaAnno(
+                `storico_verifiche_${schoolInfo.annoScolastico.replace(/\//g,'-')}.html`,
+                htmlStorico, 'text/html'
+            );
+
+            // 3. Pulisci dati locali e prepara per nuovo anno
+            evaluations = [];
+            studentAverages = {};
+            localStorage.removeItem('evaluations');
+            localStorage.removeItem('studentAverages');
+
+            // 4. Reset Drive state per nuovo anno
+            driveState.fileId       = null;
+            driveState.yearFolderId = null;
+            saveDriveState();
+
+            updateHistoryTable();
+            updateStudentsFilter();
+            calculateAveragesForScrutinio();
+            closeFineAnnoModal();
+            alert(`✅ Anno ${schoolInfo.annoScolastico} archiviato!\n\nI dati sono in: Drive → Valutazione-Primaria-Dati → ${schoolInfo.annoScolastico}\n\nAggiorna l'Anno Scolastico nelle Impostazioni per iniziare il nuovo anno.`);
+        } catch(err) {
+            btn.textContent = 'Archivia Anno';
+            btn.disabled = false;
+            alert('Errore durante l\'archiviazione: ' + err.message);
+        }
+    }
+
+    function generaHTMLArchiviazione() {
+        const righe = evaluations.map(e => {
+            const data = e.date ? e.date.split('-').reverse().join('/') : '';
+            return `<tr><td>${data}</td><td>${e.studentName||''}</td><td>${e.discipline||''}</td><td>${e.description||''}</td><td>${e.fraction||''}</td><td>${e.score||''}</td><td>${e.level||''}</td></tr>`;
+        }).join('');
+        const info = `${schoolInfo.istituto||''} - Classe ${schoolInfo.classe||''} ${schoolInfo.sezione||''} - A.S. ${schoolInfo.annoScolastico||''}`;
+        return `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Storico ${schoolInfo.annoScolastico}</title>
+        <style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px;font-size:12px}th{background:#4f46e5;color:white}h2{color:#1e293b}</style></head>
+        <body><h2>Storico Verifiche — ${info}</h2><p>Esportato il ${new Date().toLocaleDateString('it-IT')}</p>
+        <table><thead><tr><th>Data</th><th>Studente</th><th>Disciplina</th><th>Descrizione</th><th>Frazione</th><th>Voto</th><th>Livello</th></tr></thead>
+        <tbody>${righe}</tbody></table></body></html>`;
+    }
+
+    async function salvaSuDriveNellaCartellaAnno(nomeFile, contenuto, mimeType) {
+        const parentId = driveState.yearFolderId || driveState.folderId;
+        const boundary = 'upload_' + Date.now();
+        const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n` +
+            JSON.stringify({ name: nomeFile, parents: [parentId] }) +
+            `\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n${contenuto}\r\n--${boundary}--`;
+        const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer ' + driveState.accessToken,
+                'Content-Type': 'multipart/related; boundary=' + boundary
+            },
+            body
+        });
+        if (!resp.ok) throw new Error('Salvataggio su Drive fallito (' + resp.status + ')');
+    }
+
+    // ========== CONSULTA ANNO PRECEDENTE ==========
+
+    let _readonlyBackup = null;
+
+    async function listAnniPrecedenti() {
+        if (!driveState.enabled || !driveState.accessToken || !driveState.folderId) {
+            alert('Connetti Google Drive per visualizzare gli anni precedenti.');
+            return;
+        }
+        try {
+            const q = encodeURIComponent(`'${driveState.folderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+            const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&orderBy=name%20desc`);
+            if (!resp.files || resp.files.length === 0) {
+                alert('Nessun anno archiviato trovato su Drive.');
+                return;
+            }
+            const anniAlternativi = resp.files.filter(f => f.name !== (schoolInfo.annoScolastico || '').trim());
+            if (anniAlternativi.length === 0) {
+                alert('Nessun anno precedente trovato. Solo l\'anno corrente è presente su Drive.');
+                return;
+            }
+            // Popola il modal selezione anno
+            const list = document.getElementById('anni-list');
+            list.innerHTML = '';
+            anniAlternativi.forEach(f => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = f.name;
+                btn.style.cssText = 'width:100%;margin-bottom:8px;background:#7c3aed;color:white;padding:10px;border-radius:8px;border:none;cursor:pointer;font-size:0.95rem;';
+                btn.onclick = () => { closeSelezioneAnnoModal(); caricaAnnoArchiviato(f.id, f.name); };
+                list.appendChild(btn);
+            });
+            document.getElementById('anni-modal').style.display = 'flex';
+        } catch(err) {
+            alert('Errore: ' + err.message);
+        }
+    }
+
+    function closeSelezioneAnnoModal() {
+        document.getElementById('anni-modal').style.display = 'none';
+    }
+
+    async function caricaAnnoArchiviato(folderId, annoName) {
+        try {
+            const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${folderId}' in parents and trashed=false`);
+            const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+            if (!resp.files || resp.files.length === 0) {
+                alert(`Nessun file dati trovato per l'anno ${annoName}.`);
+                return;
+            }
+            const fileResp = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${resp.files[0].id}?alt=media`,
+                { headers: { Authorization: 'Bearer ' + driveState.accessToken } }
+            );
+            if (!fileResp.ok) throw new Error('Lettura fallita');
+            const data = await fileResp.json();
+            // Salva stato corrente e carica anno archiviato in sola lettura
+            _readonlyBackup = { evaluations: [...evaluations], schoolInfo: {...schoolInfo} };
+            evaluations = data.evaluations || [];
+            schoolInfo  = { ...(data.schoolInfo || schoolInfo), _readonly: true };
+            updateHistoryTable();
+            updateStudentsFilter();
+            calculateAveragesForScrutinio();
+            updateSchoolInfoSubtitle();
+            document.getElementById('readonly-banner').style.display = 'flex';
+            document.getElementById('readonly-anno-label').textContent = annoName;
+            // Vai allo storico
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.getElementById('tab3').style.display = 'block';
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-button')[2]?.classList.add('active');
+        } catch(err) {
+            alert('Errore caricamento anno: ' + err.message);
+        }
+    }
+
+    function exitReadonlyMode() {
+        if (!_readonlyBackup) return;
+        evaluations = _readonlyBackup.evaluations;
+        schoolInfo  = _readonlyBackup.schoolInfo;
+        _readonlyBackup = null;
+        updateHistoryTable();
+        updateStudentsFilter();
+        calculateAveragesForScrutinio();
+        updateSchoolInfoSubtitle();
+        document.getElementById('readonly-banner').style.display = 'none';
+    }
+
+    // ========== MODIFICA VALUTAZIONE (MATITA) ==========
+
+    function openEditEvaluation(id) {
+        if (schoolInfo._readonly) return;
+        const ev = evaluations.find(e => e.id === id);
+        if (!ev) return;
+        document.getElementById('edit-ev-id').value      = id;
+        document.getElementById('edit-ev-date').value    = ev.date || '';
+        document.getElementById('edit-ev-discipline').value = ev.discipline || '';
+        document.getElementById('edit-ev-desc').value    = ev.description || '';
+        document.getElementById('edit-ev-tipo').value    = ev.tipo || '';
+        document.getElementById('edit-ev-score').value   = ev.score || '';
+        document.getElementById('edit-ev-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('edit-ev-date').focus(), 100);
+    }
+
+    function closeEditEvalModal() {
+        document.getElementById('edit-ev-modal').style.display = 'none';
+    }
+
+    function saveEditEvaluation() {
+        const id    = document.getElementById('edit-ev-id').value;
+        const idx   = evaluations.findIndex(e => e.id === id);
+        if (idx === -1) { closeEditEvalModal(); return; }
+        const ev    = evaluations[idx];
+        const newDate  = document.getElementById('edit-ev-date').value;
+        const newDisc  = document.getElementById('edit-ev-discipline').value.trim();
+        const newDesc  = document.getElementById('edit-ev-desc').value.trim();
+        const newTipo  = document.getElementById('edit-ev-tipo').value;
+        const newScore = parseFloat(document.getElementById('edit-ev-score').value);
+        if (!newDate || !newDisc || !newDesc) { alert('Compila tutti i campi obbligatori.'); return; }
+        if (isNaN(newScore) || newScore < 1 || newScore > 10) { alert('Voto non valido (1-10).'); return; }
+        evaluations[idx] = { ...ev, date: newDate, discipline: newDisc, description: newDesc, tipo: newTipo, score: newScore.toFixed(1) };
+        localStorage.setItem('evaluations', JSON.stringify(evaluations));
+        syncToDrive();
+        updateHistoryTable();
+        calculateAveragesForScrutinio();
+        closeEditEvalModal();
+    }
+
+    // Aggiorna etichetta anno nel pannello Drive
+    function updateDriveAnnoLabel() {
+        const el = document.getElementById('drive-anno-label');
+        if (el) el.textContent = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || '—';
+    }
+
+    // ========== FINE NUOVE FUNZIONI ==========
 
     // Apertura e chiusura del modal di cancellazione storico
     document.getElementById('open-clear-modal').addEventListener('click', function() {
