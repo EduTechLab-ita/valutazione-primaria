@@ -1591,7 +1591,7 @@
                 </div>
                 <div>
                     <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">Voto (1–10)</label>
-                    <input type="number" id="edit-ev-score" min="1" max="10" step="0.25" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
+                    <input type="number" id="edit-ev-score" min="1" max="10" step="0.1" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:6px;">
                 </div>
             </div>
             <div style="display:flex; gap:12px; margin-top:20px;">
@@ -5609,29 +5609,37 @@ function calculateAveragesForScrutinio() {
         return null;
     }
 
-    // ── Migrazione automatica all'avvio: sposta il file dalla root alla sottocartella anno ──
+    // ── Verifica e corregge fileId ad ogni avvio (self-healing) ──────────
     async function runMigrationIfNeeded() {
         if (!driveState.enabled || !driveState.accessToken) return;
-        if (driveState.yearFolderId) return;  // già migrato in sessioni precedenti
+        if (driveState._verified) return;   // già eseguita in questa sessione (flag runtime)
+        driveState._verified = true;
         try {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
             const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
             driveState.yearFolderId = await findOrCreateYearFolder(anno);
-            // Controlla se il file è già nella sottocartella anno
+
+            // Verifica sempre quale file è effettivamente nella sottocartella anno
             const fileInYear = await findDriveFile();
-            if (!fileInYear && driveState.fileId) {
-                // Il file è nella root (fileId punta lì) → spostalo nella sottocartella
-                await driveApiFetch(
-                    `https://www.googleapis.com/drive/v3/files/${driveState.fileId}?addParents=${driveState.yearFolderId}&removeParents=${driveState.folderId}&fields=id`,
-                    'PATCH'
-                );
-                // fileId rimane lo stesso (stesso file, spostato)
-            } else if (fileInYear) {
+            if (fileInYear) {
+                // File trovato nella posizione corretta → usa quello (aggiorna fileId se stale)
                 driveState.fileId = fileInYear;
+            } else {
+                // File non trovato nell'anno → cerca nella root (migrazione vecchia struttura)
+                const fileInRoot = await findDriveFileInFolder(driveState.folderId);
+                if (fileInRoot) {
+                    await driveApiFetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileInRoot}?addParents=${driveState.yearFolderId}&removeParents=${driveState.folderId}&fields=id`,
+                        'PATCH'
+                    );
+                    driveState.fileId = fileInRoot;
+                } else {
+                    driveState.fileId = null;  // nessun file trovato: verrà creato al prossimo salvataggio
+                }
             }
             saveDriveState();
         } catch(e) {
-            console.warn('Migrazione Drive non completata:', e.message);
+            console.warn('Verifica Drive non completata:', e.message);
         }
     }
 
