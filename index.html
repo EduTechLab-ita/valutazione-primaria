@@ -5513,6 +5513,19 @@ function calculateAveragesForScrutinio() {
             const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
             driveState.yearFolderId = await findOrCreateYearFolder(anno);
             driveState.fileId       = await findDriveFile();
+
+            // ── Migrazione: file nella root → spostalo nella sottocartella anno ──
+            if (!driveState.fileId) {
+                const oldFileId = await findDriveFileInFolder(driveState.folderId);
+                if (oldFileId) {
+                    // Sposta il file dalla root alla sottocartella anno
+                    await driveApiFetch(
+                        `https://www.googleapis.com/drive/v3/files/${oldFileId}?addParents=${driveState.yearFolderId}&removeParents=${driveState.folderId}&fields=id`,
+                        'PATCH'
+                    );
+                    driveState.fileId = oldFileId;
+                }
+            }
             saveDriveState();
 
             if (driveState.fileId) {
@@ -5585,6 +5598,14 @@ function calculateAveragesForScrutinio() {
     async function findDriveFile() {
         const parentId = driveState.yearFolderId || driveState.folderId;
         const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${parentId}' in parents and trashed=false`);
+        const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+        if (resp.files && resp.files.length > 0) return resp.files[0].id;
+        return null;
+    }
+
+    // ── Cerca il file in una cartella specifica (usato per migrazione) ────
+    async function findDriveFileInFolder(folderId) {
+        const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and '${folderId}' in parents and trashed=false`);
         const resp = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
         if (resp.files && resp.files.length > 0) return resp.files[0].id;
         return null;
