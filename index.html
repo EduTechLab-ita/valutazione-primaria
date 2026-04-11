@@ -5243,8 +5243,13 @@ function calculateAveragesForScrutinio() {
     }
 
     // ── Prova rinnovo silenzioso del token ────────────────────────────────
-    function trySilentAuth() {
-        if (typeof google === 'undefined' || !google.accounts) return;
+    function trySilentAuth(retries = 6) {
+        if (typeof google === 'undefined' || !google.accounts) {
+            // GIS non ancora caricato (async defer): riprova tra 1.5s
+            if (retries > 0) setTimeout(() => trySilentAuth(retries - 1), 1500);
+            else updateDriveButton('error'); // dopo 9s: mostra errore
+            return;
+        }
         if (DRIVE_CLIENT_ID === 'DA_CONFIGURARE.apps.googleusercontent.com') return;
         const client = google.accounts.oauth2.initTokenClient({
             client_id: DRIVE_CLIENT_ID,
@@ -5332,7 +5337,7 @@ function calculateAveragesForScrutinio() {
                 `https://www.googleapis.com/drive/v3/files/${driveState.fileId}?alt=media`,
                 { headers: { Authorization: 'Bearer ' + driveState.accessToken } }
             );
-            if (!resp.ok) throw new Error('Lettura Drive fallita (' + resp.status + ')');
+            if (!resp.ok) throw new Error('Lettura Drive fallita HTTP ' + resp.status);
             const data = await resp.json();
             if (Array.isArray(data.evaluations)) {
                 evaluations    = data.evaluations;
@@ -5351,8 +5356,13 @@ function calculateAveragesForScrutinio() {
             updateDriveButton('connected');
             if (showFeedback) alert('✅ Dati ricaricati da Drive (' + evaluations.length + ' valutazioni).');
         } catch(err) {
-            updateDriveButton('error');
-            if (showFeedback) alert('Errore lettura Drive: ' + err.message);
+            // Se errore di autenticazione (token scaduto), prova rinnovo automatico
+            if (err.message && (err.message.includes('401') || err.message.includes('403'))) {
+                trySilentAuth();
+            } else {
+                updateDriveButton('error');
+                if (showFeedback) alert('Errore lettura Drive: ' + err.message);
+            }
         }
     }
 
