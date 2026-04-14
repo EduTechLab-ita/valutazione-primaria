@@ -1959,24 +1959,33 @@
             </div>
         </div>
         
-        <div class="form-group" style="max-width: 300px; margin-bottom: 20px;">
-            <label for="average-discipline">Filtra per disciplina:</label>
-            <select id="average-discipline" class="discipline-select" onchange="calculateAveragesForScrutinio()">
-                <option value="">Tutte le discipline</option>
-                <option value="Italiano">Italiano</option>
-                <option value="Inglese">Inglese</option>
-                <option value="Storia">Storia</option>
-                <option value="Geografia">Geografia</option>
-                <option value="Matematica">Matematica</option>
-                <option value="Scienze">Scienze</option>
-                <option value="Tecnologia">Tecnologia</option>
-                <option value="Musica">Musica</option>
-                <option value="Arte e Immagine">Arte e Immagine</option>
-                <option value="Educazione Fisica">Educazione Fisica</option>
-                <option value="Educazione Civica">Educazione Civica</option>
-                <option value="Alternativa all'IRC">Alternativa all'IRC</option>
-                <option value="IRC">IRC</option>
-            </select>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 620px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label for="average-discipline">Filtra per disciplina:</label>
+                <select id="average-discipline" class="discipline-select" onchange="calculateAveragesForScrutinio()">
+                    <option value="">Tutte le discipline</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="Inglese">Inglese</option>
+                    <option value="Storia">Storia</option>
+                    <option value="Geografia">Geografia</option>
+                    <option value="Matematica">Matematica</option>
+                    <option value="Scienze">Scienze</option>
+                    <option value="Tecnologia">Tecnologia</option>
+                    <option value="Musica">Musica</option>
+                    <option value="Arte e Immagine">Arte e Immagine</option>
+                    <option value="Educazione Fisica">Educazione Fisica</option>
+                    <option value="Educazione Civica">Educazione Civica</option>
+                    <option value="Alternativa all'IRC">Alternativa all'IRC</option>
+                    <option value="IRC">IRC</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="average-student">Filtra per studente:</label>
+                <select id="average-student" class="discipline-select" onchange="calculateAveragesForScrutinio()">
+                    <option value="">Tutti gli studenti</option>
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
         </div>
         
         <table id="averages-table">
@@ -2001,9 +2010,14 @@
                 <i class="fas fa-sync-alt"></i> Aggiorna Calcolo
             </button>
             
-            <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color); margin-left: auto;">
-                <i class="fas fa-print"></i> Stampa Medie
-            </button>
+            <div style="display: flex; gap: 10px; margin-left: auto;">
+                <button type="button" onclick="preparePrintAverages()" style="background-color: var(--success-color);">
+                    <i class="fas fa-print"></i> Stampa Medie
+                </button>
+                <button type="button" onclick="preparePrintVerifiche()" style="background-color: #7c3aed;">
+                    <i class="fas fa-file-alt"></i> Stampa Voti per Registro
+                </button>
+            </div>
         </div>
     </div>
         
@@ -2707,17 +2721,39 @@
         
         // Funzione per calcolare le medie per lo scrutinio
         
+function populateAverageStudentFilter() {
+    const studentSelect = document.getElementById('average-student');
+    if (!studentSelect) return;
+    const currentVal = studentSelect.value;
+    const allStudents = [...new Set(evaluations
+        .filter(e => e.quadrimestre === schoolInfo.quadrimestre)
+        .map(e => e.studentName))].sort();
+    studentSelect.innerHTML = '<option value="">Tutti gli studenti</option>';
+    allStudents.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        studentSelect.appendChild(opt);
+    });
+    if (currentVal && allStudents.includes(currentVal)) studentSelect.value = currentVal;
+}
+
 function calculateAveragesForScrutinio() {
     const averagesTableBody = document.getElementById('averages-table-body');
     const disciplineFilter = document.getElementById('average-discipline').value;
+    const studentFilter = document.getElementById('average-student')?.value || '';
     averagesTableBody.innerHTML = '';
+
+    // Aggiorna la lista studenti nel select
+    populateAverageStudentFilter();
 
     // Ottieni tutte le discipline presenti (o solo il filtro)
     const allDisciplines = [...new Set(evaluations.map(e => e.discipline))].sort();
     const disciplinesToProcess = disciplineFilter ? [disciplineFilter] : allDisciplines;
 
-    // Ottieni studenti unici
-    const students = [...new Set(evaluations.map(e => e.studentName))].sort();
+    // Ottieni studenti unici (filtrati per studente se selezionato)
+    const allStudents = [...new Set(evaluations.map(e => e.studentName))].sort();
+    const students = studentFilter ? [studentFilter] : allStudents;
 
     disciplinesToProcess.forEach(disc => {
         students.forEach(studentName => {
