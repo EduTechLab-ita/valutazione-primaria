@@ -227,6 +227,15 @@
         }
         .quad-btn.all.active { background: #059669; border-color: #059669; }
 
+        /* Scheda Studente */
+        .sc-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:20px; }
+        .sc-card { background:white; border-radius:10px; padding:12px 14px; box-shadow:var(--shadow-card); border-left:4px solid #c7d2fe; }
+        .sc-card .sc-disc { font-size:0.78rem; font-weight:700; color:var(--text-medium); margin-bottom:4px; }
+        .sc-card .sc-badge { display:inline-block; font-size:0.8rem; font-weight:700; padding:3px 10px; border-radius:12px; color:white; margin-bottom:4px; }
+        .sc-card .sc-val { font-size:1.1rem; font-weight:800; color:var(--text-dark); }
+        .sc-card .sc-count { font-size:0.72rem; color:var(--text-light); }
+        .sc-chart-wrap { background:white; border-radius:12px; padding:16px; box-shadow:var(--shadow-card); }
+
         .tabs {
             display: flex;
             overflow: hidden;
@@ -1226,6 +1235,7 @@
 
 <!-- html2pdf.js library for PDF generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* Modal styles */
 #printPreviewModal {
@@ -1981,10 +1991,16 @@
 <div id="print-area">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <h2 style="margin: 0;">Calcolo Livello Finale per Scrutinio</h2>
-            <button type="button" onclick="openPesiModal()" class="no-print"
-                style="background-color: #64748b; font-size: 0.85rem; padding: 8px 14px; white-space: nowrap;">
-                <i class="fas fa-sliders-h"></i> Imposta Pesi
-            </button>
+            <div style="display:flex; gap:8px;" class="no-print">
+                <button type="button" onclick="openStudentCardModal()"
+                    style="background-color: #7c3aed; font-size: 0.85rem; padding: 8px 14px; white-space: nowrap;">
+                    <i class="fas fa-user-chart"></i> Scheda Studente
+                </button>
+                <button type="button" onclick="openPesiModal()"
+                    style="background-color: #64748b; font-size: 0.85rem; padding: 8px 14px; white-space: nowrap;">
+                    <i class="fas fa-sliders-h"></i> Imposta Pesi
+                </button>
+            </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 620px; margin-bottom: 20px;">
@@ -2205,6 +2221,37 @@
     <!-- Pulsante di chiusura dell'app -->
     <div class="exit-button no-print" onclick="confirmExit()">
         <i class="fas fa-power-off"></i>
+    </div>
+
+    <!-- Modal Scheda Studente -->
+    <div id="student-card-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:860px; max-height:92vh; overflow-y:auto;">
+            <div class="close-modal" onclick="closeStudentCardModal()"><i class="fas fa-times"></i></div>
+            <div class="modal-header">
+                <h2><i class="fas fa-user-graduate"></i> Scheda Studente</h2>
+            </div>
+
+            <!-- Selettore studente -->
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px;">
+                <div class="form-group" style="flex:1; min-width:200px; margin:0;">
+                    <label for="sc-student-select">Studente:</label>
+                    <select id="sc-student-select" class="discipline-select" onchange="renderStudentCard()">
+                        <option value="">— Seleziona studente —</option>
+                    </select>
+                </div>
+                <!-- Mini quad switcher -->
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="quad-btn" id="sc-qbtn-1" onclick="setScQuad('1')">1° Quad</button>
+                    <button class="quad-btn" id="sc-qbtn-2" onclick="setScQuad('2')">2° Quad</button>
+                    <button class="quad-btn all" id="sc-qbtn-all" onclick="setScQuad('all')">Tutto l'anno</button>
+                </div>
+            </div>
+
+            <!-- Contenuto dinamico -->
+            <div id="sc-content">
+                <p style="text-align:center; color:var(--text-medium); padding:40px 0;">Seleziona uno studente per visualizzare la scheda.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Impostazione Pesi -->
@@ -2791,6 +2838,8 @@
                             closeEditAverageModal();
                         } else if (this.id === 'print-averages-modal') {
                             closePrintAveragesModal();
+                        } else if (this.id === 'student-card-modal') {
+                            closeStudentCardModal();
                         } else if (this.id === 'pesi-modal') {
                             closePesiModal();
                         } else if (this.id === 'help-modal') {
@@ -5076,6 +5125,177 @@ function calculateAveragesForScrutinio() {
 
             // Mostra il modal
             document.getElementById('print-averages-modal').style.display = 'flex';
+        }
+
+        // ========== SCHEDA STUDENTE ==========
+
+        const DISC_COLORS = {
+            'Italiano':'#6366f1','Matematica':'#f59e0b','Inglese':'#10b981',
+            'Storia':'#ef4444','Geografia':'#8b5cf6','Scienze':'#06b6d4',
+            'Tecnologia':'#f97316','Musica':'#ec4899','Arte e Immagine':'#84cc16',
+            'Educazione Fisica':'#14b8a6','Educazione Civica':'#a855f7',
+            'IRC':'#64748b',"Alternativa all'IRC":'#94a3b8'
+        };
+        let scQuad = 'all';
+        let scChart = null;
+
+        function openStudentCardModal() {
+            // Popola studenti
+            const sel = document.getElementById('sc-student-select');
+            const current = sel.value;
+            const students = [...new Set(evaluations.map(e => e.studentName))].sort();
+            sel.innerHTML = '<option value="">— Seleziona studente —</option>';
+            students.forEach(n => {
+                const o = document.createElement('option');
+                o.value = n; o.textContent = n;
+                if (n === current) o.selected = true;
+                sel.appendChild(o);
+            });
+            // Inizializza quad switcher modal (allineato al principale)
+            scQuad = schoolInfo.quadrimestre;
+            updateScQuadBtns();
+            renderStudentCard();
+            document.getElementById('student-card-modal').style.display = 'flex';
+        }
+
+        function closeStudentCardModal() {
+            document.getElementById('student-card-modal').style.display = 'none';
+            if (scChart) { scChart.destroy(); scChart = null; }
+        }
+
+        function setScQuad(q) {
+            scQuad = q;
+            updateScQuadBtns();
+            renderStudentCard();
+        }
+
+        function updateScQuadBtns() {
+            ['1','2','all'].forEach(v => {
+                const b = document.getElementById('sc-qbtn-' + v);
+                if (b) b.classList.toggle('active', v === scQuad);
+            });
+        }
+
+        function scMatchesQuad(e) {
+            if (scQuad === 'all') return true;
+            return e.quadrimestre === scQuad;
+        }
+
+        function renderStudentCard() {
+            const studentName = document.getElementById('sc-student-select').value;
+            const container = document.getElementById('sc-content');
+            if (!studentName) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-medium);padding:40px 0;">Seleziona uno studente per visualizzare la scheda.</p>';
+                return;
+            }
+
+            const evals = evaluations.filter(e => e.studentName === studentName && scMatchesQuad(e));
+            if (evals.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-medium);padding:40px 0;">Nessuna verifica trovata per questo quadrimestre.</p>';
+                return;
+            }
+
+            // Raggruppa per disciplina
+            const byDisc = {};
+            evals.forEach(e => {
+                if (!byDisc[e.discipline]) byDisc[e.discipline] = [];
+                byDisc[e.discipline].push(e);
+            });
+
+            // Schede riepilogo per disciplina
+            let cardsHtml = '<div class="sc-cards">';
+            Object.keys(byDisc).sort().forEach(disc => {
+                const discEvals = byDisc[disc];
+                let wSum = 0, wTot = 0;
+                discEvals.forEach(e => {
+                    const w = averageWeights[e.tipo] || 1;
+                    wSum += parseFloat(e.score) * w; wTot += w;
+                });
+                const avg = wTot > 0 ? (wSum / wTot) : 0;
+                const level = getDescriptiveLevel(avg);
+                const badgeClass = getBadgeClass(level.levelName);
+                const color = DISC_COLORS[disc] || '#6366f1';
+                // Recupera valore modificato se presente
+                const key = `${studentName}|${disc}`;
+                const finalAvg = (studentAverages[key]?.modified && scQuad !== 'all')
+                    ? parseFloat(studentAverages[key].modifiedValue)
+                    : avg;
+                const finalLevel = getDescriptiveLevel(finalAvg);
+                const fBadge = getBadgeClass(finalLevel.levelName);
+                cardsHtml += `
+                <div class="sc-card" style="border-left-color:${color}">
+                    <div class="sc-disc">${disc}</div>
+                    <div><span class="sc-badge ${fBadge}">${finalLevel.levelName.toUpperCase()}</span></div>
+                    <div class="sc-val">${finalAvg.toFixed(1)}</div>
+                    <div class="sc-count">${discEvals.length} verific${discEvals.length === 1 ? 'a' : 'he'}</div>
+                </div>`;
+            });
+            cardsHtml += '</div>';
+
+            // Canvas grafico
+            const chartHtml = `
+            <div class="sc-chart-wrap">
+                <p style="font-size:0.85rem;font-weight:600;color:var(--text-medium);margin-bottom:12px;">
+                    <i class="fas fa-chart-line"></i> Andamento voti nel tempo
+                </p>
+                <canvas id="sc-chart-canvas" style="max-height:280px;"></canvas>
+            </div>`;
+
+            container.innerHTML = cardsHtml + chartHtml;
+
+            // Render grafico
+            if (scChart) { scChart.destroy(); scChart = null; }
+            const ctx = document.getElementById('sc-chart-canvas').getContext('2d');
+
+            // Raccoglie tutte le date uniche ordinate
+            const allDates = [...new Set(evals.map(e => e.date))].sort();
+            const allDatesFormatted = allDates.map(d => d.split('-').reverse().join('/'));
+
+            const datasets = Object.keys(byDisc).sort().map(disc => {
+                const color = DISC_COLORS[disc] || '#6366f1';
+                const data = allDates.map(date => {
+                    const dayEvals = byDisc[disc].filter(e => e.date === date);
+                    if (dayEvals.length === 0) return null;
+                    const s = dayEvals.reduce((sum, e) => sum + parseFloat(e.score), 0) / dayEvals.length;
+                    return parseFloat(s.toFixed(2));
+                });
+                return {
+                    label: disc,
+                    data,
+                    borderColor: color,
+                    backgroundColor: color + '22',
+                    pointBackgroundColor: color,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 2.5,
+                    tension: 0.3,
+                    spanGaps: true
+                };
+            });
+
+            scChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: allDatesFormatted, datasets },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y : '—'}`
+                        }}
+                    },
+                    scales: {
+                        y: {
+                            min: 3.5, max: 10.2,
+                            ticks: { stepSize: 0.5 },
+                            grid: { color: '#e2e8f0' },
+                            afterDataLimits: () => {},
+                        },
+                        x: { grid: { color: '#e2e8f0' } }
+                    }
+                }
+            });
         }
 
         function openPesiModal() {
