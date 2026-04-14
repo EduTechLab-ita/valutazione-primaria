@@ -2225,7 +2225,7 @@
 
     <!-- Modal Scheda Studente -->
     <div id="student-card-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:1100px; width:96vw; height:96vh; max-height:96vh; overflow-y:auto;">
+        <div class="modal-content" style="max-width:1100px; width:98vw; height:99vh; max-height:99vh; overflow-y:auto;">
             <div class="close-modal" onclick="closeStudentCardModal()"><i class="fas fa-times"></i></div>
             <div class="modal-header">
                 <h2><i class="fas fa-user-graduate"></i> Scheda Studente</h2>
@@ -5311,10 +5311,10 @@ function calculateAveragesForScrutinio() {
                 const sorted = [...byDisc[disc]].sort((a, b) => a.date.localeCompare(b.date));
                 let badges = sorted.map(e => {
                     const lvl = getDescriptiveLevel(parseFloat(e.score));
-                    const abbr = getAbbreviationFromLevel(lvl.levelName);
+                    const cls = getBadgeClass(lvl.levelName);
                     const dateDisp = e.date.split('-').reverse().join('/');
                     const desc = e.description ? ` — ${e.description}` : '';
-                    return `<span class="vote-tag ${abbr}" title="${dateDisp}${desc} (${e.score})" style="cursor:default;">${abbr} <span style="font-weight:400;opacity:.85;">${e.score}</span></span>`;
+                    return `<span class="vote-tag ${cls}" title="${dateDisp}${desc} (${e.score})" style="cursor:default;">${cls} <span style="font-weight:400;opacity:.85;">${e.score}</span></span>`;
                 }).join(' ');
                 votesHtml += `
                 <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f1f5f9;">
