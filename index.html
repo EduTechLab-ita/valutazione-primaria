@@ -2225,7 +2225,7 @@
 
     <!-- Modal Scheda Studente -->
     <div id="student-card-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:1100px; width:96vw; max-height:96vh; overflow-y:auto;">
+        <div class="modal-content" style="max-width:1100px; width:96vw; height:96vh; max-height:96vh; overflow-y:auto;">
             <div class="close-modal" onclick="closeStudentCardModal()"><i class="fas fa-times"></i></div>
             <div class="modal-header">
                 <h2><i class="fas fa-user-graduate"></i> Scheda Studente</h2>
@@ -5173,7 +5173,16 @@ function calculateAveragesForScrutinio() {
         function printStudentCard() {
             const studentName = document.getElementById('sc-student-select').value || 'Studente';
             const quadLabel = scQuad === 'all' ? 'Anno intero' : scQuad === '1' ? '1° Quadrimestre' : '2° Quadrimestre';
-            const content = document.getElementById('sc-content').innerHTML;
+            // Converti il canvas del grafico in immagine prima di copiare l'HTML
+            let content = document.getElementById('sc-content').innerHTML;
+            const canvas = document.getElementById('sc-chart-canvas');
+            if (canvas && scChart) {
+                const imgDataUrl = canvas.toDataURL('image/png');
+                content = content.replace(
+                    /<canvas id="sc-chart-canvas"[^>]*><\/canvas>/,
+                    `<img src="${imgDataUrl}" style="max-width:100%;">`
+                );
+            }
             const win = window.open('', '_blank');
             win.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
             <title>Scheda ${studentName}</title>
@@ -5192,14 +5201,18 @@ function calculateAveragesForScrutinio() {
                 .sc-chart-wrap p { font-size: 0.82rem; font-weight: 600; color: #64748b; margin-bottom: 8px; }
                 canvas { max-width: 100%; }
                 .vote-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; color: white; padding: 3px 7px; border-radius: 8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-                .vote-tag.A { background: #10b981; }
-                .vote-tag.I { background: #6366f1; }
-                .vote-tag.B { background: #f59e0b; }
-                .vote-tag.N { background: #ef4444; }
-                .big-badge, .sc-badge.AVA, .sc-badge.avanzato { background: #10b981 !important; }
-                .big-badge.INT, .sc-badge.INT, .sc-badge.intermedio { background: #6366f1 !important; }
-                .big-badge.BAS, .sc-badge.BAS, .sc-badge.base { background: #f59e0b !important; }
-                .big-badge.ACQ, .sc-badge.ACQ { background: #ef4444 !important; }
+                .vote-tag { display:inline-block; font-size:0.72rem; font-weight:600; color:white; padding:3px 7px; border-radius:8px; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+                .vote-tag.OTT { background:#15803d; }
+                .vote-tag.DIS { background:#16a34a; }
+                .vote-tag.BUO { background:#65a30d; }
+                .vote-tag.DISC, .vote-tag.SUF { background:#ca8a04; }
+                .vote-tag.NON { background:#dc2626; }
+                .sc-badge { display:inline-block; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:10px; color:white; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+                .sc-badge.OTT { background:#15803d; }
+                .sc-badge.DIS { background:#16a34a; }
+                .sc-badge.BUO { background:#65a30d; }
+                .sc-badge.DISC, .sc-badge.SUF { background:#ca8a04; }
+                .sc-badge.NON { background:#dc2626; }
             </style></head><body>
             <h1>Scheda Studente — ${studentName}</h1>
             <div class="sub">${quadLabel} · ${new Date().toLocaleDateString('it-IT')}</div>
