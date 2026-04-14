@@ -963,19 +963,23 @@
         }
 
         .vote-tag.BUO {
-            background-color: #65a30d;
+            background-color: #1d4ed8;
         }
 
         .vote-tag.OTT {
-            background-color: #15803d;
+            background-color: #b45309;
         }
 
         .vote-tag.DIS {
-            background-color: #16a34a;
+            background-color: #7c3aed;
         }
 
-        .vote-tag.DISC, .vote-tag.SUF {
-            background-color: #ca8a04;
+        .vote-tag.DISC {
+            background-color: #3b82f6;
+        }
+
+        .vote-tag.SUF {
+            background-color: #16a34a;
         }
 
         .vote-tag.NON {
@@ -994,10 +998,11 @@
             min-width: 120px;
         }
         /* Colori per badge di livello ponderato */
-        .big-badge.OTT { background-color: #15803d; color: white; }
-        .big-badge.DIS { background-color: #16a34a; color: white; }
-        .big-badge.BUO { background-color: #65a30d; color: white; }
-        .big-badge.DISC, .big-badge.SUF { background-color: #ca8a04; color: white; }
+        .big-badge.OTT { background-color: #b45309; color: white; }
+        .big-badge.DIS { background-color: #7c3aed; color: white; }
+        .big-badge.BUO { background-color: #1d4ed8; color: white; }
+        .big-badge.DISC { background-color: #3b82f6; color: white; }
+        .big-badge.SUF { background-color: #16a34a; color: white; }
         .big-badge.NON { background-color: #dc2626; color: white; }
 
 
@@ -5234,16 +5239,18 @@ function calculateAveragesForScrutinio() {
                 canvas { max-width: 100%; }
                 .vote-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; color: white; padding: 3px 7px; border-radius: 8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
                 .vote-tag { display:inline-block; font-size:0.72rem; font-weight:600; color:white; padding:3px 7px; border-radius:8px; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
-                .vote-tag.OTT { background:#15803d; }
-                .vote-tag.DIS { background:#16a34a; }
-                .vote-tag.BUO { background:#65a30d; }
-                .vote-tag.DISC, .vote-tag.SUF { background:#ca8a04; }
+                .vote-tag.OTT { background:#b45309; }
+                .vote-tag.DIS { background:#7c3aed; }
+                .vote-tag.BUO { background:#1d4ed8; }
+                .vote-tag.DISC { background:#3b82f6; }
+                .vote-tag.SUF { background:#16a34a; }
                 .vote-tag.NON { background:#dc2626; }
                 .sc-badge { display:inline-block; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:10px; color:white; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
-                .sc-badge.OTT { background:#15803d; }
-                .sc-badge.DIS { background:#16a34a; }
-                .sc-badge.BUO { background:#65a30d; }
-                .sc-badge.DISC, .sc-badge.SUF { background:#ca8a04; }
+                .sc-badge.OTT { background:#b45309; }
+                .sc-badge.DIS { background:#7c3aed; }
+                .sc-badge.BUO { background:#1d4ed8; }
+                .sc-badge.DISC { background:#3b82f6; }
+                .sc-badge.SUF { background:#16a34a; }
                 .sc-badge.NON { background:#dc2626; }
             </style></head><body>
             <h1>Scheda Studente — ${studentName}</h1>
@@ -5387,6 +5394,20 @@ function calculateAveragesForScrutinio() {
                     spanGaps: true
                 };
             });
+
+            // Linea sufficienza a 6
+            const suffLine = {
+                label: 'Sufficienza (6)',
+                data: allDatesFormatted.map(() => 6),
+                borderColor: '#16a34a',
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                fill: false,
+                tension: 0,
+                order: 99
+            };
+            datasets.push(suffLine);
 
             scChart = new Chart(ctx, {
                 type: 'line',
