@@ -1930,35 +1930,14 @@
     <!-- Tab 5: Medie e Scrutinio (NUOVA TAB) -->
     <div id="tab5" class="tab-content">
 <div id="print-area">
-        <h2>Calcolo Livello Finale per Scrutinio</h2>
-        
-        <div class="pesi-container no-print">
-            <h3>Impostazione Pesi delle Tipologie di Valutazione</h3>
-            <p style="margin-bottom: 12px;">
-                Qui puoi impostare l'importanza relativa di ciascuna tipologia di valutazione. Ad esempio, impostando il peso dei progetti a 2 e
-                quello delle interrogazioni a 1, ogni progetto conterà il doppio rispetto a un'interrogazione nel calcolo del livello finale.
-            </p>
-            
-            <div class="grid-weights">
-                <div class="form-group">
-                    <label for="peso-compito">Compiti in classe:</label>
-                    <input type="number" id="peso-compito" min="0.1" step="0.1" value="2.5" onchange="updateAverageWeights()">
-                </div>
-                <div class="form-group">
-                    <label for="peso-interrogazione">Interrogazioni:</label>
-                    <input type="number" id="peso-interrogazione" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
-                </div>
-                <div class="form-group">
-                    <label for="peso-progetto">Progetti:</label>
-                    <input type="number" id="peso-progetto" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
-                </div>
-                <div class="form-group">
-                    <label for="peso-altro">Altro:</label>
-                    <input type="number" id="peso-altro" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
-                </div>
-            </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 style="margin: 0;">Calcolo Livello Finale per Scrutinio</h2>
+            <button type="button" onclick="openPesiModal()" class="no-print"
+                style="background-color: #64748b; font-size: 0.85rem; padding: 8px 14px; white-space: nowrap;">
+                <i class="fas fa-sliders-h"></i> Imposta Pesi
+            </button>
         </div>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 620px; margin-bottom: 20px;">
             <div class="form-group">
                 <label for="average-discipline">Filtra per disciplina:</label>
@@ -2177,6 +2156,42 @@
     <!-- Pulsante di chiusura dell'app -->
     <div class="exit-button no-print" onclick="confirmExit()">
         <i class="fas fa-power-off"></i>
+    </div>
+
+    <!-- Modal Impostazione Pesi -->
+    <div id="pesi-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="close-modal" onclick="closePesiModal()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-header">
+                <h2><i class="fas fa-sliders-h"></i> Impostazione Pesi</h2>
+                <p>Imposta l'importanza relativa di ciascuna tipologia. Un peso maggiore incide di più sulla media ponderata.</p>
+            </div>
+            <div class="grid-weights" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="peso-compito">Compiti in classe:</label>
+                    <input type="number" id="peso-compito" min="0.1" step="0.1" value="2.5" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-interrogazione">Interrogazioni:</label>
+                    <input type="number" id="peso-interrogazione" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-progetto">Progetti:</label>
+                    <input type="number" id="peso-progetto" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+                <div class="form-group">
+                    <label for="peso-altro">Altro:</label>
+                    <input type="number" id="peso-altro" min="0.1" step="0.1" value="1" onchange="updateAverageWeights()">
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 24px;">
+                <button type="button" onclick="closePesiModal()" style="width: 100%; background-color: var(--primary-color);">
+                    <i class="fas fa-check"></i> Fatto
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal per la stampa delle medie -->
@@ -2672,6 +2687,8 @@
                             closeEditAverageModal();
                         } else if (this.id === 'print-averages-modal') {
                             closePrintAveragesModal();
+                        } else if (this.id === 'pesi-modal') {
+                            closePesiModal();
                         } else if (this.id === 'help-modal') {
                             closeHelpModal();
                         }
@@ -4954,6 +4971,14 @@ function calculateAveragesForScrutinio() {
 
             // Mostra il modal
             document.getElementById('print-averages-modal').style.display = 'flex';
+        }
+
+        function openPesiModal() {
+            document.getElementById('pesi-modal').style.display = 'flex';
+        }
+        function closePesiModal() {
+            document.getElementById('pesi-modal').style.display = 'none';
+            calculateAveragesForScrutinio();
         }
 
         // Funzione per chiudere il modal di anteprima stampa
