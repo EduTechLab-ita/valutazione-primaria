@@ -5234,14 +5234,38 @@ function calculateAveragesForScrutinio() {
 
             // Canvas grafico
             const chartHtml = `
-            <div class="sc-chart-wrap">
+            <div class="sc-chart-wrap" style="margin-bottom:16px;">
                 <p style="font-size:0.85rem;font-weight:600;color:var(--text-medium);margin-bottom:12px;">
                     <i class="fas fa-chart-line"></i> Andamento voti nel tempo
                 </p>
                 <canvas id="sc-chart-canvas" style="max-height:280px;"></canvas>
             </div>`;
 
-            container.innerHTML = cardsHtml + chartHtml;
+            // Dettaglio voti per disciplina
+            let votesHtml = `
+            <div style="background:white;border-radius:12px;padding:16px;box-shadow:var(--shadow-card);">
+                <p style="font-size:0.85rem;font-weight:600;color:var(--text-medium);margin-bottom:12px;">
+                    <i class="fas fa-list-ul"></i> Dettaglio verifiche per disciplina
+                </p>`;
+            Object.keys(byDisc).sort().forEach(disc => {
+                const color = DISC_COLORS[disc] || '#6366f1';
+                const sorted = [...byDisc[disc]].sort((a, b) => a.date.localeCompare(b.date));
+                let badges = sorted.map(e => {
+                    const lvl = getDescriptiveLevel(parseFloat(e.score));
+                    const abbr = getAbbreviationFromLevel(lvl.levelName);
+                    const dateDisp = e.date.split('-').reverse().join('/');
+                    const desc = e.description ? ` — ${e.description}` : '';
+                    return `<span class="vote-tag ${abbr}" title="${dateDisp}${desc} (${e.score})" style="cursor:default;">${abbr} <span style="font-weight:400;opacity:.85;">${e.score}</span></span>`;
+                }).join(' ');
+                votesHtml += `
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f1f5f9;">
+                    <span style="min-width:140px;font-size:0.8rem;font-weight:700;color:${color};padding-top:3px;">${disc}</span>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">${badges}</div>
+                </div>`;
+            });
+            votesHtml += '</div>';
+
+            container.innerHTML = cardsHtml + chartHtml + votesHtml;
 
             // Render grafico
             if (scChart) { scChart.destroy(); scChart = null; }
