@@ -1396,14 +1396,6 @@
                 </small>
             </div>
 
-            <div class="form-group">
-                <label for="quadrimestre">Visualizza quadrimestre:</label>
-                <select id="quadrimestre" class="school-info-input">
-                    <option value="1">Primo Quadrimestre</option>
-                    <option value="2">Secondo Quadrimestre</option>
-                </select>
-            </div>
-
             <div class="modal-footer">
                 <button type="button" onclick="saveSchoolInfo()">
                     <i class="fas fa-save"></i> Salva e Continua
@@ -2649,7 +2641,7 @@
         // Verifica se una valutazione è nel quadrimestre attivo ('1', '2', o 'all')
         function matchesQuad(e) {
             if (schoolInfo.quadrimestre === 'all') return true;
-            return matchesQuad(e);
+            return e.quadrimestre === schoolInfo.quadrimestre;
         }
 
         // Cambia il quadrimestre visualizzato e aggiorna tutto
@@ -2661,9 +2653,6 @@
                 const btn = document.getElementById('qbtn-' + v);
                 if (btn) btn.classList.toggle('active', v === q);
             });
-            // Aggiorna anche il select nel modal
-            const sel = document.getElementById('quadrimestre');
-            if (sel) sel.value = (q === 'all') ? '1' : q;
             updateSchoolInfoSubtitle();
             updateHistoryTable();
             calculateAveragesForScrutinio();
@@ -2690,7 +2679,6 @@
             // Auto-aggiorna il selettore al quadrimestre corrente (in base a oggi)
             const today = new Date().toISOString().split('T')[0];
             schoolInfo.quadrimestre = getQuadrimestre(today);
-            document.getElementById('quadrimestre').value = schoolInfo.quadrimestre;
             localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
             updateHistoryTable();
             calculateAveragesForScrutinio();
@@ -2765,9 +2753,6 @@
             document.getElementById('class-date').value = today;
             
             // Popolamento dei campi nel modal
-            if (document.getElementById('quadrimestre')) {
-                document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
-            }
             if (document.getElementById('q1-end-date')) {
                 document.getElementById('q1-end-date').value = schoolInfo.q1EndDate || '';
             }
@@ -3233,7 +3218,6 @@ function calculateAveragesForScrutinio() {
                             document.getElementById('classe').value = schoolInfo.classe || '';
                             document.getElementById('sezione').value = schoolInfo.sezione || '';
                             document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
-                            document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
                             
                             alert('Informazioni scolastiche importate con successo!');
                         } 
@@ -3259,7 +3243,6 @@ function calculateAveragesForScrutinio() {
                                 document.getElementById('classe').value = schoolInfo.classe || '';
                                 document.getElementById('sezione').value = schoolInfo.sezione || '';
                                 document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
-                                document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
                                 
                                 alert('Informazioni scolastiche importate con successo!');
                             } else {
@@ -3305,13 +3288,10 @@ function calculateAveragesForScrutinio() {
             schoolInfo.sezione = document.getElementById('sezione').value.trim();
             schoolInfo.annoScolastico = document.getElementById('anno-scolastico').value.trim();
             schoolInfo.q1EndDate = document.getElementById('q1-end-date').value;
-            // Auto-deriva il quadrimestre dalla data odierna se q1EndDate è impostata
-            if (schoolInfo.q1EndDate) {
-                const today = new Date().toISOString().split('T')[0];
-                schoolInfo.quadrimestre = getQuadrimestre(today);
-                document.getElementById('quadrimestre').value = schoolInfo.quadrimestre;
-            } else {
-                schoolInfo.quadrimestre = document.getElementById('quadrimestre').value;
+            // Il quadrimestre visualizzato non cambia salvando i dati scuola:
+            // si cambia solo con i bottoni della barra switcher
+            if (!schoolInfo.quadrimestre || schoolInfo.quadrimestre === 'all') {
+                schoolInfo.quadrimestre = '1';
             }
             
             // Validate
@@ -3369,7 +3349,6 @@ function calculateAveragesForScrutinio() {
             document.getElementById('sezione').value = schoolInfo.sezione || '';
             document.getElementById('anno-scolastico').value = schoolInfo.annoScolastico || '';
             document.getElementById('q1-end-date').value = schoolInfo.q1EndDate || '';
-            document.getElementById('quadrimestre').value = schoolInfo.quadrimestre || '1';
 
             // Show modal
             document.getElementById('school-info-modal').style.display = 'flex';
