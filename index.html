@@ -2228,7 +2228,7 @@
 
                     <div class="form-group">
                         <label for="print-verifiche-date">Data Verifica:</label>
-                        <select id="print-verifiche-date">
+                        <select id="print-verifiche-date" onchange="updatePrintVerificheDescriptionFilter()">
                             <option value="">Tutte le Date</option>
                             <!-- Dates will be populated dynamically -->
                         </select>
@@ -5083,13 +5083,28 @@ function calculateAveragesForScrutinio() {
         }
 
         function populatePrintVerificheFilters() {
-            // Popola date
-            const dateSelect = document.getElementById('print-verifiche-date');
-            const uniqueDates = [...new Set(evaluations
-                .filter(e => e.quadrimestre === schoolInfo.quadrimestre)
-                .map(e => e.date))]
-                .sort().reverse();
+            // Reset filtri disciplina (così parte da "Tutte")
+            document.getElementById('print-verifiche-discipline').value = '';
+            // Popola date e descrizioni (entrambe gestite da updatePrintVerificheDescriptionFilter)
+            updatePrintVerificheDescriptionFilter();
+        }
 
+        function updatePrintVerificheDescriptionFilter() {
+            const disciplineFilter = document.getElementById('print-verifiche-discipline').value;
+            const dateSelect = document.getElementById('print-verifiche-date');
+            const descSelect = document.getElementById('print-verifiche-description');
+
+            // Salva le selezioni correnti per preservarle se ancora valide
+            const currentDate = dateSelect.value;
+            const currentDesc = descSelect.value;
+
+            // Filtra per disciplina (base per date e descrizioni)
+            const filteredByDiscipline = disciplineFilter ?
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
+                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
+
+            // Aggiorna date filtrate per disciplina
+            const uniqueDates = [...new Set(filteredByDiscipline.map(e => e.date))].sort().reverse();
             dateSelect.innerHTML = '<option value="">Tutte le Date</option>';
             uniqueDates.forEach(date => {
                 if (date) {
@@ -5100,22 +5115,16 @@ function calculateAveragesForScrutinio() {
                     dateSelect.appendChild(option);
                 }
             });
+            // Ripristina data selezionata se ancora valida
+            if (currentDate && uniqueDates.includes(currentDate)) dateSelect.value = currentDate;
 
-            // Popola descrizioni (filtrate per disciplina se selezionata)
-            updatePrintVerificheDescriptionFilter();
-        }
+            // Aggiorna descrizioni filtrate per disciplina + data
+            const dateFilter = dateSelect.value;
+            const filteredForDesc = dateFilter ?
+                filteredByDiscipline.filter(e => e.date === dateFilter) :
+                filteredByDiscipline;
 
-        function updatePrintVerificheDescriptionFilter() {
-            const disciplineFilter = document.getElementById('print-verifiche-discipline').value;
-            const descSelect = document.getElementById('print-verifiche-description');
-
-            // Filtra le valutazioni per disciplina se selezionata
-            const filteredEvals = disciplineFilter ?
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
-
-            const uniqueDescriptions = [...new Set(filteredEvals.map(e => e.description))].sort();
-
+            const uniqueDescriptions = [...new Set(filteredForDesc.map(e => e.description))].sort();
             descSelect.innerHTML = '<option value="">Tutte le Verifiche</option>';
             uniqueDescriptions.forEach(desc => {
                 if (desc) {
@@ -5125,6 +5134,8 @@ function calculateAveragesForScrutinio() {
                     descSelect.appendChild(option);
                 }
             });
+            // Ripristina descrizione selezionata se ancora valida
+            if (currentDesc && uniqueDescriptions.includes(currentDesc)) descSelect.value = currentDesc;
         }
 
         function updatePrintVerifichePreview() {
