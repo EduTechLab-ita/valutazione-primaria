@@ -189,6 +189,44 @@
         }
 
         /* Tab styling - B Vibrant style */
+        .quad-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid #c7d2fe;
+            flex-wrap: wrap;
+        }
+        .quad-switcher label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-medium);
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+        .quad-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid #c7d2fe;
+            background: transparent;
+            color: var(--text-medium);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .quad-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .quad-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        .quad-btn.all.active { background: #059669; border-color: #059669; }
+
         .tabs {
             display: flex;
             overflow: hidden;
@@ -1641,6 +1679,14 @@
         </div>
     </div>
 
+    <!-- Barra selezione quadrimestre -->
+    <div class="quad-switcher no-print">
+        <label><i class="fas fa-calendar-alt"></i> Visualizza:</label>
+        <button class="quad-btn" id="qbtn-1" onclick="setQuadrimestre('1')">1° Quadrimestre</button>
+        <button class="quad-btn" id="qbtn-2" onclick="setQuadrimestre('2')">2° Quadrimestre</button>
+        <button class="quad-btn all" id="qbtn-all" onclick="setQuadrimestre('all')">Tutto l'anno</button>
+    </div>
+
     <!-- Main tabs navigation -->
     <div class="tabs">
         <button class="tab-button active" onclick="openTab('tab1')">
@@ -2600,6 +2646,38 @@
             return date <= schoolInfo.q1EndDate ? '1' : '2';
         }
 
+        // Verifica se una valutazione è nel quadrimestre attivo ('1', '2', o 'all')
+        function matchesQuad(e) {
+            if (schoolInfo.quadrimestre === 'all') return true;
+            return matchesQuad(e);
+        }
+
+        // Cambia il quadrimestre visualizzato e aggiorna tutto
+        function setQuadrimestre(q) {
+            schoolInfo.quadrimestre = q;
+            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+            // Aggiorna UI switcher
+            ['1','2','all'].forEach(v => {
+                const btn = document.getElementById('qbtn-' + v);
+                if (btn) btn.classList.toggle('active', v === q);
+            });
+            // Aggiorna anche il select nel modal
+            const sel = document.getElementById('quadrimestre');
+            if (sel) sel.value = (q === 'all') ? '1' : q;
+            updateSchoolInfoSubtitle();
+            updateHistoryTable();
+            calculateAveragesForScrutinio();
+        }
+
+        // Inizializza la barra switcher in base al quadrimestre corrente
+        function initQuadSwitcher() {
+            const q = schoolInfo.quadrimestre || '1';
+            ['1','2','all'].forEach(v => {
+                const btn = document.getElementById('qbtn-' + v);
+                if (btn) btn.classList.toggle('active', v === q);
+            });
+        }
+
         // Ricalcola il quadrimestre di tutte le verifiche esistenti in base alle date
         function ricalcolaQuadrimestri() {
             if (!schoolInfo.q1EndDate) {
@@ -2693,6 +2771,9 @@
             if (document.getElementById('q1-end-date')) {
                 document.getElementById('q1-end-date').value = schoolInfo.q1EndDate || '';
             }
+
+            // Inizializza barra switcher quadrimestre
+            initQuadSwitcher();
             
             // Check if school info is already set
             if (schoolInfo.istituto && schoolInfo.classe) {
@@ -2781,7 +2862,7 @@ function populateAverageStudentFilter() {
     if (!studentSelect) return;
     const currentVal = studentSelect.value;
     const allStudents = [...new Set(evaluations
-        .filter(e => e.quadrimestre === schoolInfo.quadrimestre)
+        .filter(e => matchesQuad(e))
         .map(e => e.studentName))].sort();
     studentSelect.innerHTML = '<option value="">Tutti gli studenti</option>';
     allStudents.forEach(name => {
@@ -2815,7 +2896,7 @@ function calculateAveragesForScrutinio() {
             const studentEvaluations = evaluations.filter(e =>
                 e.studentName === studentName &&
                 e.discipline === disc &&
-                e.quadrimestre === schoolInfo.quadrimestre
+                matchesQuad(e)
             );
             if (studentEvaluations.length === 0) return;
 
@@ -3245,9 +3326,10 @@ function calculateAveragesForScrutinio() {
             // Hide modal
             document.getElementById('school-info-modal').style.display = 'none';
             
-            // Update subtitle
+            // Update subtitle e switcher
             updateSchoolInfoSubtitle();
             updateDriveAnnoLabel();
+            initQuadSwitcher();
 
             // Ricalcola le medie per il nuovo quadrimestre
             calculateAveragesForScrutinio();
@@ -3273,10 +3355,7 @@ function calculateAveragesForScrutinio() {
                 subtitleText += ' - A.S. ' + schoolInfo.annoScolastico;
             }
             
-            // Aggiungi il quadrimestre al sottotitolo
-            if (schoolInfo.quadrimestre) {
-                subtitleText += ' - ' + (schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo') + ' Quadrimestre';
-            }
+            // Quadrimestre rimosso dal subtitle: ora visibile nella barra switcher
             
             subtitleElement.textContent = subtitleText;
             subtitleElement.style.display = 'block';
@@ -3901,7 +3980,7 @@ function calculateAveragesForScrutinio() {
             // Filter and display evaluations
             sortedEvaluations.forEach(evaluation => {
                 // Skip if not in current quadrimestre
-                if (evaluation.quadrimestre !== schoolInfo.quadrimestre) return;
+                if (!matchesQuad(evaluation)) return;
                 
                 // Apply filters
                 if (
@@ -4047,7 +4126,7 @@ function calculateAveragesForScrutinio() {
             
             // Get unique student names from current quadrimestre
             const studentNames = [...new Set(evaluations
-                .filter(e => e.studentName && e.quadrimestre === schoolInfo.quadrimestre) // Filtra per quadrimestre
+                .filter(e => e.studentName && matchesQuad(e)) // Filtra per quadrimestre
                 .map(e => e.studentName))]
                 .sort();
             
@@ -4077,7 +4156,7 @@ function calculateAveragesForScrutinio() {
 
             // Get unique dates from current quadrimestre, filtrate per disciplina se selezionata
             const dates = [...new Set(evaluations
-                .filter(e => e.date && e.quadrimestre === schoolInfo.quadrimestre
+                .filter(e => e.date && matchesQuad(e)
                     && (!disciplineFilter || e.discipline === disciplineFilter))
                 .map(e => e.date))]
                 .sort().reverse(); // Sort newest first
@@ -4109,7 +4188,7 @@ function calculateAveragesForScrutinio() {
             // Ottieni descrizioni uniche, ma considera data e disciplina
             // per differenziare verifiche con lo stesso nome ma in giorni diversi o materie diverse
             const verifications = evaluations
-                .filter(e => e.description && e.quadrimestre === schoolInfo.quadrimestre) // Filtra per quadrimestre
+                .filter(e => e.description && matchesQuad(e)) // Filtra per quadrimestre
                 .map(e => ({
                     id: `${e.date}_${e.discipline}_${e.description}`,
                     date: e.date,
@@ -4164,8 +4243,8 @@ function calculateAveragesForScrutinio() {
 
             // Filtra le valutazioni per disciplina se selezionata
             const filteredEvals = disciplineFilter ?
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
+                evaluations.filter(e => matchesQuad(e) && e.discipline === disciplineFilter) :
+                evaluations.filter(e => matchesQuad(e));
 
             // Ottieni descrizioni uniche
             const verifications = filteredEvals
@@ -4217,7 +4296,7 @@ function calculateAveragesForScrutinio() {
             const currentValue = descriptionSelect.value;
 
             const filteredEvals = evaluations.filter(e =>
-                e.quadrimestre === schoolInfo.quadrimestre &&
+                matchesQuad(e) &&
                 e.description &&
                 (!disciplineFilter || e.discipline === disciplineFilter) &&
                 (!dateFilter || e.date === dateFilter)
@@ -4955,7 +5034,7 @@ function calculateAveragesForScrutinio() {
                     const studentEvaluations = evaluations.filter(e =>
                         e.studentName === studentName &&
                         e.discipline === disc &&
-                        e.quadrimestre === schoolInfo.quadrimestre
+                        matchesQuad(e)
                     );
 
                     // Se non ci sono valutazioni per questo studente e disciplina, salta
@@ -5212,8 +5291,8 @@ function calculateAveragesForScrutinio() {
 
             // Filtra per disciplina (base per date e descrizioni)
             const filteredByDiscipline = disciplineFilter ?
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre && e.discipline === disciplineFilter) :
-                evaluations.filter(e => e.quadrimestre === schoolInfo.quadrimestre);
+                evaluations.filter(e => matchesQuad(e) && e.discipline === disciplineFilter) :
+                evaluations.filter(e => matchesQuad(e));
 
             // Aggiorna date filtrate per disciplina
             const uniqueDates = [...new Set(filteredByDiscipline.map(e => e.date))].sort().reverse();
@@ -5262,7 +5341,7 @@ function calculateAveragesForScrutinio() {
 
             // Filtra valutazioni
             const filteredEvaluations = evaluations.filter(e => {
-                return e.quadrimestre === schoolInfo.quadrimestre &&
+                return matchesQuad(e) &&
                     (!disciplineFilter || e.discipline === disciplineFilter) &&
                     (!dateFilter || e.date === dateFilter) &&
                     (!tipoFilter || e.tipo === tipoFilter) &&
