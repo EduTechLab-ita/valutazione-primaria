@@ -1400,7 +1400,7 @@
             
             <div class="form-group">
                 <label for="anno-scolastico">Anno Scolastico:</label>
-                <input type="text" id="anno-scolastico" class="school-info-input" placeholder="Es. 2024/2025">
+                <input type="text" id="anno-scolastico" class="school-info-input" placeholder="Es. 2025/26">
             </div>
             
             <div class="form-group">
@@ -5920,6 +5920,18 @@ function calculateAveragesForScrutinio() {
 
     // ========== DRIVE INTEGRATION (OAuth2 + Drive API) ==========
 
+    // Normalizza il formato anno scolastico → sempre YYYY/YY (es. 2025/26)
+    // Accetta: 25/26, 2025/26, 2025/2026, 25/2026
+    function normalizzaAnnoScolastico(s) {
+        if (!s || !s.trim()) return null;
+        const m = s.trim().match(/^(\d{2,4})[\/\-\s](\d{2,4})$/);
+        if (!m) return s.trim();
+        let a = m[1], b = m[2];
+        if (a.length === 2) a = '20' + a;
+        if (b.length === 2) b = '20' + b;
+        return a + '/' + b.slice(2); // formato YYYY/YY
+    }
+
     // ⚠️  CONFIGURAZIONE: sostituire con il Client ID reale da Google Cloud Console
     //     Vedi: https://console.cloud.google.com → Credenziali → ID client OAuth 2.0
     const DRIVE_CLIENT_ID   = '374342529488-c123a5j5v8hnfs241udbl55fos5thfq6.apps.googleusercontent.com';
@@ -6046,7 +6058,7 @@ function calculateAveragesForScrutinio() {
 
             // Ricalcola SEMPRE cartella e file (evita ID stale se l'utente ha cancellato il file)
             driveState.folderId     = await findOrCreateDriveFolder();
-            const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+            const anno = normalizzaAnnoScolastico(schoolInfo.annoScolastico) || 'Anno-non-impostato';
             driveState.yearFolderId = await findOrCreateYearFolder(anno);
             driveState.fileId       = await findDriveFile();
 
@@ -6151,7 +6163,7 @@ function calculateAveragesForScrutinio() {
         _driveVerifiedThisSession = true;
         try {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
-            const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+            const anno = normalizzaAnnoScolastico(schoolInfo.annoScolastico) || 'Anno-non-impostato';
             driveState.yearFolderId = await findOrCreateYearFolder(anno);
 
             // 1. Verifica che il fileId salvato sia ancora valido (non cancellato)
@@ -6257,7 +6269,7 @@ function calculateAveragesForScrutinio() {
         try {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
             if (!driveState.yearFolderId) {
-                const anno = (schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim()) || 'Anno-non-impostato';
+                const anno = normalizzaAnnoScolastico(schoolInfo.annoScolastico) || 'Anno-non-impostato';
                 driveState.yearFolderId = await findOrCreateYearFolder(anno);
             }
             if (!driveState.fileId) driveState.fileId = await findDriveFile();
@@ -6362,7 +6374,7 @@ function calculateAveragesForScrutinio() {
         }
         const anno = schoolInfo.annoScolastico && schoolInfo.annoScolastico.trim();
         if (!anno || anno === 'Anno-non-impostato') {
-            alert('⚠️ Imposta l\'Anno Scolastico nelle Impostazioni prima di procedere.\nEsempio: 2024/2025');
+            alert('⚠️ Imposta l\'Anno Scolastico nelle Impostazioni prima di procedere.\nEsempio: 2025/26');
             return;
         }
         document.getElementById('fine-anno-anno1').textContent = anno;
