@@ -5972,7 +5972,8 @@ function calculateAveragesForScrutinio() {
             label.textContent = 'Drive ⚠️';
         } else if (driveState.enabled && driveState.accessToken) {
             btn.classList.add('connected');
-            label.textContent = 'Drive ✓';
+            const userName = driveState.userEmail ? driveState.userEmail.split('@')[0] : 'Drive';
+            label.textContent = userName + ' ✓';
             updateDriveAnnoLabel();
         } else {
             label.textContent = 'Drive';
