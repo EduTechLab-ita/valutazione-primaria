@@ -1,7 +1,5 @@
-const CACHE_NAME = 'valutazione-primaria-v1';
+const CACHE_NAME = 'valutazione-primaria-v2';
 const urlsToCache = [
-  './',
-  './index.html',
   './manifest.json',
   './icons/icon-72x72.png',
   './icons/icon-96x96.png',
@@ -33,6 +31,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Non intercettare mai sw.js, index.html o root — devono sempre venire dal server
+  if (url.pathname.endsWith('sw.js') ||
+      url.pathname.endsWith('index.html') ||
+      url.pathname.endsWith('/')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) return response;
