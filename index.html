@@ -1169,6 +1169,22 @@
             gap: 15px;
         }
 
+        /* Stili badge livello medie — schermo (anteprima modal) */
+        .print-averages-level {
+            text-align: center;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            min-width: 100px;
+        }
+        .print-averages-level.ottimo         { background-color: #b45309; color: white; }
+        .print-averages-level.distinto       { background-color: #7c3aed; color: white; }
+        .print-averages-level.buono          { background-color: #1d4ed8; color: white; }
+        .print-averages-level.discreto       { background-color: #3b82f6; color: white; }
+        .print-averages-level.sufficiente    { background-color: #16a34a; color: white; }
+        .print-averages-level.non-sufficiente { background-color: #dc2626; color: white; }
+
         /* Stili per la stampa delle medie */
         @media print {
             .print-averages-content {
@@ -1959,6 +1975,9 @@
             
             <button type="button" onclick="resetFilters()">
                 <i class="fas fa-undo"></i> Reset Filtri
+            </button>
+            <button type="button" id="btn-delete-verifica" onclick="deleteVerifica()" style="background-color: var(--danger-color); display: none;">
+                <i class="fas fa-trash-alt"></i> Elimina verifica
             </button>
         </div>
         
@@ -4112,6 +4131,11 @@ function calculateAveragesForScrutinio() {
             // Aggiorna i filtri per data e descrizione (a cascata)
             updateDateFilter();
             updateDescriptionFilterCascade();
+
+            // Mostra/nascondi pulsante "Elimina verifica" (visibile solo se filtro descrizione attivo)
+            const descVal = document.getElementById('filter-description').value;
+            const btnDel = document.getElementById('btn-delete-verifica');
+            if (btnDel) btnDel.style.display = descVal ? 'inline-flex' : 'none';
         }
         
         // Funzione per ripristinare il voto originale
@@ -4615,10 +4639,35 @@ function calculateAveragesForScrutinio() {
                 localStorage.setItem('evaluations', JSON.stringify(evaluations));
                 updateHistoryTable();
                 updateStudentsFilter();
-                
+
                 // Aggiorna le medie
                 calculateAveragesForScrutinio();
             }
+        }
+
+        // Elimina tutte le valutazioni di una verifica intera (filtrata per descrizione)
+        function deleteVerifica() {
+            const descVal = document.getElementById('filter-description').value;
+            if (!descVal) return;
+
+            const discVal = document.getElementById('filter-discipline').value;
+            const toDelete = evaluations.filter(e =>
+                e.description === descVal &&
+                (!discVal || e.discipline === discVal)
+            );
+
+            if (toDelete.length === 0) return;
+
+            const discLabel = discVal ? ` (${discVal})` : '';
+            if (!confirm(`Sei sicuro di voler eliminare tutte le ${toDelete.length} valutazioni per "${descVal}"${discLabel}?\n\nQuesta operazione non può essere annullata.`)) return;
+
+            const idsToDelete = new Set(toDelete.map(e => e.id));
+            evaluations = evaluations.filter(e => !idsToDelete.has(e.id));
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            updateHistoryTable();
+            updateStudentsFilter();
+            calculateAveragesForScrutinio();
+            syncToDrive();
         }
         
         // Funzione per aprire il modal di modifica voto
@@ -5144,7 +5193,7 @@ function calculateAveragesForScrutinio() {
                         <td style="text-align: center;">${studentEvaluations.length}</td>
                         <td style="text-align: center;">${finalWeightedAverage}</td>
                         <td style="text-align: center;">
-                            <span class="print-averages-level ${finalLevel.levelName.toLowerCase()}">${finalLevel.levelName.toUpperCase()}</span>
+                            <span class="print-averages-level ${finalLevel.cssClass}">${finalLevel.levelName.toUpperCase()}</span>
                         </td>
                     `;
 
