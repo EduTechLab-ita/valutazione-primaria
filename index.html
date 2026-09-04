@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valutazione Verifiche Scuola Primaria</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./lib/css/all.min.css">
     <style>
         /* Base styles with modern variables */
         :root {
@@ -1255,8 +1255,8 @@
     </style>
 
 <!-- html2pdf.js library for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="./lib/html2pdf.bundle.min.js"></script>
+<script src="./lib/chart.umd.min.js"></script>
 <style>
 /* Modal styles */
 #printPreviewModal {
@@ -1344,6 +1344,37 @@
         opacity: 1;
     }
     .drive-toast i { font-size: 1rem; color: #34d399; }
+
+    /* Avviso di lavoro non salvato — deve interrompere, non decorare */
+    .barra-non-salvato {
+        display: none;
+        position: sticky;
+        top: 0;
+        z-index: 10000;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: #b91c1c;
+        color: #fff;
+        padding: 12px 20px;
+        font-size: 0.92rem;
+        line-height: 1.4;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .barra-non-salvato i { font-size: 1.15rem; flex-shrink: 0; }
+    .barra-non-salvato span { flex: 1; min-width: 220px; }
+    .barra-non-salvato button {
+        background: #fff;
+        color: #b91c1c;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .barra-non-salvato button:disabled { opacity: 0.6; cursor: default; }
 </style>
 
 <!-- PWA Manifest and Meta Tags -->
@@ -1365,6 +1396,41 @@
 
 </head>
 <body>
+    <!-- Avviso di lavoro non salvato sul Drive -->
+    <div id="barra-non-salvato" class="barra-non-salvato no-print">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span><strong>Le ultime modifiche non sono salvate sul Drive.</strong>
+              Non chiudere questa scheda: quello che scrivi ora andrebbe perso.</span>
+        <button id="barra-non-salvato-btn" type="button" onclick="riprovaSalvataggio()">Riprova ora</button>
+    </div>
+
+    <!-- Invito a collegare il Drive, all'ingresso -->
+    <div id="invito-drive-modal" class="modal-overlay no-print" style="display: none;">
+        <div class="modal-content" style="max-width: 520px; text-align: center;">
+            <div style="font-size: 2.6rem; margin-bottom: 8px;">☁️</div>
+            <h2 style="margin: 0 0 14px;">Collega Google Drive per iniziare</h2>
+            <p style="text-align: left; line-height: 1.6; margin-bottom: 14px;">
+                Le valutazioni vengono salvate <strong>sul Drive della tua scuola</strong>,
+                non su questo computer. È così che restano al sicuro e le ritrovi da
+                qualsiasi postazione.
+            </p>
+            <p style="text-align: left; line-height: 1.6; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 14px; border-radius: 6px; margin-bottom: 22px;">
+                <strong>Se non colleghi il Drive</strong>, quello che scrivi resta solo in
+                questa scheda del browser e <strong>va perso quando la chiudi</strong>.
+            </p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="collegaDriveDaInvito()"
+                        style="background-color: var(--primary-color); color: white; padding: 13px 26px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 1rem;">
+                    <i class="fab fa-google-drive"></i> Collega Google Drive
+                </button>
+                <button type="button" onclick="chiudiInvitoDrive()"
+                        style="background: none; color: #6b7280; padding: 13px 18px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;">
+                    Continua senza collegare
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Drive Save Toast -->
     <div id="drive-toast" class="drive-toast no-print">
         <i class="fas fa-check-circle"></i>
@@ -2239,7 +2305,7 @@
 
     <!-- Firma aggiunta -->
     <div class="footer-signature no-print">
-        Powered by Vibe Coding © 2025 - Fabio Rizzotto edition
+        Powered by Vibe Coding © 2025 - Fabio Rizzotto edition &nbsp;·&nbsp; v3.2.0
     </div>
     
     <!-- Pulsante di chiusura dell'app -->
@@ -2700,7 +2766,7 @@
                     </div>
                     <div class="faq-item">
                         <h4>❓ Posso usare l'app senza internet?</h4>
-                        <p><strong>Sì.</strong> I dati restano disponibili nel browser anche offline. Quando torni online, l'app sincronizza automaticamente con Drive.</p>
+                        <p><strong>Meglio di no.</strong> Le valutazioni vengono salvate sul Drive della scuola, non su questo computer: senza collegamento non possono essere salvate. Se la connessione cade mentre lavori, l'app te lo segnala con una fascia rossa in alto — tieni aperta la scheda e riprova appena torna la rete.</p>
                     </div>
                 </div>
             </div>
@@ -2735,7 +2801,34 @@
             progetto: 1.0,
             altro: 1.0
         };
-        
+
+        // ── Storage: i dati degli alunni non toccano il disco ──────────────
+        // Nomi, voti e medie vivono in sessionStorage, che il browser azzera
+        // alla chiusura della scheda: su un PC di sala professori o su un
+        // Chromebook non resta nulla. Le impostazioni (scuola, pesi, stato
+        // Drive) restano in localStorage: non sono dati personali di alunni.
+        const CHIAVI_ALUNNI = ['evaluations', 'studentAverages'];
+        const store = {
+            _area(k) { return CHIAVI_ALUNNI.includes(k) ? sessionStorage : localStorage; },
+            set(k, v) { try { this._area(k).setItem(k, v); } catch(e) {} },
+            get(k)    { try { return this._area(k).getItem(k); } catch(e) { return null; } },
+            del(k)    { try { this._area(k).removeItem(k); } catch(e) {} }
+        };
+
+        // Bonifica una tantum: sposta in sessionStorage le valutazioni lasciate
+        // nel localStorage dalle versioni precedenti e le cancella dal disco.
+        (function bonificaDatiSuDisco() {
+            try {
+                const disco = window.localStorage, sessione = window.sessionStorage;
+                CHIAVI_ALUNNI.forEach(k => {
+                    const vecchio = disco.getItem(k);
+                    if (vecchio === null) return;
+                    if (sessione.getItem(k) === null) sessione.setItem(k, vecchio);
+                    disco.removeItem(k);
+                });
+            } catch(e) {}
+        })();
+
         // Funzione per aggiornare la struttura di schoolInfo
         function updateSchoolInfoStructure() {
             if (!schoolInfo.hasOwnProperty('quadrimestre')) schoolInfo.quadrimestre = '1';
@@ -2757,7 +2850,7 @@
         // Cambia il quadrimestre visualizzato e aggiorna tutto
         function setQuadrimestre(q) {
             schoolInfo.quadrimestre = q;
-            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+            store.set('schoolInfo', JSON.stringify(schoolInfo));
             // Aggiorna UI switcher
             ['1','2','all'].forEach(v => {
                 const btn = document.getElementById('qbtn-' + v);
@@ -2785,11 +2878,11 @@
             }
             const count = evaluations.length;
             evaluations.forEach(e => { e.quadrimestre = getQuadrimestre(e.date); });
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             // Auto-aggiorna il selettore al quadrimestre corrente (in base a oggi)
             const today = new Date().toISOString().split('T')[0];
             schoolInfo.quadrimestre = getQuadrimestre(today);
-            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+            store.set('schoolInfo', JSON.stringify(schoolInfo));
             updateHistoryTable();
             calculateAveragesForScrutinio();
             alert(`Fatto! ${count} verifiche ricalcolate.\nVisualizzazione impostata su: ${schoolInfo.quadrimestre === '1' ? 'Primo' : 'Secondo'} Quadrimestre.`);
@@ -2799,12 +2892,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Load data from localStorage
             try {
-                const savedEvaluations = localStorage.getItem('evaluations');
+                const savedEvaluations = store.get('evaluations');
                 if (savedEvaluations) {
                     evaluations = JSON.parse(savedEvaluations);
                 }
                 
-                const savedSchoolInfo = localStorage.getItem('schoolInfo');
+                const savedSchoolInfo = store.get('schoolInfo');
                 if (savedSchoolInfo) {
                     schoolInfo = JSON.parse(savedSchoolInfo);
                     // Assicurati che la struttura sia aggiornata
@@ -2812,7 +2905,7 @@
                 }
                 
                 // Carica i pesi salvati per le medie
-                const savedWeights = localStorage.getItem('averageWeights');
+                const savedWeights = store.get('averageWeights');
                 if (savedWeights) {
                     averageWeights = JSON.parse(savedWeights);
                     
@@ -2824,7 +2917,7 @@
                 }
                 
                 // Carica le medie salvate
-                const savedAverages = localStorage.getItem('studentAverages');
+                const savedAverages = store.get('studentAverages');
                 if (savedAverages) {
                     studentAverages = JSON.parse(savedAverages);
                 }
@@ -2886,6 +2979,11 @@
             // Calcola e visualizza le medie per lo scrutinio
             calculateAveragesForScrutinio();
 
+            // Invito al Drive: dopo che il rinnovo silenzioso ha avuto il tempo
+            // di riconnettere una sessione già autorizzata, per non mostrarlo
+            // a chi in realtà è collegato
+            setTimeout(mostraInvitoDriveSeServe, 2500);
+
             // Aggiungi gestori eventi per chiudere i modal cliccando fuori
             const modals = document.querySelectorAll('.modal-overlay');
             modals.forEach(modal => {
@@ -2946,7 +3044,7 @@
             };
             
             // Salva i pesi nel localStorage
-            localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+            store.set('averageWeights', JSON.stringify(averageWeights));
             
             // Ricalcola le medie con i nuovi pesi
             calculateAveragesForScrutinio();
@@ -3028,7 +3126,7 @@ function calculateAveragesForScrutinio() {
                 modificationNote: studentAverages[key]?.modificationNote || '',
                 evaluationsCount: studentEvaluations.length
             };
-            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+            store.set('studentAverages', JSON.stringify(studentAverages));
 
             const finalValue = studentAverages[key].modified ? studentAverages[key].modifiedValue : wAvg;
             const finalLevel = studentAverages[key].modified ?
@@ -3089,7 +3187,7 @@ function calculateAveragesForScrutinio() {
             studentAverages[averageKey].modificationNote = '';
             
             // Salvare nel localStorage
-            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+            store.set('studentAverages', JSON.stringify(studentAverages));
             
             // Aggiornare la visualizzazione
             calculateAveragesForScrutinio();
@@ -3163,7 +3261,7 @@ function calculateAveragesForScrutinio() {
             studentAverages[averageKey].modificationNote = document.getElementById('edit-average-note').value;
             
             // Salva nel localStorage
-            localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+            store.set('studentAverages', JSON.stringify(studentAverages));
             
             // Chiudi il modal
             closeEditAverageModal();
@@ -3323,7 +3421,7 @@ function calculateAveragesForScrutinio() {
                             // Assicurati che ci sia il quadrimestre
                             updateSchoolInfoStructure();
                             
-                            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                            store.set('schoolInfo', JSON.stringify(schoolInfo));
                             
                             // Update school info fields in the modal
                             document.getElementById('istituto').value = schoolInfo.istituto || '';
@@ -3348,7 +3446,7 @@ function calculateAveragesForScrutinio() {
                                     annoScolastico: importedData.annoScolastico || '',
                                     quadrimestre: importedData.quadrimestre || '1'
                                 };
-                                localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                                store.set('schoolInfo', JSON.stringify(schoolInfo));
                                 
                                 // Update school info fields in the modal
                                 document.getElementById('istituto').value = schoolInfo.istituto || '';
@@ -3366,7 +3464,7 @@ function calculateAveragesForScrutinio() {
                         if (importedData.evaluations && Array.isArray(importedData.evaluations) && importedData.evaluations.length > 0) {
                             if (confirm(`Il file contiene anche ${importedData.evaluations.length} valutazioni. Vuoi importarle?`)) {
                                 evaluations = importedData.evaluations;
-                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                store.set('evaluations', JSON.stringify(evaluations));
                                 syncToDrive();
                                 alert('Valutazioni importate con successo!');
                             }
@@ -3413,7 +3511,7 @@ function calculateAveragesForScrutinio() {
             }
             
             // Save to localStorage
-            localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+            store.set('schoolInfo', JSON.stringify(schoolInfo));
             
             // Hide modal
             document.getElementById('school-info-modal').style.display = 'none';
@@ -3425,8 +3523,33 @@ function calculateAveragesForScrutinio() {
 
             // Ricalcola le medie per il nuovo quadrimestre
             calculateAveragesForScrutinio();
+
+            // Ora che il modal scuola è chiuso, l'invito al Drive può comparire
+            mostraInvitoDriveSeServe();
         }
         
+        // ── Invito a collegare il Drive ────────────────────────────────────
+        // Va all'ingresso, non come avviso che si può scorrere via: qui in
+        // gioco non c'è un file da rifare, sono le valutazioni di un
+        // quadrimestre. Non compare sopra il modal dei dati scuola.
+        function mostraInvitoDriveSeServe() {
+            if (driveState.enabled) return;
+            const modalScuola = document.getElementById('school-info-modal');
+            if (modalScuola && modalScuola.style.display === 'flex') return;
+            const invito = document.getElementById('invito-drive-modal');
+            if (invito) invito.style.display = 'flex';
+        }
+
+        function chiudiInvitoDrive() {
+            const invito = document.getElementById('invito-drive-modal');
+            if (invito) invito.style.display = 'none';
+        }
+
+        function collegaDriveDaInvito() {
+            chiudiInvitoDrive();
+            connectToDrive();
+        }
+
         // Update subtitle with school info
         function updateSchoolInfoSubtitle() {
             const subtitleElement = document.getElementById('school-info-subtitle');
@@ -3633,7 +3756,7 @@ function calculateAveragesForScrutinio() {
             };
 
             evaluations.push(evaluation);
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
 
             alert('Valutazione salvata con successo!');
 
@@ -3994,7 +4117,7 @@ function calculateAveragesForScrutinio() {
             });
             
             // Save to localStorage
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             
             // Show feedback
             alert(`Salvate ${results.length} valutazioni con successo!`);
@@ -4199,7 +4322,7 @@ function calculateAveragesForScrutinio() {
             evaluations[evaluationIndex].levelClass = levelClass;
             
             // Salva su localStorage
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             
             // Feedback
             alert('Voto originale ripristinato con successo');
@@ -4558,7 +4681,7 @@ function calculateAveragesForScrutinio() {
             });
 
             // Salva
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             syncToDrive();
 
             // Aggiorna UI
@@ -4607,7 +4730,7 @@ function calculateAveragesForScrutinio() {
             if (!confirm(`Rinominare ${count} valutazioni da:\n"${from}"\na:\n"${to}"?\n\nL'operazione non è reversibile.`)) return;
             const newName = normalizeToTitleCase(to);
             evaluations.forEach(e => { if (e.studentName === from) e.studentName = newName; });
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             syncToDrive();
             updateHistoryTable();
             updateStudentsFilter();
@@ -4636,7 +4759,7 @@ function calculateAveragesForScrutinio() {
         function deleteEvaluation(id) {
             if (confirm('Sei sicuro di voler eliminare questa valutazione?')) {
                 evaluations = evaluations.filter(e => e.id !== id);
-                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                store.set('evaluations', JSON.stringify(evaluations));
                 updateHistoryTable();
                 updateStudentsFilter();
 
@@ -4663,7 +4786,7 @@ function calculateAveragesForScrutinio() {
 
             const idsToDelete = new Set(toDelete.map(e => e.id));
             evaluations = evaluations.filter(e => !idsToDelete.has(e.id));
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             updateHistoryTable();
             updateStudentsFilter();
             calculateAveragesForScrutinio();
@@ -4761,7 +4884,7 @@ function calculateAveragesForScrutinio() {
             evaluations[evaluationIndex].levelClass = levelClass;
             
             // Save to localStorage e Drive
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            store.set('evaluations', JSON.stringify(evaluations));
             syncToDrive();
 
             // Close modal
@@ -4887,7 +5010,7 @@ function calculateAveragesForScrutinio() {
                                 });
                                 
                                 evaluations = importedEvaluations;
-                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                store.set('evaluations', JSON.stringify(evaluations));
                                 
                                 // Also import school info if present
                                 if (importedData.schoolInfo) {
@@ -4895,7 +5018,7 @@ function calculateAveragesForScrutinio() {
                                         schoolInfo = importedData.schoolInfo;
                                         // Assicurati che ci sia il quadrimestre
                                         updateSchoolInfoStructure();
-                                        localStorage.setItem('schoolInfo', JSON.stringify(schoolInfo));
+                                        store.set('schoolInfo', JSON.stringify(schoolInfo));
                                         updateSchoolInfoSubtitle();
                                     }
                                 }
@@ -4904,7 +5027,7 @@ function calculateAveragesForScrutinio() {
                                 if (importedData.averageWeights) {
                                     if (confirm('Il file contiene anche pesi per le medie. Vuoi importarli?')) {
                                         averageWeights = importedData.averageWeights;
-                                        localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
+                                        store.set('averageWeights', JSON.stringify(averageWeights));
                                         
                                         // Update weight input fields
                                         document.getElementById('peso-compito').value = averageWeights.compito;
@@ -4918,7 +5041,7 @@ function calculateAveragesForScrutinio() {
                                 if (importedData.studentAverages) {
                                     if (confirm('Il file contiene anche medie salvate. Vuoi importarle?')) {
                                         studentAverages = importedData.studentAverages;
-                                        localStorage.setItem('studentAverages', JSON.stringify(studentAverages));
+                                        store.set('studentAverages', JSON.stringify(studentAverages));
                                     }
                                 }
                                 
@@ -4945,7 +5068,7 @@ function calculateAveragesForScrutinio() {
                                 });
 
                                 evaluations = importedEvaluations;
-                                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                                store.set('evaluations', JSON.stringify(evaluations));
                                 updateHistoryTable();
                                 updateStudentsFilter();
                                 calculateAveragesForScrutinio();
@@ -5019,15 +5142,16 @@ function calculateAveragesForScrutinio() {
                 // Drive connesso: i dati sono al sicuro
                 const msg = "✅ I tuoi dati sono al sicuro su Google Drive.\n\n" +
                     (evaluations.length > 0 ? "Valutazioni salvate: " + evaluations.length + "\n\n" : "") +
-                    "💡 Se stai usando un PC condiviso, clicca 'Annulla' e usa il pulsante Drive → Disconnetti " +
-                    "per rimuovere i dati anche dalla cache del browser.\n\n" +
+                    "Chiudendo, le valutazioni vengono rimosse da questo computer: " +
+                    "le ritrovi al prossimo collegamento al Drive.\n\n" +
                     "Vuoi uscire?";
                 if (confirm(msg)) closeApp();
 
             } else if (hasData && !driveState.enabled) {
-                // Drive NON connesso: dati solo in locale
+                // Drive NON connesso: il lavoro vive solo in questa scheda
                 const msg = "⚠️ ATTENZIONE\n\n" +
-                    "Non sei collegato a Google Drive. I tuoi dati sono salvati solo in questo browser.\n\n" +
+                    "Non sei collegato a Google Drive: quello che hai scritto vive solo in questa " +
+                    "scheda del browser e ANDRÀ PERSO chiudendola.\n\n" +
                     "Vuoi esportare i dati in JSON prima di uscire?";
                 if (confirm(msg)) {
                     exportToJSON();
@@ -6000,23 +6124,87 @@ function calculateAveragesForScrutinio() {
     };
 
     // ── Carica stato all'avvio ─────────────────────────────────────────────
+    // Il token di accesso NON va sul disco: è la chiave che apre il Drive
+    // della collega, e su un PC condiviso resterebbe a disposizione di chi
+    // si siede dopo. Vive in sessionStorage insieme ai dati che protegge.
     function loadDriveConfig() {
         try {
-            const saved = localStorage.getItem('driveState_v2');
+            const saved = window.localStorage.getItem('driveState_v2');
             if (saved) driveState = Object.assign(driveState, JSON.parse(saved));
+            const sessione = window.sessionStorage.getItem('driveToken');
+            if (sessione) {
+                const t = JSON.parse(sessione);
+                driveState.accessToken = t.accessToken;
+                driveState.tokenExpiry = t.tokenExpiry;
+            } else {
+                driveState.accessToken = null;
+                driveState.tokenExpiry = 0;
+            }
         } catch(e) {}
         updateDriveButton();
         // Se era connesso e il token è ancora valido, migra (se necessario) e ricarica
         if (driveState.enabled && driveState.accessToken && Date.now() < driveState.tokenExpiry - 30000) {
+            programmaRinnovoToken();
             runMigrationIfNeeded().then(() => syncFromDrive(false));
         } else if (driveState.enabled) {
-            // Token scaduto: prova rinnovo silenzioso
+            // Token assente o scaduto: prova rinnovo silenzioso
             trySilentAuth();
         }
     }
 
     function saveDriveState() {
-        localStorage.setItem('driveState_v2', JSON.stringify(driveState));
+        const { accessToken, tokenExpiry, ...suDisco } = driveState;
+        window.localStorage.setItem('driveState_v2', JSON.stringify(suDisco));
+        try {
+            if (accessToken) {
+                window.sessionStorage.setItem('driveToken', JSON.stringify({ accessToken, tokenExpiry }));
+            } else {
+                window.sessionStorage.removeItem('driveToken');
+            }
+        } catch(e) {}
+    }
+
+    // ── Rinnovo del token PRIMA che scada ─────────────────────────────────
+    // Uno scrutinio dura più di un'ora, il token vale un'ora: senza questo
+    // timer la maestra continua a lavorare mentre i salvataggi falliscono.
+    let _timerRinnovoToken = null;
+    function programmaRinnovoToken() {
+        clearTimeout(_timerRinnovoToken);
+        if (!driveState.enabled || !driveState.tokenExpiry) return;
+        const anticipo = 5 * 60 * 1000;
+        const attesa = Math.max(driveState.tokenExpiry - Date.now() - anticipo, 1000);
+        _timerRinnovoToken = setTimeout(() => { rinnovaToken(); }, attesa);
+    }
+
+    // Rinnova il token senza disturbare l'utente. Risolve true/false, non lancia.
+    function rinnovaToken() {
+        return new Promise((resolve) => {
+            if (!driveState.enabled) { resolve(false); return; }
+            if (typeof google === 'undefined' || !google.accounts) { resolve(false); return; }
+            let concluso = false;
+            const chiudi = (esito) => { if (!concluso) { concluso = true; resolve(esito); } };
+            // Se GIS non richiama mai la callback (popup bloccato, rete assente)
+            // la promise resterebbe appesa e il salvataggio non finirebbe mai.
+            setTimeout(() => chiudi(false), 15000);
+            try {
+                const client = google.accounts.oauth2.initTokenClient({
+                    client_id: DRIVE_CLIENT_ID,
+                    scope: DRIVE_SCOPE,
+                    prompt: '',
+                    callback: (r) => {
+                        if (r && r.access_token) {
+                            driveState.accessToken = r.access_token;
+                            driveState.tokenExpiry = Date.now() + (r.expires_in * 1000);
+                            saveDriveState();
+                            programmaRinnovoToken();
+                            chiudi(true);
+                        } else chiudi(false);
+                    },
+                    error_callback: () => chiudi(false)
+                });
+                client.requestAccessToken({ prompt: '' });
+            } catch(e) { chiudi(false); }
+        });
     }
 
     // ── Aggiorna pulsante Drive nell'header ───────────────────────────────
@@ -6063,6 +6251,7 @@ function calculateAveragesForScrutinio() {
                 driveState.tokenExpiry = Date.now() + (tokenResponse.expires_in * 1000);
                 driveState.enabled     = true;
                 saveDriveState();
+                programmaRinnovoToken();
                 updateDriveButton('syncing');
                 initDriveConnection();
             }
@@ -6088,6 +6277,7 @@ function calculateAveragesForScrutinio() {
                     driveState.accessToken = tokenResponse.access_token;
                     driveState.tokenExpiry = Date.now() + (tokenResponse.expires_in * 1000);
                     saveDriveState();
+                    programmaRinnovoToken();
                     updateDriveButton('connected');
                     runMigrationIfNeeded().then(() => syncFromDrive(false));
                 } else {
@@ -6268,10 +6458,10 @@ function calculateAveragesForScrutinio() {
                 if (data.schoolInfo)      schoolInfo     = data.schoolInfo;
                 if (data.averageWeights)  averageWeights = data.averageWeights;
                 if (data.studentAverages) studentAverages= data.studentAverages;
-                localStorage.setItem('evaluations',    JSON.stringify(evaluations));
-                localStorage.setItem('schoolInfo',     JSON.stringify(schoolInfo));
-                localStorage.setItem('averageWeights', JSON.stringify(averageWeights));
-                localStorage.setItem('studentAverages',JSON.stringify(studentAverages));
+                store.set('evaluations',    JSON.stringify(evaluations));
+                store.set('schoolInfo',     JSON.stringify(schoolInfo));
+                store.set('averageWeights', JSON.stringify(averageWeights));
+                store.set('studentAverages',JSON.stringify(studentAverages));
                 updateHistoryTable();
                 updateStudentsFilter();
                 updateStudentDatalist();
@@ -6315,8 +6505,15 @@ function calculateAveragesForScrutinio() {
 
     // ── Scrive i dati su Drive (chiamata dopo ogni salvataggio) ───────────
     async function syncToDrive() {
-        if (!driveState.enabled || !driveState.accessToken) return;
-        if (Date.now() > driveState.tokenExpiry) { updateDriveButton('error'); return; }
+        if (!driveState.enabled) return;
+
+        // Token mancante o in scadenza: rinnova PRIMA di scrivere, non dopo
+        // aver fallito. Se il rinnovo non riesce, l'utente deve saperlo:
+        // uscire in silenzio significa lasciarla lavorare a vuoto per un'ora.
+        if (!driveState.accessToken || Date.now() > driveState.tokenExpiry - 30000) {
+            const rinnovato = await rinnovaToken();
+            if (!rinnovato) { segnalaSalvataggioFallito(); return; }
+        }
 
         updateDriveButton('syncing');
         const payload = JSON.stringify({
@@ -6324,7 +6521,7 @@ function calculateAveragesForScrutinio() {
             lastSync: new Date().toISOString()
         });
 
-        try {
+        const scrivi = async () => {
             if (!driveState.folderId) driveState.folderId = await findOrCreateDriveFolder();
             if (!driveState.yearFolderId) {
                 const anno = normalizzaAnnoScolastico(schoolInfo.annoScolastico) || 'Anno-non-impostato';
@@ -6361,12 +6558,47 @@ function calculateAveragesForScrutinio() {
             if (!resp.ok) throw new Error('Scrittura Drive fallita (' + resp.status + ')');
             const result = await resp.json();
             if (!driveState.fileId) driveState.fileId = result.id;
+        };
+
+        try {
+            try {
+                await scrivi();
+            } catch(err) {
+                // Token invalidato a metà lavoro: rinnova e riprova una volta sola
+                if (/\b(401|403)\b/.test(err.message || '')) {
+                    if (!await rinnovaToken()) throw err;
+                    await scrivi();
+                } else throw err;
+            }
             saveDriveState();  // salva sempre: persiste yearFolderId anche quando fileId era già noto
             updateDriveButton('connected');
+            salvataggioRiuscito();
             showDriveSavedToast();
         } catch(err) {
-            updateDriveButton('error');
+            segnalaSalvataggioFallito();
         }
+    }
+
+    // ── Avviso di lavoro non salvato ──────────────────────────────────────
+    // Il pulsantino "Drive ⚠️" nell'header non lo nota nessuno. Quando un
+    // salvataggio fallisce la maestra deve vederlo mentre lavora, perché da
+    // quel momento quello che scrive vive solo nella scheda aperta.
+    function segnalaSalvataggioFallito() {
+        updateDriveButton('error');
+        const barra = document.getElementById('barra-non-salvato');
+        if (barra) barra.style.display = 'flex';
+    }
+
+    function salvataggioRiuscito() {
+        const barra = document.getElementById('barra-non-salvato');
+        if (barra) barra.style.display = 'none';
+    }
+
+    async function riprovaSalvataggio() {
+        const btn = document.getElementById('barra-non-salvato-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Riprovo…'; }
+        await syncToDrive();
+        if (btn) { btn.disabled = false; btn.textContent = 'Riprova ora'; }
     }
 
     // ── Disconnetti Drive ─────────────────────────────────────────────────
@@ -6377,10 +6609,13 @@ function calculateAveragesForScrutinio() {
         }
         // Pulisce le valutazioni dalla cache locale per privacy (utile su PC condivisi)
         evaluations = [];
-        localStorage.removeItem('evaluations');
-        localStorage.removeItem('studentAverages');
-        driveState = { enabled: false, accessToken: null, tokenExpiry: 0, fileId: null, folderId: null, userEmail: '' };
+        studentAverages = {};
+        store.del('evaluations');
+        store.del('studentAverages');
+        clearTimeout(_timerRinnovoToken);
+        driveState = { enabled: false, accessToken: null, tokenExpiry: 0, fileId: null, folderId: null, yearFolderId: null, userEmail: '' };
         saveDriveState();
+        salvataggioRiuscito();
         updateDriveButton();
         showDrivePanel('connect');
     }
@@ -6484,8 +6719,8 @@ function calculateAveragesForScrutinio() {
             // 3. Pulisci dati locali e prepara per nuovo anno
             evaluations = [];
             studentAverages = {};
-            localStorage.removeItem('evaluations');
-            localStorage.removeItem('studentAverages');
+            store.del('evaluations');
+            store.del('studentAverages');
 
             // 4. Reset Drive state per nuovo anno
             driveState.fileId       = null;
@@ -6678,7 +6913,7 @@ function calculateAveragesForScrutinio() {
             modified: isModified
         };
 
-        localStorage.setItem('evaluations', JSON.stringify(evaluations));
+        store.set('evaluations', JSON.stringify(evaluations));
         syncToDrive();
         updateHistoryTable();
         calculateAveragesForScrutinio();
@@ -6702,8 +6937,8 @@ function calculateAveragesForScrutinio() {
     });
     // Conferma definitiva cancellazione storico verifiche
     document.getElementById('confirm-clear').addEventListener('click', function() {
-        localStorage.removeItem('evaluations');
-        localStorage.removeItem('studentAverages');
+        store.del('evaluations');
+        store.del('studentAverages');
         // Aggiungi altre chiavi di storico se necessario
         location.reload();
     });
